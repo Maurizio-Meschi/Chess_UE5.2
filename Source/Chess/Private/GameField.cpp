@@ -8,7 +8,7 @@ AGameField::AGameField()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	// size of the field (3x3)
-	Size = 4;
+	Size = 8;
 	// tile dimension
 	TileSize = 120;
 	// tile padding dimension
@@ -31,19 +31,36 @@ void AGameField::BeginPlay()
 
 void AGameField::GenerateField()
 {
+	int32 k = 0;
 	for (int32 x = 0; x < Size; x++)
 	{
-		for (int32 y = 0; y < Size; y++)
+		for (int32 y = 0; y < Size; y += 2)
 		{
-			FVector Location = AGameField::GetRelativeLocationByXYPosition(x, y);
-			ATile* Obj = GetWorld()->SpawnActor<ATile>(TileClass, Location, FRotator::ZeroRotator);
-			const float TileScale = TileSize / 100;
-			Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
-			Obj->SetGridPosition(x, y);
-			TileArray.Add(Obj);
-			TileMap.Add(FVector2D(x, y), Obj);
+			k = y + 1;
+
+			if (x % 2)
+			{
+				GenerateTile(x, y, TileClass1);
+				GenerateTile(x, k, TileClass2);
+			}
+			else
+			{
+				GenerateTile(x, k, TileClass1);
+				GenerateTile(x, y, TileClass2);
+			}
 		}
 	}
+}
+
+void AGameField::GenerateTile(int32 x, int32 y, TSubclassOf<ATile> TileClass)
+{
+	FVector Location = AGameField::GetRelativeLocationByXYPosition(x, y);
+	ATile* Obj = GetWorld()->SpawnActor<ATile>(TileClass, Location, FRotator::ZeroRotator);
+	const float TileScale = TileSize / 100;
+	Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
+	Obj->SetGridPosition(x, y);
+	TileArray.Add(Obj);
+	TileMap.Add(FVector2D(x, y), Obj);
 }
 
 FVector2D AGameField::GetPosition(const FHitResult& Hit)

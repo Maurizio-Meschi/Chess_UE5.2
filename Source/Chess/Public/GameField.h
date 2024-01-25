@@ -36,7 +36,10 @@ public:
 
 	// TSubclassOf template class that provides UClass type safety
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ATile> TileClass;
+	TSubclassOf<ATile> TileClass1;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ATile> TileClass2;
 
 	// tile padding dimension
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -57,6 +60,8 @@ public:
 
 	// generate an empty game field
 	void GenerateField();
+
+	void GenerateTile(int32 x, int32 y, TSubclassOf<ATile> TileClass);
 
 	// return a (x,y) position given a hit (click) on a field tile
 	FVector2D GetPosition(const FHitResult& Hit);
