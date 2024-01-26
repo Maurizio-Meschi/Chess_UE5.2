@@ -41,6 +41,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ATile> TileClass2;
 
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TSubclassOf<ATile>> ChessPieces;
+
 	// tile padding dimension
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float CellPadding;
@@ -61,7 +64,8 @@ public:
 	// generate an empty game field
 	void GenerateField();
 
-	void GenerateTile(int32 x, int32 y, TSubclassOf<ATile> TileClass);
+	// Generrate the tile in x,y coordinates
+	void GenerateTileInXYPosition(int32 x, int32 y, TSubclassOf<ATile> TileClass);
 
 	// return a (x,y) position given a hit (click) on a field tile
 	FVector2D GetPosition(const FHitResult& Hit);

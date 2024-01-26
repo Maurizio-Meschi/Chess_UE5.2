@@ -13,6 +13,8 @@ AGameField::AGameField()
 	TileSize = 120;
 	// tile padding dimension
 	CellPadding = 5;
+
+	ChessPieces.SetNum(32);
 }
 
 void AGameField::OnConstruction(const FTransform& Transform)
@@ -31,31 +33,55 @@ void AGameField::BeginPlay()
 
 void AGameField::GenerateField()
 {
-	int32 k = 0;
 	for (int32 x = 0; x < Size; x++)
 	{
 		for (int32 y = 0; y < Size; y += 2)
 		{
-			k = y + 1;
-
+			// In each row the order in which the tiles are generated is exchanged
 			if (x % 2)
 			{
-				GenerateTile(x, y, TileClass1);
-				GenerateTile(x, k, TileClass2);
+				// Generate the first tile
+				GenerateTileInXYPosition(x, y, TileClass1);
+				// Generate the second tile
+				GenerateTileInXYPosition(x, y+1, TileClass2);
 			}
 			else
 			{
-				GenerateTile(x, k, TileClass1);
-				GenerateTile(x, y, TileClass2);
+				GenerateTileInXYPosition(x, y+1, TileClass1);
+				GenerateTileInXYPosition(x, y, TileClass2);
 			}
 		}
 	}
+
+	int k = 0;
+	int row = 0;
+	for (int32 x = 0; x < 2; x++) 
+	{
+		for (int32 y = 0; y < 8; y++)
+		{
+			k = y + row;
+			GenerateTileInXYPosition(x, y, ChessPieces[k]);
+		}
+		row = 8;
+	}
+
+	k = 0;
+	row = 16;
+	for (int32 x = 6; x < 8; x++)
+	{
+		for (int32 y = 0; y < 8; y++)
+		{
+			k = y + row;
+			GenerateTileInXYPosition(x, y, ChessPieces[k]);
+		}
+		row = 24;
+	}
 }
 
-void AGameField::GenerateTile(int32 x, int32 y, TSubclassOf<ATile> TileClass)
+void AGameField::GenerateTileInXYPosition(int32 x, int32 y, TSubclassOf<ATile> TileClass)
 {
 	FVector Location = AGameField::GetRelativeLocationByXYPosition(x, y);
-	ATile* Obj = GetWorld()->SpawnActor<ATile>(TileClass, Location, FRotator::ZeroRotator);
+	ATile* Obj = GetWorld()->SpawnActor<ATile>(TileClass, Location, FRotator(0.0f, 90.0f, 0.0f));
 	const float TileScale = TileSize / 100;
 	Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
 	Obj->SetGridPosition(x, y);
