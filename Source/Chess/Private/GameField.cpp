@@ -43,11 +43,11 @@ void AGameField::GenerateField()
 				// Generate the first tile
 				GenerateTileInXYPosition(x, y, TileClass1);
 				// Generate the second tile
-				GenerateTileInXYPosition(x, y+1, TileClass2);
+				GenerateTileInXYPosition(x, y + 1, TileClass2);
 			}
 			else
 			{
-				GenerateTileInXYPosition(x, y+1, TileClass1);
+				GenerateTileInXYPosition(x, y + 1, TileClass1);
 				GenerateTileInXYPosition(x, y, TileClass2);
 			}
 		}
