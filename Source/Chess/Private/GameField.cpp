@@ -53,28 +53,30 @@ void AGameField::GenerateField()
 		}
 	}
 
+	// Spawn chess pieces human player
 	int k = 0;
-	int row = 0;
-	for (int32 x = 0; x < 2; x++) 
+	int normalized_row = 0;
+	for (int32 x = 0; x < SECOND_ROW_FIELD; x++)
 	{
 		for (int32 y = 0; y < 8; y++)
 		{
-			k = y + row;
+			k = y + normalized_row;
 			GenerateTileInXYPosition(x, y, ChessPieces[k]);
 		}
-		row = 8;
+		normalized_row = 8;
 	}
 
+	// Spawn chess pieces bot palyer
 	k = 0;
-	row = 16;
-	for (int32 x = 6; x < 8; x++)
+	normalized_row = 16;
+	for (int32 x = PENULTIMATE_ROW_FIELD; x < LAST_ROW_FIELD; x++)
 	{
 		for (int32 y = 0; y < 8; y++)
 		{
-			k = y + row;
+			k = y + normalized_row;
 			GenerateTileInXYPosition(x, y, ChessPieces[k]);
 		}
-		row = 24;
+		normalized_row = 24;
 	}
 }
 

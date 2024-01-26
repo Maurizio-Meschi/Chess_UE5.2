@@ -12,6 +12,10 @@ class CHESS_API AGameField : public AActor
 {
 	GENERATED_BODY()
 
+	static constexpr int SECOND_ROW_FIELD = 2;
+	static constexpr int PENULTIMATE_ROW_FIELD = 6;
+	static constexpr int LAST_ROW_FIELD = 8;
+
 public:
 	UPROPERTY(Transient)
 	TArray<ATile*> TileArray;
