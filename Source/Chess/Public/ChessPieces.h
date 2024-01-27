@@ -29,5 +29,118 @@ public:
 	void SetGridPosition(const double InX, const double InY);
 
 	UFUNCTION()
-	void PiecesDestroy();
+	void PieceDestroy();
+};
+
+UCLASS()
+class CHESS_API ARook : public AChessPieces
+{
+	GENERATED_BODY()
+public:
+	ARook();
+
+	// every piece has a value
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 Value;
+
+	// defines the movements of the piece
+	bool LegalMove();
+
+	// defines what happens when the piece is captured
+	void Capture();
+};
+
+UCLASS()
+class CHESS_API AKnight : public AChessPieces
+{
+	GENERATED_BODY()
+
+public:
+	AKnight();
+
+	// every piece has a value
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 Value;
+
+	// defines the movements of the piece
+	bool LegalMove();
+
+	// defines what happens when the piece is captured
+	void Capture();
+};
+
+UCLASS()
+class CHESS_API ABishop : public AChessPieces
+{
+	GENERATED_BODY()
+
+public:
+	ABishop();
+
+	// every piece has a value
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 Value;
+
+	// defines the movements of the piece
+	bool LegalMove();
+
+	// defines what happens when the piece is captured
+	void Capture();
+};
+
+UCLASS()
+class CHESS_API AQueen : public AChessPieces
+{
+	GENERATED_BODY()
+
+public:
+	AQueen();
+
+	// every piece has a value
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 Value;
+
+	// defines the movements of the piece
+	bool LegalMove();
+
+	// defines what happens when the piece is captured
+	void Capture();
+};
+
+UCLASS()
+class CHESS_API AKing : public AChessPieces
+{
+	GENERATED_BODY()
+
+public:
+	AKing();
+
+	// every piece has a value
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 Value;
+
+	// defines the movements of the piece
+	bool LegalMove();
+
+	// defines what happens when the piece is captured
+	void Capture();
+};
+
+UCLASS()
+class CHESS_API AChessPawn : public AChessPieces
+{
+	GENERATED_BODY()
+
+public:
+	AChessPawn();
+
+	// every piece has a value
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 Value;
+
+	// defines the movements of the piece
+	bool LegalMove();
+
+	// defines what happens when the piece is captured
+	void Capture();
 };
