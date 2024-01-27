@@ -16,6 +16,7 @@ class CHESS_API AGameField : public AActor
 	static constexpr int SECOND_ROW_FIELD = 2;
 	static constexpr int PENULTIMATE_ROW_FIELD = 6;
 	static constexpr int LAST_ROW_FIELD = 8;
+	//static constexpr const char* PIECETYPE[]{ "Rook", "Knight", "Bishop", "Queen", "king", "Bishop", "Knight", "Rook"};
 
 public:
 	UPROPERTY(Transient)

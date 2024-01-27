@@ -13,7 +13,7 @@ AGameField::AGameField()
 	TileSize = 120;
 	// tile padding dimension
 	CellPadding = 5;
-
+	// number of pieces in the game
 	ChessPieces.SetNum(32);
 }
 
@@ -56,6 +56,7 @@ void AGameField::GenerateField()
 	// Spawn chess pieces human player
 	int k = 0;
 	int normalized_row = 0;
+
 	for (int32 x = 0; x < SECOND_ROW_FIELD; x++)
 	{
 		for (int32 y = 0; y < 8; y++)

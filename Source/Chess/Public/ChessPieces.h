@@ -30,5 +30,4 @@ public:
 
 	UFUNCTION()
 	void PiecesDestroy();
-
 };
