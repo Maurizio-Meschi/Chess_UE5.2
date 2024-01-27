@@ -61,7 +61,7 @@ void AGameField::GenerateField()
 		for (int32 y = 0; y < 8; y++)
 		{
 			k = y + normalized_row;
-			GenerateTileInXYPosition(x, y, ChessPieces[k]);
+			GenerateChessPieceInXYPosition(x, y, ChessPieces[k]);
 		}
 		normalized_row = 8;
 	}
@@ -74,7 +74,7 @@ void AGameField::GenerateField()
 		for (int32 y = 0; y < 8; y++)
 		{
 			k = y + normalized_row;
-			GenerateTileInXYPosition(x, y, ChessPieces[k]);
+			GenerateChessPieceInXYPosition(x, y, ChessPieces[k]);
 		}
 		normalized_row = 24;
 	}
@@ -89,6 +89,17 @@ void AGameField::GenerateTileInXYPosition(int32 x, int32 y, TSubclassOf<ATile> T
 	Obj->SetGridPosition(x, y);
 	TileArray.Add(Obj);
 	TileMap.Add(FVector2D(x, y), Obj);
+}
+
+void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AChessPieces> TileClass)
+{
+	FVector Location = AGameField::GetRelativeLocationByXYPosition(x, y);
+	AChessPieces* Obj = GetWorld()->SpawnActor<AChessPieces>(TileClass, Location, FRotator(0.0f, 90.0f, 0.0f));
+	const float TileScale = TileSize / 100;
+	Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
+	Obj->SetGridPosition(x, y);
+	PiecesArray.Add(Obj);
+	PiecesMap.Add(FVector2D(x, y), Obj);
 }
 
 FVector2D AGameField::GetPosition(const FHitResult& Hit)

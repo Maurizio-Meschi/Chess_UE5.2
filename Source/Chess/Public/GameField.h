@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Tile.h"
+#include "ChessPieces.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameField.generated.h"
@@ -20,9 +21,15 @@ public:
 	UPROPERTY(Transient)
 	TArray<ATile*> TileArray;
 
+	UPROPERTY(Transient)
+	TArray<AChessPieces*> PiecesArray;
+
 	// Given a position returns a tile
 	UPROPERTY(Transient)
 	TMap<FVector2D, ATile*> TileMap;
+
+	UPROPERTY(Transient)
+	TMap<FVector2D, AChessPieces*> PiecesMap;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float NormalizedCellPadding;
@@ -46,7 +53,7 @@ public:
 	TSubclassOf<ATile> TileClass2;
 
 	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<ATile>> ChessPieces;
+	TArray<TSubclassOf<AChessPieces>> ChessPieces;
 
 	// tile padding dimension
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -70,6 +77,8 @@ public:
 
 	// Generrate the tile in x,y coordinates
 	void GenerateTileInXYPosition(int32 x, int32 y, TSubclassOf<ATile> TileClass);
+
+	void GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AChessPieces> TileClass);
 
 	// return a (x,y) position given a hit (click) on a field tile
 	FVector2D GetPosition(const FHitResult& Hit);
