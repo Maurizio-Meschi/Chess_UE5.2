@@ -10,9 +10,14 @@ AChessPieces::AChessPieces()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+	PieceGridPosition = FVector2D(0, 0);
+
+	Color = EPieceColor::BLACK;
 }
 
 // Called when the game starts or when spawned
+
 void AChessPieces::BeginPlay()
 {
 	Super::BeginPlay();
@@ -20,7 +25,9 @@ void AChessPieces::BeginPlay()
 	//GameMode->GField->OnResetEvent.AddDynamic(this, &ABaseSign::SelfDestroy);
 }
 
+
 // Called every frame
+
 void AChessPieces::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -32,8 +39,12 @@ void AChessPieces::SetGridPosition(const double InX, const double InY)
 	PieceGridPosition.Set(InX, InY);
 }
 
-void AChessPieces::PiecesDestroy()
+void AChessPieces::SetColor(EPieceColor color)
+{
+	Color = color;
+}
+
+void AChessPieces::PieceDestroy()
 {
 	Destroy();
 }
-
