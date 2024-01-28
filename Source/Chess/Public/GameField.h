@@ -3,6 +3,12 @@
 #pragma once
 
 #include "Tile.h"
+#include "Pieces/Bishop.h"
+#include "Pieces/ChessPawn.h"
+#include "Pieces/King.h"
+#include "Pieces/Knight.h"
+#include "Pieces/Queen.h"
+#include "Pieces/Rook.h"
 #include "ChessPieces.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
