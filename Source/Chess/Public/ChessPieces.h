@@ -6,6 +6,15 @@
 #include "GameFramework/Actor.h"
 #include "ChessPieces.generated.h"
 
+class AGameField;
+
+UENUM()
+enum class EPieceColor : uint8
+{
+	BLACK     UMETA(DisplayName = "Black"),
+	WHITE     UMETA(DisplayName = "White"),
+};
+
 UCLASS()
 class CHESS_API AChessPieces : public AActor
 {
@@ -20,13 +29,27 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+	AGameField* GField;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector2D PieceGridPosition;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	EPieceColor Color;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// set chess piece position
 	void SetGridPosition(const double InX, const double InY);
+
+	// set chess piece color
+	void SetColor(EPieceColor color);
+
+	FVector2D GetGridPosition()
+	{
+		return PieceGridPosition;
+	}
 
 	UFUNCTION()
 	void PieceDestroy();
@@ -44,7 +67,7 @@ public:
 	int32 Value;
 
 	// defines the movements of the piece
-	bool LegalMove();
+	void LegalMove();
 
 	// defines what happens when the piece is captured
 	void Capture();
@@ -63,7 +86,7 @@ public:
 	int32 Value;
 
 	// defines the movements of the piece
-	bool LegalMove();
+	void LegalMove();
 
 	// defines what happens when the piece is captured
 	void Capture();
@@ -82,7 +105,7 @@ public:
 	int32 Value;
 
 	// defines the movements of the piece
-	bool LegalMove();
+	void LegalMove();
 
 	// defines what happens when the piece is captured
 	void Capture();
@@ -101,7 +124,7 @@ public:
 	int32 Value;
 
 	// defines the movements of the piece
-	bool LegalMove();
+	void LegalMove();
 
 	// defines what happens when the piece is captured
 	void Capture();
@@ -115,12 +138,8 @@ class CHESS_API AKing : public AChessPieces
 public:
 	AKing();
 
-	// every piece has a value
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 Value;
-
 	// defines the movements of the piece
-	bool LegalMove();
+	void LegalMove();
 
 	// defines what happens when the piece is captured
 	void Capture();
@@ -138,8 +157,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 Value;
 
+	// The pawn can make a different move on its first play
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 First_play;
+
 	// defines the movements of the piece
-	bool LegalMove();
+	void LegalMove();
 
 	// defines what happens when the piece is captured
 	void Capture();

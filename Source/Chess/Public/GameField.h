@@ -13,14 +13,14 @@ class CHESS_API AGameField : public AActor
 {
 	GENERATED_BODY()
 
-	static constexpr int SECOND_ROW_FIELD = 2;
-	static constexpr int PENULTIMATE_ROW_FIELD = 6;
-	static constexpr int LAST_ROW_FIELD = 8;
+	static constexpr int32 SECOND_ROW_FIELD = 2;
+	static constexpr int32 PENULTIMATE_ROW_FIELD = 6;
+	static constexpr int32 LAST_ROW_FIELD = 8;
 
 public:
 	UPROPERTY(Transient)
 	TArray<ATile*> TileArray;
-
+	
 	UPROPERTY(Transient)
 	TArray<AChessPieces*> PiecesArray;
 
@@ -107,7 +107,7 @@ public:
 	void GenerateTileInXYPosition(int32 x, int32 y, TSubclassOf<ATile> TileClass);
 
 	// Generrate the chess piece in x,y coordinates
-	void GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AChessPieces> TileClass);
+	void GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AChessPieces> TileClass, EPieceColor color);
 
 	// return a (x,y) position given a hit (click) on a field tile
 	FVector2D GetPosition(const FHitResult& Hit);

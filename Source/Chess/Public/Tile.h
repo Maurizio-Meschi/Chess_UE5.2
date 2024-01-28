@@ -10,7 +10,9 @@ UENUM()
 enum class ETileStatus : uint8
 {
 	EMPTY     UMETA(DisplayName = "Empty"),
-	OCCUPIED  UMETA(DisplayName = "Occupied"),
+	BOCCUPIED  UMETA(DisplayName = "Occupied by black piece"),
+	WOCCUPIED  UMETA(DisplayName = "Occupied by white piece"),
+	MARKED    UMETA(DisplayNmae = "Marked"),
 };
 
 UCLASS()

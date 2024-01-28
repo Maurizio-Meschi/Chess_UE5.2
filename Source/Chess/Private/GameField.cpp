@@ -65,12 +65,12 @@ void AGameField::GenerateField()
 			{
 				// generate the chess pieces in the first row
 				Type = { ChessRook[0], ChessKnight[0], ChessBishop[0], ChessQueen[0], ChessKing[0], ChessBishop[0], ChessKnight[0], ChessRook[0] };
-				GenerateChessPieceInXYPosition(x, y, Type[y]);
+				GenerateChessPieceInXYPosition(x, y, Type[y], EPieceColor::BLACK);
 			}
 			else
 			{
 				// generate the chess pieces in the second row
-				GenerateChessPieceInXYPosition(x, y, ChessPawn[0]);
+				GenerateChessPieceInXYPosition(x, y, ChessPawn[0], EPieceColor::BLACK);
 			}
 		}
 		normalized_row = 8;
@@ -88,13 +88,13 @@ void AGameField::GenerateField()
 			if (k < 24)
 			{
 				// generate the chess pieces in the first row
-				GenerateChessPieceInXYPosition(x, y, ChessPawn[1]);
+				GenerateChessPieceInXYPosition(x, y, ChessPawn[1], EPieceColor::WHITE);
 			}
 			else
 			{
 				// generate the chess pieces in the second row
 				Type = { ChessRook[1], ChessKnight[1], ChessBishop[1], ChessQueen[1], ChessKing[1], ChessBishop[1], ChessKnight[1], ChessRook[1] };
-				GenerateChessPieceInXYPosition(x, y, Type[y]);
+				GenerateChessPieceInXYPosition(x, y, Type[y], EPieceColor::WHITE);
 			}
 		}
 		normalized_row = 24;
@@ -114,13 +114,14 @@ void AGameField::GenerateTileInXYPosition(int32 x, int32 y, TSubclassOf<ATile> C
 }
 
 // generate the chess piece 
-void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AChessPieces> Class)
+void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AChessPieces> Class, EPieceColor color)
 {
 	FVector Location = AGameField::GetRelativeLocationByXYPosition(x, y);
 	AChessPieces* Obj = GetWorld()->SpawnActor<AChessPieces>(Class, Location, FRotator(0.0f, 90.0f, 0.0f));
 	const float TileScale = TileSize / 100;
 	Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
 	Obj->SetGridPosition(x, y);
+	Obj->SetColor(color);
 	PiecesArray.Add(Obj);
 	PiecesMap.Add(FVector2D(x, y), Obj);
 }
