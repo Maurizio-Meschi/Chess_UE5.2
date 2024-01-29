@@ -2,6 +2,7 @@
 
 
 #include "Chess_GameMode.h"
+#include "Chess_HumanPlayer.h"
 #include "EngineUtils.h"
 
 AChess_GameMode::AChess_GameMode()
@@ -13,11 +14,11 @@ void AChess_GameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//IsGameOver = false;
+	IsGameOver = false;
 
 	//MoveCounter = 0;
 
-	//ATTT_HumanPlayer* HumanPlayer = Cast<ATTT_HumanPlayer>(*TActorIterator<ATTT_HumanPlayer>(GetWorld()));
+	AChess_HumanPlayer* HumanPlayer = Cast<AChess_HumanPlayer>(*TActorIterator<AChess_HumanPlayer>(GetWorld()));
 
 	if (GameFieldClass != nullptr)
 	{
@@ -31,10 +32,9 @@ void AChess_GameMode::BeginPlay()
 
 	float CameraPosX = ((GField->TileSize * (FieldSize + ((FieldSize - 1) * GField->NormalizedCellPadding) - (FieldSize - 1))) / 2) - (GField->TileSize / 2);
 	FVector CameraPos(CameraPosX, CameraPosX, 1000.0f);
-	//HumanPlayer->SetActorLocationAndRotation(CameraPos, FRotationMatrix::MakeFromX(FVector(0, 0, -1)).Rotator());
+	HumanPlayer->SetActorLocationAndRotation(CameraPos, FRotationMatrix::MakeFromX(FVector(0, 0, -1)).Rotator());
 
-	// Human player = 0
-	//Players.Add(HumanPlayer);
+	Players.Add(HumanPlayer);
 	// Random Player
 	//auto* AI = GetWorld()->SpawnActor<ATTT_RandomPlayer>(FVector(), FRotator());
 

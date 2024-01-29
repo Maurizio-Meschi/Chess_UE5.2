@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Chess_PlayerInterface.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameField.h"
 #include "Chess_GameMode.generated.h"
@@ -17,10 +18,10 @@ class CHESS_API AChess_GameMode : public AGameModeBase
 
 public:
 	// tracks if the game is over
-	//bool IsGameOver;
+	bool IsGameOver;
 	// array of player interfaces
-	//TArray<IChess_PlayerInterface*> Players;
-	//int32 CurrentPlayer;
+	TArray<IChess_PlayerInterface*> Players;
+	int32 CurrentPlayer;
 	// tracks the number of moves in order to signal a drawn game
 	//int32 MoveCounter;
 

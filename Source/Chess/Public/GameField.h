@@ -88,7 +88,6 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<AChessPawn>> ChessPawn;
 
-
 	// tile padding dimension
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float CellPadding;
