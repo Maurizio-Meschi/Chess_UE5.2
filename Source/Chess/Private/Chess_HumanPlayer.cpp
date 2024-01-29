@@ -4,8 +4,8 @@
 #include "GameField.h"
 #include "Chess_GameMode.h"
 #include "Components/InputComponent.h"
-//#include "EnhancedInputComponent.h"
-//#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 
 // Called when the game starts or when spawned
 void AChess_HumanPlayer::BeginPlay()

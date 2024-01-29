@@ -37,6 +37,42 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	AGameField* GField;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AChessPieces> B_Rook;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AChessPieces> B_Knight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AChessPieces> B_Bishop;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AChessPieces> B_Queen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AChessPieces> B_King;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AChessPieces> B_Pawn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AChessPieces> W_Rook;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AChessPieces> W_Knight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AChessPieces> W_Bishop;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AChessPieces> W_Queen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AChessPieces> W_King;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AChessPieces> W_Pawn;
+
 	AChess_GameMode();
 
 	// Called when the game starts or when spawned
