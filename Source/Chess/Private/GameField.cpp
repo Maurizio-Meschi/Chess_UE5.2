@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameField.h"
+#include "Chess_GameMode.h"
 
 // Sets default values
 AGameField::AGameField()
@@ -105,7 +106,7 @@ void AGameField::GenerateField()
 void AGameField::GenerateTileInXYPosition(int32 x, int32 y, TSubclassOf<ATile> Class)
 {
 	FVector Location = AGameField::GetRelativeLocationByXYPosition(x, y);
-	ATile* Obj = GetWorld()->SpawnActor<ATile>(Class, Location, FRotator(0.0f, 90.0f, 0.0f));
+	ATile* Obj = GetWorld()->SpawnActor<ATile>(Class, Location, FRotator(0.0f, 0.0f, 0.0f));
 	const float TileScale = TileSize / 100;
 	Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
 	Obj->SetGridPosition(x, y);
