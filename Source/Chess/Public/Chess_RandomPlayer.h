@@ -6,30 +6,24 @@
 #include "GameFramework/Pawn.h"
 #include "Chess_PlayerInterface.h"
 //#include "Chess_GameInstance.h"
-#include "Camera/CameraComponent.h"
+#include "Chess_GameMode.h"
 #include "Kismet/GameplayStatics.h"
-#include "Chess_HumanPlayer.generated.h"
-
-class UChess_PlayerInterface;
+#include "Chess_RandomPlayer.generated.h"
 
 UCLASS()
-class CHESS_API AChess_HumanPlayer : public APawn, public IChess_PlayerInterface
+class CHESS_API AChess_RandomPlayer : public APawn, public IChess_PlayerInterface
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this pawn's properties
-	AChess_HumanPlayer();
-
-	UCameraComponent* Camera;
+	AChess_RandomPlayer();
 
 	//UChess_GameInstance* GameInstance;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	bool MyTurn = false;
 
 public:	
 	// Called every frame
@@ -41,8 +35,4 @@ public:
 	virtual void OnTurn() override;
 	virtual void OnWin() override;
 	virtual void OnLose() override;
-
-	// called on left mouse click (binding)
-	UFUNCTION()
-	void OnClick();
 };

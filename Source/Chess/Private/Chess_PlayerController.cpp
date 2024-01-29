@@ -16,7 +16,7 @@ void AChess_PlayerController::BeginPlay()
 
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
-		Subsystem->AddMappingContext(TTTContext, 0);
+		Subsystem->AddMappingContext(ChessContext, 0);
 	}
 }
 

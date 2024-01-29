@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameField.h"
+#include "Chess_GameMode.h"
 
 // Sets default values
 AGameField::AGameField()

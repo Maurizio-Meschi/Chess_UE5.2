@@ -37,6 +37,9 @@ AChess_HumanPlayer::AChess_HumanPlayer()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	//set the camera as RootComponent
 	SetRootComponent(Camera);
+
+	//GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
 	//default value
 	PlayerNumber = -1;
 	PieceColor = EPieceColor::BLACK;
@@ -63,6 +66,7 @@ void AChess_HumanPlayer::OnLose()
 
 void AChess_HumanPlayer::OnClick()
 {
+	/*
 	//Structure containing information about one hit of a trace, such as point of impact and surface normal at that point
 	FHitResult Hit = FHitResult(ForceInit);
 	// GetHitResultUnderCursor function sends a ray from the mouse position and gives the corresponding hit results
@@ -82,8 +86,7 @@ void AChess_HumanPlayer::OnClick()
 			}
 		}
 	}
-
-
+	*/
 
 }
 

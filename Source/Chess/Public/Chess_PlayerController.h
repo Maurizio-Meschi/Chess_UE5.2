@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Chess_HumanPlayer.h"
+#include "Kismet/GameplayStatics.h"
 #include "InputActionValue.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -22,7 +23,7 @@ public:
 	AChess_PlayerController();
 
 	UPROPERTY(EditAnywhere, Category = Input)
-	UInputMappingContext* TTTContext;
+	UInputMappingContext* ChessContext;
 
 
 	UPROPERTY(EditAnywhere, Category = Input)

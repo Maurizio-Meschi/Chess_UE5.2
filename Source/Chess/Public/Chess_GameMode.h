@@ -6,6 +6,7 @@
 #include "Chess_PlayerInterface.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameField.h"
+#include "Chess_PlayerController.h"
 #include "Chess_GameMode.generated.h"
 
 /**
@@ -37,6 +38,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	AGameField* GField;
 
+	/*
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AChessPieces> B_Rook;
 
@@ -72,6 +74,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AChessPieces> W_Pawn;
+	*/
 
 	AChess_GameMode();
 
@@ -79,7 +82,7 @@ public:
 	virtual void BeginPlay() override;
 
 	// called at the start of the game
-	//void ChoosePlayerAndStartGame();
+	void ChoosePlayerAndStartGame();
 
 	// set the cell sign and the position 
 	//void SetCellSign(const int32 PlayerNumber, const FVector& SpawnPosition);
