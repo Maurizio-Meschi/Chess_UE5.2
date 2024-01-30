@@ -33,6 +33,7 @@ void AChess_PlayerController::SetupInputComponent()
 
 void AChess_PlayerController::ClickOnGrid()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Click in controller!"));
 	const auto HumanPlayer = Cast<AChess_HumanPlayer>(GetPawn());
 	if (IsValid(HumanPlayer))
 	{

@@ -23,6 +23,18 @@ public:
 
 	UCameraComponent* Camera;
 
+	UPROPERTY(VisibleAnywhere)
+	bool PieceChoose;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UClass* PieceToSpawn;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	AChessPieces* PieceToRemove;
+
+	TArray<FString> Actor{ "BP_b_Rook_C", "BP_b_Knight_C", "BP_b_Bishop_C", "BP_b_Queen_C", "BP_b_Pawn_C", "BP_b_King_C" };
+	TArray<FString> TileActorArray{ "BP_TileBlack_C", "BP_TileWhite_C" };
+
 	//UChess_GameInstance* GameInstance;
 
 protected:
@@ -45,4 +57,6 @@ public:
 	// called on left mouse click (binding)
 	UFUNCTION()
 	void OnClick();
+	//UNFUCTION()
+	//void OnTileClick();
 };

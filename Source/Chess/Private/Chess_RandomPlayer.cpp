@@ -37,6 +37,7 @@ void AChess_RandomPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 void AChess_RandomPlayer::OnTurn()
 {
+	//UE_LOG(LogTemp, Warning, TEXT("Turno bot!"));
 	/*
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AI (Random) Turn"));
 	//GameInstance->SetTurnMessage(TEXT("AI (Random) Turn"));

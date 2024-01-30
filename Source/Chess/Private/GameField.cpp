@@ -132,7 +132,7 @@ FVector2D AGameField::GetPosition(const FHitResult& Hit)
 	return Cast<ATile>(Hit.GetActor())->GetGridPosition();
 }
 
-TArray<ATile*>& AGameField::GetTileArray()
+TArray<ATile*> AGameField::GetTileArray()
 {
 	return TileArray;
 }

@@ -3,10 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Tile.h"
+//#include "Chess_GameMode.h"
 #include "GameFramework/Actor.h"
 #include "ChessPieces.generated.h"
 
 class AGameField;
+class AChess_GameMode;
 
 UENUM()
 enum class EPieceColor : uint8
@@ -29,7 +32,11 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	AGameField* GField;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AChess_GameMode> GameModeClass;
+
+	UPROPERTY(VisibleAnywhere)
+	AChess_GameMode* GMode;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector2D PieceGridPosition;
@@ -37,8 +44,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EPieceColor Color;
 
+	// Vector with tile marked
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<ATile*> TileMarked;
+
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	//virtual void Tick(float DeltaTime) override;
 
 	// set chess piece position
 	void SetGridPosition(const double InX, const double InY);
@@ -46,10 +57,15 @@ public:
 	// set chess piece color
 	void SetColor(EPieceColor color);
 
+	// 
+	void ResetTileMarked();
+
 	FVector2D GetGridPosition()
 	{
 		return PieceGridPosition;
 	}
+
+	virtual void LegalMove() {};
 
 	UFUNCTION()
 	void PieceDestroy();

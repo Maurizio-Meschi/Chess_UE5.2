@@ -14,6 +14,7 @@
 #include "GameFramework/Actor.h"
 #include "GameField.generated.h"
 
+
 UCLASS()
 class CHESS_API AGameField : public AActor
 {
@@ -118,7 +119,7 @@ public:
 	FVector2D GetPosition(const FHitResult& Hit);
 
 	// return the array of tile pointers
-	TArray<ATile*>& GetTileArray();
+	TArray<ATile*> GetTileArray();
 
 	// return the array of chess piece pointers
 	TArray<AChessPieces*>& GetPiecesArray();

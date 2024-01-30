@@ -38,43 +38,23 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	AGameField* GField;
 
-	/*
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<AChessPieces> B_Rook;
+	TArray<TSubclassOf<AChessPieces>> Rook;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<AChessPieces> B_Knight;
+	TArray<TSubclassOf<AChessPieces>> Knight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<AChessPieces> B_Bishop;
+	TArray<TSubclassOf<AChessPieces>> Bishop;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<AChessPieces> B_Queen;
+	TArray<TSubclassOf<AChessPieces>> Queen;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<AChessPieces> B_King;
+	TArray<TSubclassOf<AChessPieces>> King;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<AChessPieces> B_Pawn;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<AChessPieces> W_Rook;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<AChessPieces> W_Knight;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<AChessPieces> W_Bishop;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<AChessPieces> W_Queen;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<AChessPieces> W_King;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<AChessPieces> W_Pawn;
-	*/
+	TArray<TSubclassOf<AChessPieces>> Pawn;
 
 	AChess_GameMode();
 
@@ -84,13 +64,53 @@ public:
 	// called at the start of the game
 	void ChoosePlayerAndStartGame();
 
-	// set the cell sign and the position 
-	//void SetCellSign(const int32 PlayerNumber, const FVector& SpawnPosition);
+	// set the cell where place the chess piece
+	// I need the new position to place the piece and the old position to remove the piece that is moving
+	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, UClass* PieceToSpawn, FVector2D NewCoordToSpawnPiece, AChessPieces* PieceToRemove);
 
 	// get the next player index
-	//int32 GetNextPlayer(int32 Player);
+	int32 GetNextPlayer(int32 Player);
 
 	// called at the end of the game turn
-	//void TurnNextPlayer();
+	void TurnNextPlayer();
 	
 };
+
+
+/*
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<AChessPieces>> B_Rook;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<AChessPieces>> B_Knight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<AChessPieces>> B_Bishop;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<AChessPieces>> B_Queen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<AChessPieces>> B_King;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<AChessPieces>> B_Pawn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<AChessPieces>> W_Rook;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<AChessPieces>> W_Knight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<AChessPieces>> W_Bishop;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<AChessPieces>> W_Queen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<AChessPieces>> W_King;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<AChessPieces>> W_Pawn;
+	*/

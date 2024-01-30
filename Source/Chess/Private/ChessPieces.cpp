@@ -3,6 +3,7 @@
 
 #include "ChessPieces.h"
 #include "GameField.h"
+#include "Tile.h"
 #include "Chess_GameMode.h"
 
 // Sets default values
@@ -27,12 +28,13 @@ void AChessPieces::BeginPlay()
 
 
 // Called every frame
-
+/*
 void AChessPieces::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
+*/
 
 void AChessPieces::SetGridPosition(const double InX, const double InY)
 {
@@ -42,6 +44,11 @@ void AChessPieces::SetGridPosition(const double InX, const double InY)
 void AChessPieces::SetColor(EPieceColor color)
 {
 	Color = color;
+}
+
+void AChessPieces::ResetTileMarked()
+{
+	TileMarked.Empty();
 }
 
 void AChessPieces::PieceDestroy()

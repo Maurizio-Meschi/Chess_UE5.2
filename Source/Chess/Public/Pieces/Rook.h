@@ -19,7 +19,7 @@ public:
 	int32 Value;
 
 	// defines the movements of the piece
-	void LegalMove();
+	void LegalMove() override;
 
 	// defines what happens when the piece is captured
 	void Capture();
