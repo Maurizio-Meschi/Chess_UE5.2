@@ -79,26 +79,17 @@ void AChess_GameMode::ChoosePlayerAndStartGame()
 	Players[CurrentPlayer]->OnTurn();
 }
 
-void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, UClass* PieceToSpawn, FVector2D NewCoordToSpawnPiece, AChessPieces* PieceToRemove)
+void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord)
 {
 	if (IsGameOver || PlayerNumber != CurrentPlayer)
 	{
 		return;
 	}
-	
+
 	FVector NewLocation = GField->GetActorLocation() + SpawnPosition;
-	//PieceToRemove->SetGridPosition(NewCoordToSpawnPiece[0], NewCoordToSpawnPiece[1]);
-	//GetWorld()->SpawnActor(PieceToRemove, &NewLocation);
-	
-	//int32 IndexElementToRemove = GField->PiecesArray.Find(PieceToRemove);
-	//GField->PiecesArray[IndexElementToRemove]->Destroy();
-	//GField->PiecesMap.Remove(FVector2D(PieceToRemove->GetGridPosition()[0], PieceToRemove->GetGridPosition()[1]));
-	//GetWorld()->RemoveActor(PieceToRemove, true);
-	//AChessPieces* PieceInNewPosition = Cast<AChessPieces>(GetWorld()->SpawnActor(PieceToSpawn, &NewLocation));
-	//PieceInNewPosition->SetActorRotation(FRotator(0.0f, 90.0f, 0.0f));
-	//PieceInNewPosition->SetGridPosition(NewCoordToSpawnPiece[0], NewCoordToSpawnPiece[1]);
-	//GField->PiecesArray.Add(PieceInNewPosition);
-	//GField->PiecesMap.Add(FVector2D(NewCoordToSpawnPiece[0], NewCoordToSpawnPiece[1]), Cast<AChessPieces>(PieceToSpawn));
+	//Piece->Destroy();
+	Piece->SetGridPosition(Coord[0], Coord[1]);
+	Piece->SetActorLocation(NewLocation);
 	//TODO: win case
 
 	TurnNextPlayer();

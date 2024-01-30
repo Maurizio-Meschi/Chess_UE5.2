@@ -25,7 +25,7 @@ void AChessPawn::LegalMove()
 
 	if (GameModeClass != nullptr)
 	{
-		GMode = GetWorld()->SpawnActor<AChess_GameMode>(GameModeClass);
+		GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	}
 	else
 	{

@@ -22,7 +22,7 @@ AChessPieces::AChessPieces()
 void AChessPieces::BeginPlay()
 {
 	Super::BeginPlay();
-	AChess_GameMode* GameMOde = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
+	AChess_GameMode* GameMOde = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	//GameMode->GField->OnResetEvent.AddDynamic(this, &ABaseSign::SelfDestroy);
 }
 

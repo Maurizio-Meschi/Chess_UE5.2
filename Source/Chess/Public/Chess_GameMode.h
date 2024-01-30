@@ -38,24 +38,6 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	AGameField* GField;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> Rook;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> Knight;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> Bishop;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> Queen;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> King;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> Pawn;
-
 	AChess_GameMode();
 
 	// Called when the game starts or when spawned
@@ -66,7 +48,7 @@ public:
 
 	// set the cell where place the chess piece
 	// I need the new position to place the piece and the old position to remove the piece that is moving
-	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, UClass* PieceToSpawn, FVector2D NewCoordToSpawnPiece, AChessPieces* PieceToRemove);
+	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord);
 
 	// get the next player index
 	int32 GetNextPlayer(int32 Player);

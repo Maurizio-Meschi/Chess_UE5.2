@@ -27,10 +27,7 @@ public:
 	bool PieceChoose;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UClass* PieceToSpawn;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	AChessPieces* PieceToRemove;
+	AChessPieces* CurrPiece;
 
 	TArray<FString> Actor{ "BP_b_Rook_C", "BP_b_Knight_C", "BP_b_Bishop_C", "BP_b_Queen_C", "BP_b_Pawn_C", "BP_b_King_C" };
 	TArray<FString> TileActorArray{ "BP_TileBlack_C", "BP_TileWhite_C" };
@@ -53,6 +50,9 @@ public:
 	virtual void OnTurn() override;
 	virtual void OnWin() override;
 	virtual void OnLose() override;
+
+	bool FindPiece(FString ClassName);
+	bool FindTile(FString ClassName);
 
 	// called on left mouse click (binding)
 	UFUNCTION()

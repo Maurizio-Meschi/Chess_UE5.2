@@ -46,8 +46,7 @@ AChess_HumanPlayer::AChess_HumanPlayer()
 	PlayerNumber = -1;
 	PieceColor = EPieceColor::BLACK;
 	PieceChoose = false;
-	PieceToSpawn = nullptr;
-	PieceToRemove = nullptr;
+	CurrPiece = nullptr;
 }
 
 void AChess_HumanPlayer::OnTurn()
@@ -85,17 +84,8 @@ void AChess_HumanPlayer::OnClick()
 			// First Hit must be a Chess Piece
 			if (PieceChoose)
 			{
-				bool Element_found = false;
-				for (int32 i = 0; i < 2; i++)
-				{
-					if (ClassName == TileActorArray[i])
-					{
-						Element_found = true;
-						break;
-					}
-				}
 				//Equals(TEXT(TileActor[i]), ESearchCase::IgnoreCase)
-				if (Element_found)
+				if (FindTile(ClassName))
 				{
 					ATile* TileActor = Cast<ATile>(HitActor);
 					if (TileActor->GetTileStatus() == ETileStatus::MARKED)
@@ -104,10 +94,10 @@ void AChess_HumanPlayer::OnClick()
 						TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 						FVector SpawnPosition = TileActor->GetActorLocation();
 						AChess_GameMode* GameMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
-						if (PieceToSpawn == nullptr || PieceToRemove == nullptr)
+						if (CurrPiece == nullptr)
 							UE_LOG(LogTemp, Error, TEXT("PieceToSpawn or PieceToMove cannot be null"));
 						FVector2D Coord = TileActor->GetGridPosition();
-						GameMode->MovePiece(PlayerNumber, SpawnPosition, PieceToSpawn, Coord, PieceToRemove);
+						GameMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
 						MyTurn = false;
 						return;
 					}
@@ -115,32 +105,23 @@ void AChess_HumanPlayer::OnClick()
 			}
 			else
 			{
-				bool Element_found = false;
-				for (int32 i = 0; i < 6; i++)
+				
+				if (FindPiece(ClassName))
 				{
-					if (ClassName == Actor[i])
-					{
-						Element_found = true;
-						break;
-					}
-				}
-				if (Element_found)
-				{
-					PieceToRemove = Cast<AChessPieces>(HitActor);
-					PieceToSpawn = HitActor->GetClass();
+					CurrPiece = Cast<AChessPieces>(HitActor);
 					// If Chess Piece is white means it is enemy piece
-					if (PieceToRemove->Color == EPieceColor::WHITE)
+					if (CurrPiece->Color == EPieceColor::WHITE)
 					{
 						return;
 					}
 					else
 					{
-						PieceToRemove->ResetTileMarked();
+						CurrPiece->ResetTileMarked();
 						UE_LOG(LogTemp, Warning, TEXT("Call Legal Move!"));
-						PieceToRemove->LegalMove();
+						CurrPiece->LegalMove();
 						PieceChoose = true;
-						if (PieceToRemove->TileMarked.Num() == 0) return;
-						for (int32 k = 0; k < PieceToRemove->TileMarked.Num(); k++) {
+						if (CurrPiece->TileMarked.Num() == 0) return;
+						for (int32 k = 0; k < CurrPiece->TileMarked.Num(); k++) {
 							// TODO: applicare il materiale che mi rende giocabile la pedina
 						}
 						return;
@@ -151,6 +132,34 @@ void AChess_HumanPlayer::OnClick()
 		}
 
 	}
+}
+
+bool AChess_HumanPlayer::FindPiece(FString ClassName)
+{
+	bool Element_found = false;
+	for (int32 i = 0; i < 6; i++)
+	{
+		if (ClassName == Actor[i])
+		{
+			Element_found = true;
+			break;
+		}
+	}
+	return Element_found;
+}
+
+bool AChess_HumanPlayer::FindTile(FString ClassName)
+{
+	bool Element_found = false;
+	for (int32 i = 0; i < 2; i++)
+	{
+		if (ClassName == TileActorArray[i])
+		{
+			Element_found = true;
+			break;
+		}
+	}
+	return Element_found;
 }
 
 
