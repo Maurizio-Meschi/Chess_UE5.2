@@ -163,6 +163,19 @@ FVector2D AGameField::GetXYPositionByRelativeLocation(const FVector& Location) c
 	return FVector2D(x, y);
 }
 
+void AGameField::ResetTileMarked()
+{
+	for (int32 i = 0; i < TileMarked.Num(); i++)
+	{
+		if (TileMarked[i]->GetTileStatus() == ETileStatus::MARKED)
+			TileMarked[i]->SetTileStatus(-1, ETileStatus::EMPTY);
+
+		if (TileMarked[i]->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
+			TileMarked[i]->SetTileStatus(1, ETileStatus::OCCUPIED);
+	}
+	TileMarked.Empty();
+}
+
 inline bool AGameField::IsValidPosition(const FVector2D Position) const
 {
 	return 0 <= Position[0] && Position[0] < Size && 0 <= Position[1] && Position[1] < Size;

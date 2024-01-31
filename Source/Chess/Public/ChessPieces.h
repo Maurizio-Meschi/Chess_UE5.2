@@ -44,10 +44,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EPieceColor Color;
 
-	// Vector with tile marked
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TArray<ATile*> TileMarked;
-
 	// Called every frame
 	//virtual void Tick(float DeltaTime) override;
 
@@ -59,8 +55,6 @@ public:
 
 	// checks if the coordinates are part of the board
 	bool CheckCoord(int32 x, int32 y);
-	// 
-	void ResetTileMarked();
 
 	FVector2D GetGridPosition()
 	{

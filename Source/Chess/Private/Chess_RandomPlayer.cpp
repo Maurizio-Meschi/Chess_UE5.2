@@ -50,9 +50,13 @@ void AChess_RandomPlayer::OnTurn()
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 		{
 			AChess_GameMode* GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
-			TArray<AChessPieces*> PiecesArray = GMode->GField->BotPieces;
+			AGameField* Field = GMode->GField;
+			TArray<AChessPieces*> PiecesArray = Field->BotPieces;
 			bool PieceIsPossibleToMove = false;
 			int32 RIndex;
+			Field->ResetTileMarked();
+
+			UE_LOG(LogTemp, Error, TEXT("Sono un bott!!"));
 
 			do{
 				// select random piece
@@ -61,33 +65,34 @@ void AChess_RandomPlayer::OnTurn()
 				// check the possible move
 				CurrPiece->LegalMove(PlayerNumber, false);
 
-				if (CurrPiece->TileMarked.Num() == 0)
+				if (Field->TileMarked.Num() == 0)
 					continue;
 
 				PieceIsPossibleToMove = true;
 
 				// select the marked tile to move
-				int32 RIndexToMovePiece = FMath::Rand() % CurrPiece->TileMarked.Num();
+				int32 RIndexToMovePiece = FMath::Rand() % Field->TileMarked.Num();
 
 				// take the tile where move the piece
-				ATile* TileActor = CurrPiece->TileMarked[RIndexToMovePiece];
+				ATile* TileActor = Field->TileMarked[RIndexToMovePiece];
 				FVector SpawnPosition = TileActor->GetActorLocation();
 
-				AChess_GameMode* GameMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
-
 				FVector2D Coord = TileActor->GetGridPosition();
+
+				UE_LOG(LogTemp, Error, TEXT("E il momento di giocare!!"));
+
 				// check if possible to capture an enemy piece
 				if (TileActor->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
 				{
 					TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
-					AChessPieces* PieceToCapture = GMode->GField->PiecesMap[(Coord)];
-					GameMode->CapturePiece(PieceToCapture, Coord);
+					AChessPieces* PieceToCapture = Field->PiecesMap[(Coord)];
+					GMode->CapturePiece(PieceToCapture, Coord);
 				}
 				TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 				// Before moving the piece, set the current tile to be empty
-				GMode->GField->TileMap[FVector2D(CurrPiece->GetGridPosition()[0], CurrPiece->GetGridPosition()[1])]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+				Field->TileMap[FVector2D(CurrPiece->GetGridPosition()[0], CurrPiece->GetGridPosition()[1])]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 
-				GameMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
+				GMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
 
 			} while (!PieceIsPossibleToMove);
 

@@ -88,7 +88,6 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 	FVector NewLocation = GField->GetActorLocation() + SpawnPosition;
 	GField->PiecesMap.Remove(FVector2D(Piece->GetGridPosition()[0], Piece->GetGridPosition()[0]));
 	Piece->SetGridPosition(Coord[0], Coord[1]);
-	//GField->PiecesMap.Add(FVector2D(Coord[0], Coord[1]), Piece);
 	GField->PiecesMap.Add(Coord, Piece);
 	Piece->SetActorLocation(NewLocation);
 	//TODO: win case

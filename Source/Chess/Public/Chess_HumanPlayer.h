@@ -29,9 +29,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	AChessPieces* CurrPiece;
 
-	TArray<FString> Actor{ "BP_b_Rook_C", "BP_b_Knight_C", "BP_b_Bishop_C", "BP_b_Queen_C", "BP_b_Pawn_C", "BP_b_King_C" };
-	TArray<FString> EnemyActor{ "BP_w_Rook_C", "BP_w_Knight_C", "BP_w_Bishop_C", "BP_w_Queen_C", "BP_w_Pawn_C", "BP_w_King_C" };
-	TArray<FString> TileActorArray{ "BP_TileBlack_C", "BP_TileWhite_C" };
+	const TArray<FString> ACTOR{ "BP_b_Rook_C", "BP_b_Knight_C", "BP_b_Bishop_C", "BP_b_Queen_C", "BP_b_Pawn_C", "BP_b_King_C" };
+	const TArray<FString> ENEMY_ACTOR{ "BP_w_Rook_C", "BP_w_Knight_C", "BP_w_Bishop_C", "BP_w_Queen_C", "BP_w_Pawn_C", "BP_w_King_C" };
+	const TArray<FString> TILE_ACTOR_ARRAY{ "BP_TileBlack_C", "BP_TileWhite_C" };
 
 	//UChess_GameInstance* GameInstance;
 
@@ -55,6 +55,12 @@ public:
 	bool FindPiece(FString ClassName);
 	bool FindTile(FString ClassName);
 	bool FindPieceToCapture(FString ClassName);
+
+	void ManageClickTile(AActor* HitActor, FString ClassName);
+	void ManageClickPiece(AActor* HitActor, FString ClassName);
+
+	void ManageMovingInEmptyTile(ATile* TileActor);
+	void ManageCaptureInEnemyTile(ATile* EnemyTile);
 
 	// called on left mouse click (binding)
 	UFUNCTION()

@@ -50,11 +50,6 @@ void AChessPieces::SetColor(EPieceColor color)
 	Color = color;
 }
 
-void AChessPieces::ResetTileMarked()
-{
-	TileMarked.Empty();
-}
-
 void AChessPieces::PieceDestroy()
 {
 	Destroy();

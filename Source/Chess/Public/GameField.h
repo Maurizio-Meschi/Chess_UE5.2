@@ -34,6 +34,10 @@ public:
 	UPROPERTY(Transient)
 	TArray<AChessPieces*> BotPieces;
 
+	// Vector with tile marked
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<ATile*> TileMarked;
+
 	// Given a position returns a tile
 	UPROPERTY(Transient)
 	TMap<FVector2D, ATile*> TileMap;
@@ -113,6 +117,9 @@ public:
 
 	// return (x,y) position given a relative position
 	FVector2D GetXYPositionByRelativeLocation(const FVector& Location) const;
+
+	// 
+	void ResetTileMarked();
 
 	// checking if is a valid field position
 	inline bool IsValidPosition(const FVector2D Position) const;
