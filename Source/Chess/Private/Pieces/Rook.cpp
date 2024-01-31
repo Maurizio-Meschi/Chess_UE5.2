@@ -9,7 +9,7 @@ ARook::ARook()
 	Value = 5;
 }
 
-void ARook::LegalMove()
+void ARook::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 {
 	
 }

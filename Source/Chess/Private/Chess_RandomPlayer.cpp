@@ -2,6 +2,9 @@
 
 
 #include "Chess_RandomPlayer.h"
+#include "ChessPieces.h"
+#include "GameField.h"
+#include "Tile.h"
 
 // Sets default values
 AChess_RandomPlayer::AChess_RandomPlayer()
@@ -38,7 +41,7 @@ void AChess_RandomPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 void AChess_RandomPlayer::OnTurn()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Turno bot!"));
-	/*
+	
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AI (Random) Turn"));
 	//GameInstance->SetTurnMessage(TEXT("AI (Random) Turn"));
 
@@ -46,27 +49,30 @@ void AChess_RandomPlayer::OnTurn()
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 		{
-			TArray<ATile*> FreeCells;
-			AChess_GameMode* GameMode = (AChess_GameMode*)(GetWorld()->GetAuthGameMode());
-			for (auto& CurrTile : GameMode->GField->GetTileArray())
-			{
-				if (CurrTile->GetTileStatus() == ETileStatus::EMPTY)
-				{
-					FreeCells.Add(CurrTile);
-				}
-			}
+			AChess_GameMode* GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+			TArray<AChessPieces*> PiecesArray = GMode->GField->BotPieces;
+			bool PieceIsPossibleToMove = false;
+			int32 RIndex;
 
-			if (FreeCells.Num() > 0)
-			{
-				int32 RandIdx = FMath::Rand() % FreeCells.Num();
-				FVector Location = GameMode->GField->GetRelativeLocationByXYPosition((FreeCells[RandIdx])->GetGridPosition()[0], (FreeCells[RandIdx])->GetGridPosition()[1]);
-				FreeCells[RandIdx]->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+			do{
+				RIndex = FMath::Rand() % 16;
+				AChessPieces* CurrPiece = PiecesArray[RIndex];
+				CurrPiece->LegalMove(PlayerNumber, false);
+				if (CurrPiece->TileMarked.Num() == 0)
+					continue;
+				PieceIsPossibleToMove = true;
+				int32 RIndexToMovePiece = FMath::Rand() % CurrPiece->TileMarked.Num();
+				ATile* TileActor = CurrPiece->TileMarked[RIndexToMovePiece];
+				FVector SpawnPosition = TileActor->GetActorLocation();
+				TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+				AChess_GameMode* GameMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
+				if (CurrPiece == nullptr)
+					UE_LOG(LogTemp, Error, TEXT("PieceToSpawn or PieceToMove cannot be null"));
+				FVector2D Coord = TileActor->GetGridPosition();
+				GameMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
+			} while (!PieceIsPossibleToMove);
 
-				//GameMode->SetCellSign(PlayerNumber, Location);
-
-			}
 		}, 3, false);
-		*/
 }
 
 void AChess_RandomPlayer::OnWin()

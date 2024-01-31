@@ -4,7 +4,7 @@
 #include "../../Public/Pieces/King.h"
 AKing::AKing() {}
 
-void AKing::LegalMove()
+void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 {
 	
 }

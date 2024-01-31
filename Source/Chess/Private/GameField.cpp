@@ -100,6 +100,11 @@ void AGameField::GenerateField()
 		}
 		normalized_row = 24;
 	}
+	
+	for (int32 w = 16; w < 32; w++)
+	{
+		BotPieces.Add(PiecesArray[w]);
+	}
 }
 
 // generate the tile 

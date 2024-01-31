@@ -26,7 +26,11 @@ void AChessPieces::BeginPlay()
 	//GameMode->GField->OnResetEvent.AddDynamic(this, &ABaseSign::SelfDestroy);
 }
 
-
+bool AChessPieces::CheckCoord(int32 x, int32 y)
+{
+	if (x < 0 || x > 7 || y < 0 || y > 7) return false;
+	return true;
+}
 // Called every frame
 /*
 void AChessPieces::Tick(float DeltaTime)

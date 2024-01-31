@@ -8,7 +8,7 @@ AKnight::AKnight()
 	Value = 3;
 }
 
-void AKnight ::LegalMove()
+void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 {
 	
 }

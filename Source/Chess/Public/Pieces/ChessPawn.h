@@ -21,10 +21,10 @@ public:
 
 	// The pawn can make a different move on its first play
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 First_play;
+	bool FirstPlay;
 
 	// defines the movements of the piece
-	void LegalMove() override;
+	void LegalMove(int32 PlayerNumber, bool IsHumanPlayer) override;
 
 	// defines what happens when the piece is captured
 	void Capture();

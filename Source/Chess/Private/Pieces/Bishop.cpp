@@ -9,7 +9,7 @@ ABishop::ABishop()
 	Value = 3;
 }
 
-void ABishop::LegalMove()
+void ABishop::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 {
 	
 }

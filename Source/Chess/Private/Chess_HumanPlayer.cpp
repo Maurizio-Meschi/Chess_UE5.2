@@ -84,11 +84,12 @@ void AChess_HumanPlayer::OnClick()
 			// First Hit must be a Chess Piece
 			if (PieceChoose)
 			{
+				PieceChoose = false;
 				//Equals(TEXT(TileActor[i]), ESearchCase::IgnoreCase)
 				if (FindTile(ClassName))
 				{
 					ATile* TileActor = Cast<ATile>(HitActor);
-					if (TileActor->GetTileStatus() == ETileStatus::MARKED)
+					if (TileActor->GetTileStatus() == ETileStatus::MARKED || TileActor->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
 					{
 						// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("clicked"));
 						TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
@@ -97,36 +98,35 @@ void AChess_HumanPlayer::OnClick()
 						if (CurrPiece == nullptr)
 							UE_LOG(LogTemp, Error, TEXT("PieceToSpawn or PieceToMove cannot be null"));
 						FVector2D Coord = TileActor->GetGridPosition();
+
+						//if (TileActor->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
+							// GameMode->CapturePiece
+
 						GameMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
 						MyTurn = false;
 						return;
 					}
 				}
 			}
-			else
+			if (FindPiece(ClassName))
 			{
-				
-				if (FindPiece(ClassName))
+				CurrPiece = Cast<AChessPieces>(HitActor);
+				// If Chess Piece is white means it is enemy piece
+				if (CurrPiece->Color == EPieceColor::WHITE)
 				{
-					CurrPiece = Cast<AChessPieces>(HitActor);
-					// If Chess Piece is white means it is enemy piece
-					if (CurrPiece->Color == EPieceColor::WHITE)
-					{
-						return;
+					return;
+				}
+				else
+				{
+					CurrPiece->ResetTileMarked();
+					UE_LOG(LogTemp, Warning, TEXT("Call Legal Move!"));
+					CurrPiece->LegalMove(PlayerNumber, true);
+					PieceChoose = true;
+					if (CurrPiece->TileMarked.Num() == 0) return;
+					for (int32 k = 0; k < CurrPiece->TileMarked.Num(); k++) {
+						// TODO: applicare il materiale che mi rende giocabile la pedina
 					}
-					else
-					{
-						CurrPiece->ResetTileMarked();
-						UE_LOG(LogTemp, Warning, TEXT("Call Legal Move!"));
-						CurrPiece->LegalMove();
-						PieceChoose = true;
-						if (CurrPiece->TileMarked.Num() == 0) return;
-						for (int32 k = 0; k < CurrPiece->TileMarked.Num(); k++) {
-							// TODO: applicare il materiale che mi rende giocabile la pedina
-						}
-						return;
-						OnClick();
-					}
+				return;
 				}
 			}
 		}

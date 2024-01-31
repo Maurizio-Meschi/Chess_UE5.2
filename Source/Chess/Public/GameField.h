@@ -31,6 +31,9 @@ public:
 	UPROPERTY(Transient)
 	TArray<AChessPieces*> PiecesArray;
 
+	UPROPERTY(Transient)
+	TArray<AChessPieces*> BotPieces;
+
 	/*
 	UPROPERTY(Transient)
 	TArray<ARook*> Rook;

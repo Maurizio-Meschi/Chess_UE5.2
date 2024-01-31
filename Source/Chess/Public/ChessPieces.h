@@ -57,6 +57,8 @@ public:
 	// set chess piece color
 	void SetColor(EPieceColor color);
 
+	// checks if the coordinates are part of the board
+	bool CheckCoord(int32 x, int32 y);
 	// 
 	void ResetTileMarked();
 
@@ -65,7 +67,7 @@ public:
 		return PieceGridPosition;
 	}
 
-	virtual void LegalMove() {};
+	virtual void LegalMove(int32 PlayerNumber, bool IsHumanPlayer) {};
 
 	UFUNCTION()
 	void PieceDestroy();
