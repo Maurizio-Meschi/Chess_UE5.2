@@ -176,6 +176,15 @@ void AGameField::ResetTileMarked()
 	TileMarked.Empty();
 }
 
+void AGameField::TileMarkedDestroy()
+{
+	for (int32 i = 0; i < TileMarkedSpawn.Num(); i++)
+	{
+		TileMarkedSpawn[i]->Destroy();
+	}
+	TileMarkedSpawn.Empty();
+}
+
 inline bool AGameField::IsValidPosition(const FVector2D Position) const
 {
 	return 0 <= Position[0] && Position[0] < Size && 0 <= Position[1] && Position[1] < Size;

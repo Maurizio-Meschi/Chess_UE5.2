@@ -83,6 +83,7 @@ void AChess_HumanPlayer::OnClick()
 		if (HitActor)
 		{
 			FString ClassName = HitActor->GetClass()->GetName();
+			Field->TileMarkedDestroy();
 			// look for the piece to move
 			if (FindPiece(ClassName))
 			{
@@ -123,7 +124,15 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 		return;
 
 	for (int32 k = 0; k < Field->TileMarked.Num(); k++) {
-		// TODO: applicare il materiale che mi rende giocabile la pedina
+		int32 x = Field->TileMarked[k]->GetGridPosition()[0];
+		int32 y = Field->TileMarked[k]->GetGridPosition()[1];
+		FVector Location = Field->GetRelativeLocationByXYPosition(x, y);
+		TSubclassOf<ATile> Class = (Field->TileMarked[k]->GetTileStatus() == ETileStatus::MARKED) ? Field->TileClassMarked : Field->TileClassPieceToCapture;
+		ATile* Obj = GetWorld()->SpawnActor<ATile>(Class, Location, FRotator(0.0f, 0.0f, 0.0f));
+		const float TileScale = Field->TileSize / 100;
+		Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
+		Obj->SetGridPosition(x, y);
+		Field->TileMarkedSpawn.Add(Obj);
 	}
 }
 

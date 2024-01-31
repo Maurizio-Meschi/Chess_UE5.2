@@ -89,8 +89,12 @@ void AChess_RandomPlayer::OnTurn()
 					GMode->CapturePiece(PieceToCapture, Coord);
 				}
 				TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+
+				int32 x = CurrPiece->GetGridPosition()[0];
+				int32 y = CurrPiece->GetGridPosition()[1];
+				UE_LOG(LogTemp, Error, TEXT("Prima di accedere alla map - Bot"));
 				// Before moving the piece, set the current tile to be empty
-				Field->TileMap[FVector2D(CurrPiece->GetGridPosition()[0], CurrPiece->GetGridPosition()[1])]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+				Field->TileMap[FVector2D(x, y)]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 
 				GMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
 

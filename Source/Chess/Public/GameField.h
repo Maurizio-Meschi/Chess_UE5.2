@@ -38,6 +38,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<ATile*> TileMarked;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<ATile*> TileMarkedSpawn;
+
 	// Given a position returns a tile
 	UPROPERTY(Transient)
 	TMap<FVector2D, ATile*> TileMap;
@@ -58,6 +61,12 @@ public:
 	// TSubclassOf template class that provides UClass type safety
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<ATile>> TileClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ATile> TileClassMarked;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ATile> TileClassPieceToCapture;
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<ARook>> ChessRook;
@@ -120,6 +129,8 @@ public:
 
 	// 
 	void ResetTileMarked();
+
+	void TileMarkedDestroy();
 
 	// checking if is a valid field position
 	inline bool IsValidPosition(const FVector2D Position) const;

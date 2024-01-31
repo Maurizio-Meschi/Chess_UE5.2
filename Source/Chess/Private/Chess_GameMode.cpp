@@ -86,6 +86,7 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 		return;
 	}
 	FVector NewLocation = GField->GetActorLocation() + SpawnPosition;
+	UE_LOG(LogTemp, Error, TEXT("Prima di accedere alla map - game mode"));
 	GField->PiecesMap.Remove(FVector2D(Piece->GetGridPosition()[0], Piece->GetGridPosition()[0]));
 	Piece->SetGridPosition(Coord[0], Coord[1]);
 	GField->PiecesMap.Add(Coord, Piece);
@@ -100,7 +101,10 @@ void AChess_GameMode::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord
 	GField->PiecesMap.Remove(Coord);
 	GField->PiecesArray.Remove(PieceToCapture);
 	if (PieceToCapture->Color == EPieceColor::WHITE)
+	{
 		GField->BotPieces.Remove(PieceToCapture);
+		GField->BotPieces.Shrink();
+	}
 	PieceToCapture->PieceDestroy();
 }
 
