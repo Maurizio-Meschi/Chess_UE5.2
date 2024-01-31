@@ -89,20 +89,40 @@ void AChess_HumanPlayer::OnClick()
 				if (FindTile(ClassName))
 				{
 					ATile* TileActor = Cast<ATile>(HitActor);
-					if (TileActor->GetTileStatus() == ETileStatus::MARKED || TileActor->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
+					if (TileActor->GetTileStatus() == ETileStatus::MARKED)
 					{
-						// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("clicked"));
 						TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 						FVector SpawnPosition = TileActor->GetActorLocation();
-						AChess_GameMode* GameMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
-						if (CurrPiece == nullptr)
-							UE_LOG(LogTemp, Error, TEXT("PieceToSpawn or PieceToMove cannot be null"));
+						AChess_GameMode* GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
 						FVector2D Coord = TileActor->GetGridPosition();
 
-						//if (TileActor->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
-							// GameMode->CapturePiece
+						// Before moving the piece, set the current tile to be empty
+						GMode->GField->TileMap[FVector2D(CurrPiece->GetGridPosition()[0], CurrPiece->GetGridPosition()[1])]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+						
+						GMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
+						MyTurn = false;
+						return;
+					}
+				}
+				// Check if possible to capture an enemy piece
+				if (FindPieceToCapture(ClassName))
+				{
+					AChess_GameMode* GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
+					AChessPieces* EnemyPiece = Cast<AChessPieces>(HitActor);
+					ATile* EnemyTile = GMode->GField->TileMap[(EnemyPiece->GetGridPosition())];
 
-						GameMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
+					if (EnemyTile->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE) {
+						EnemyTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+						FVector SpawnPosition = EnemyTile->GetActorLocation();
+						FVector2D Coord = EnemyTile->GetGridPosition();
+
+						AChessPieces* PieceToCapture = GMode->GField->PiecesMap[(Coord)];
+						GMode->CapturePiece(PieceToCapture, Coord);
+
+						// Before moving the piece, set the current tile to be empty
+						GMode->GField->TileMap[FVector2D(CurrPiece->GetGridPosition()[0], CurrPiece->GetGridPosition()[1])]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+
+						GMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
 						MyTurn = false;
 						return;
 					}
@@ -118,15 +138,23 @@ void AChess_HumanPlayer::OnClick()
 				}
 				else
 				{
+					AChess_GameMode* GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
+					TArray<ATile*> CurrTileArray = GMode->GField->TileArray;
+					for (int32 i = 0; i < CurrTileArray.Num(); i++)
+					{
+						if (CurrTileArray[i]->GetTileStatus() == ETileStatus::MARKED)
+							CurrTileArray[i]->SetTileStatus(-1, ETileStatus::EMPTY);
+
+						if (CurrTileArray[i]->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
+							CurrTileArray[i]->SetTileStatus(1, ETileStatus::OCCUPIED);
+					}
 					CurrPiece->ResetTileMarked();
-					UE_LOG(LogTemp, Warning, TEXT("Call Legal Move!"));
 					CurrPiece->LegalMove(PlayerNumber, true);
 					PieceChoose = true;
 					if (CurrPiece->TileMarked.Num() == 0) return;
 					for (int32 k = 0; k < CurrPiece->TileMarked.Num(); k++) {
 						// TODO: applicare il materiale che mi rende giocabile la pedina
 					}
-				return;
 				}
 			}
 		}
@@ -136,30 +164,32 @@ void AChess_HumanPlayer::OnClick()
 
 bool AChess_HumanPlayer::FindPiece(FString ClassName)
 {
-	bool Element_found = false;
 	for (int32 i = 0; i < 6; i++)
 	{
 		if (ClassName == Actor[i])
-		{
-			Element_found = true;
-			break;
-		}
+			return true;
 	}
-	return Element_found;
+	return false;
 }
 
 bool AChess_HumanPlayer::FindTile(FString ClassName)
 {
-	bool Element_found = false;
 	for (int32 i = 0; i < 2; i++)
 	{
 		if (ClassName == TileActorArray[i])
-		{
-			Element_found = true;
-			break;
-		}
+			return true;
 	}
-	return Element_found;
+	return false;
+}
+
+bool AChess_HumanPlayer::FindPieceToCapture(FString ClassName)
+{
+	for (int32 i = 0; i < 6; i++)
+	{
+		if (ClassName == EnemyActor[i])
+			return true;
+	}
+	return false;
 }
 
 

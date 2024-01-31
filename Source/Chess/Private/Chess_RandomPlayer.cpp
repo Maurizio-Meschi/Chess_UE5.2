@@ -55,21 +55,40 @@ void AChess_RandomPlayer::OnTurn()
 			int32 RIndex;
 
 			do{
-				RIndex = FMath::Rand() % 16;
+				// select random piece
+				RIndex = FMath::Rand() % PiecesArray.Num();
 				AChessPieces* CurrPiece = PiecesArray[RIndex];
+				// check the possible move
 				CurrPiece->LegalMove(PlayerNumber, false);
+
 				if (CurrPiece->TileMarked.Num() == 0)
 					continue;
+
 				PieceIsPossibleToMove = true;
+
+				// select the marked tile to move
 				int32 RIndexToMovePiece = FMath::Rand() % CurrPiece->TileMarked.Num();
+
+				// take the tile where move the piece
 				ATile* TileActor = CurrPiece->TileMarked[RIndexToMovePiece];
 				FVector SpawnPosition = TileActor->GetActorLocation();
-				TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+
 				AChess_GameMode* GameMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
-				if (CurrPiece == nullptr)
-					UE_LOG(LogTemp, Error, TEXT("PieceToSpawn or PieceToMove cannot be null"));
+
 				FVector2D Coord = TileActor->GetGridPosition();
+				// check if possible to capture an enemy piece
+				if (TileActor->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
+				{
+					TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+					AChessPieces* PieceToCapture = GMode->GField->PiecesMap[(Coord)];
+					GameMode->CapturePiece(PieceToCapture, Coord);
+				}
+				TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+				// Before moving the piece, set the current tile to be empty
+				GMode->GField->TileMap[FVector2D(CurrPiece->GetGridPosition()[0], CurrPiece->GetGridPosition()[1])]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+
 				GameMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
+
 			} while (!PieceIsPossibleToMove);
 
 		}, 3, false);

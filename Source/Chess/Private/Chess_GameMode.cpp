@@ -85,15 +85,24 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 	{
 		return;
 	}
-
 	FVector NewLocation = GField->GetActorLocation() + SpawnPosition;
 	GField->PiecesMap.Remove(FVector2D(Piece->GetGridPosition()[0], Piece->GetGridPosition()[0]));
 	Piece->SetGridPosition(Coord[0], Coord[1]);
-	GField->PiecesMap.Add(FVector2D(Coord[0], Coord[1]), Piece);
+	//GField->PiecesMap.Add(FVector2D(Coord[0], Coord[1]), Piece);
+	GField->PiecesMap.Add(Coord, Piece);
 	Piece->SetActorLocation(NewLocation);
 	//TODO: win case
 
 	TurnNextPlayer();
+}
+
+void AChess_GameMode::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
+{
+	GField->PiecesMap.Remove(Coord);
+	GField->PiecesArray.Remove(PieceToCapture);
+	if (PieceToCapture->Color == EPieceColor::WHITE)
+		GField->BotPieces.Remove(PieceToCapture);
+	PieceToCapture->PieceDestroy();
 }
 
 int32 AChess_GameMode::GetNextPlayer(int32 Player)

@@ -34,30 +34,11 @@ public:
 	UPROPERTY(Transient)
 	TArray<AChessPieces*> BotPieces;
 
-	/*
-	UPROPERTY(Transient)
-	TArray<ARook*> Rook;
-
-	UPROPERTY(Transient)
-	TArray<AKing*> King;
-
-	UPROPERTY(Transient)
-	TArray<AKnight*> Knight;
-
-	UPROPERTY(Transient)
-	TArray<AQueen*> Queen;
-
-	UPROPERTY(Transient)
-	TArray<ABishop*> Bishop;
-
-	UPROPERTY(Transient)
-	TArray<AChessPawn*> Pawn;
-	*/
-
 	// Given a position returns a tile
 	UPROPERTY(Transient)
 	TMap<FVector2D, ATile*> TileMap;
 
+	// Given a position returns a piece
 	UPROPERTY(Transient)
 	TMap<FVector2D, AChessPieces*> PiecesMap;
 

@@ -128,6 +128,8 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
 	Obj->SetGridPosition(x, y);
 	Obj->SetColor(color);
+	ATile* CurrTile = TileMap[FVector2D(x, y)];
+	color == EPieceColor::BLACK ? CurrTile->SetTileStatus(0, ETileStatus::OCCUPIED) : CurrTile->SetTileStatus(1, ETileStatus::OCCUPIED);
 	PiecesArray.Add(Obj);
 	PiecesMap.Add(FVector2D(x, y), Obj);
 }

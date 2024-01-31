@@ -50,6 +50,8 @@ public:
 	// I need the new position to place the piece and the old position to remove the piece that is moving
 	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord);
 
+	void CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord);
+
 	// get the next player index
 	int32 GetNextPlayer(int32 Player);
 
@@ -57,42 +59,3 @@ public:
 	void TurnNextPlayer();
 	
 };
-
-
-/*
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> B_Rook;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> B_Knight;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> B_Bishop;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> B_Queen;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> B_King;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> B_Pawn;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> W_Rook;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> W_Knight;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> W_Bishop;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> W_Queen;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> W_King;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<AChessPieces>> W_Pawn;
-	*/

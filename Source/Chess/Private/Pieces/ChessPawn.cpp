@@ -33,6 +33,8 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	{
 		SelectedTile = GMode->GField->TileMap[FVector2D(x + XMove, y)];
 
+		UE_LOG(LogTemp, Error, TEXT("Pezzo da catturare in posizione x+1, y: %d"), SelectedTile->GetTileStatus());
+
 		if (SelectedTile == nullptr)
 			UE_LOG(LogTemp, Error, TEXT("No tile found"));
 
@@ -44,33 +46,44 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	}
 
 	// check if it is possible to capture an enemy piece
-	XMove = IsHumanPlayer ? 1 : -1;
-	YMove = IsHumanPlayer ? 1 : -1;
-	if (CheckCoord(x + XMove, y + YMove))
+	int32 i = 1;
+	for (int32 k = 0; k < 2; k++)
 	{
-		SelectedTile = GMode->GField->TileMap[FVector2D(x + XMove, y + YMove)];
-
-		if (SelectedTile == nullptr)
-			UE_LOG(LogTemp, Error, TEXT("No tile found"));
-
-		if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+		XMove = IsHumanPlayer ? 1 : -1;
+		YMove = IsHumanPlayer ? i : -i;
+		if (CheckCoord(x + XMove, y + YMove))
 		{
-			AChessPieces* SelectedPiece = GMode->GField->PiecesMap[FVector2D(x + XMove, y + YMove)];
+			SelectedTile = GMode->GField->TileMap[FVector2D(x + XMove, y + YMove)];
 
-			if (SelectedPiece == nullptr)
-				UE_LOG(LogTemp, Error, TEXT("No piece found"));
+			if (SelectedTile == nullptr)
+				UE_LOG(LogTemp, Error, TEXT("No tile found"));
 
-			if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::WHITE : EPieceColor::BLACK))
-				SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
+			UE_LOG(LogTemp, Error, TEXT("Pezzo da catturare in posizione x+1, y+%d: %d"),i, SelectedTile->GetTileStatus());
+
+			if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+			{
+				AChessPieces* SelectedPiece = GMode->GField->PiecesMap[FVector2D(x + XMove, y + YMove)];
+				if (SelectedPiece == nullptr)
+					UE_LOG(LogTemp, Error, TEXT("No piece found"));
+
+
+				if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::WHITE : EPieceColor::BLACK))
+				{
+					SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
+					TileMarked.Add(SelectedTile);
+				}
+			}
 		}
+		i = -1;
 	}
 	// check if the next second vertical tile is empty and if true, mark the tile
-	if (FirstPlay)
+	if (x == 1)
 	{
 		XMove = IsHumanPlayer ? 2 : -2;
 		if (CheckCoord(x + XMove, y))
 		{
 			SelectedTile = GMode->GField->TileMap[FVector2D(x + XMove, y)];
+			UE_LOG(LogTemp, Error, TEXT("Pezzo da catturare in posizione x+2, y: %d"), SelectedTile->GetTileStatus());
 
 			if (SelectedTile == nullptr)
 				UE_LOG(LogTemp, Error, TEXT("No tile found"));
@@ -82,7 +95,6 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 			}
 		}
 	}
-	FirstPlay = false;
 }
 
 void AChessPawn::Capture()
