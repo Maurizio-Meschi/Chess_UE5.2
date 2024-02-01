@@ -6,6 +6,7 @@
 #include "ChessPieces.h"
 #include "Chess_HumanPlayer.h"
 #include "Chess_RandomPlayer.h"
+#include "Chess_GameInstance.h"
 #include "EngineUtils.h"
 #include "Engine/World.h"
 
@@ -73,7 +74,7 @@ void AChess_GameMode::ChoosePlayerAndStartGame()
 	for (int32 i = 0; i < Players.Num(); i++)
 	{
 		Players[i]->PlayerNumber = i;
-		Players[i]->PieceColor = i == i == CurrentPlayer ? EPieceColor::BLACK : EPieceColor::WHITE;
+		Players[i]->PieceColor = i == i == CurrentPlayer ? EPieceColor::WHITE : EPieceColor::BLACK;
 	}
 	//MoveCounter += 1;
 	Players[CurrentPlayer]->OnTurn();
@@ -91,6 +92,14 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 	Piece->SetGridPosition(Coord[0], Coord[1]);
 	GField->PiecesMap.Add(Coord, Piece);
 	Piece->SetActorLocation(NewLocation);
+
+	// Add the piece reference in the current played 
+	UChess_GameInstance* GInstance = Cast<UChess_GameInstance>(GetWorld()->GetAuthGameMode());
+	//FRewind Obj;
+	//Obj.PieceToRewind = Piece;  
+	//Obj.Position = Piece->GetGridPosition();
+	//GField->ArrayOfPlays.Add(GInstance->GetNumPlayed(), Obj);
+
 	//TODO: win case
 
 	TurnNextPlayer();
@@ -98,14 +107,16 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 
 void AChess_GameMode::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 {
-	GField->PiecesMap.Remove(Coord);
-	GField->PiecesArray.Remove(PieceToCapture);
-	if (PieceToCapture->Color == EPieceColor::WHITE)
+	//GField->PiecesMap.Remove(Coord);
+	//GField->PiecesArray.Remove(PieceToCapture);
+	if (PieceToCapture->Color == EPieceColor::BLACK)
 	{
 		GField->BotPieces.Remove(PieceToCapture);
 		GField->BotPieces.Shrink();
 	}
-	PieceToCapture->PieceDestroy();
+	PieceToCapture->SetActorHiddenInGame(true);
+	PieceToCapture->SetActorEnableCollision(false);
+	//PieceToCapture->PieceDestroy();
 }
 
 int32 AChess_GameMode::GetNextPlayer(int32 Player)

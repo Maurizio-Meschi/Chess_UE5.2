@@ -12,8 +12,3 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 {
 	
 }
-
-void AKnight::Capture()
-{
-
-}

@@ -17,7 +17,4 @@ public:
 
 	// defines the movements of the piece
 	void LegalMove(int32 PlayerNumber, bool IsHumanPlayer) override;
-
-	// defines what happens when the piece is captured
-	void Capture();
 };

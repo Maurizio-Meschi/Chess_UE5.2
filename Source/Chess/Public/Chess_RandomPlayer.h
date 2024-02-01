@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Chess_PlayerInterface.h"
-//#include "Chess_GameInstance.h"
+#include "Chess_GameInstance.h"
 #include "Chess_GameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Chess_RandomPlayer.generated.h"
@@ -19,7 +19,7 @@ public:
 	// Sets default values for this pawn's properties
 	AChess_RandomPlayer();
 
-	//UChess_GameInstance* GameInstance;
+	UChess_GameInstance* GameInstance;
 
 protected:
 	// Called when the game starts or when spawned

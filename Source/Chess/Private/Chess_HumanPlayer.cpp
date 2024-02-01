@@ -40,7 +40,8 @@ AChess_HumanPlayer::AChess_HumanPlayer()
 	//set the camera as RootComponent
 	SetRootComponent(Camera);
 
-	//GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (GameInstance == nullptr) UE_LOG(LogTemp, Warning, TEXT("Nullll!"))
 
 	//default value
 	PlayerNumber = -1;
@@ -53,14 +54,14 @@ void AChess_HumanPlayer::OnTurn()
 {
 	MyTurn = true;
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Your Turn"));
-	UE_LOG(LogTemp, Warning, TEXT("Turno mio!"));
-	//GameInstance->SetTurnMessage(TEXT("Human Turn"));
+	GameInstance->SetTurnMessage(TEXT("Human Turn"));
+	GameInstance->IncrementNumPlayed();
+	UE_LOG(LogTemp, Warning, TEXT("NumPlayed: %d"), GameInstance->GetNumPlayed());
 }
 void AChess_HumanPlayer::OnWin()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("You Win!"));
 	//GameInstance->SetTurnMessage(TEXT("Human Wins!"));
-	//GameInstance->IncrementScoreHumanPlayer();
 }
 
 void AChess_HumanPlayer::OnLose()
@@ -108,8 +109,8 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 	// get the piece
 	CurrPiece = Cast<AChessPieces>(HitActor);
 
-	// If Chess Piece is white means it is enemy piece
-	if (CurrPiece->Color == EPieceColor::WHITE)
+	// If Chess Piece is black means it is enemy piece
+	if (CurrPiece->Color == EPieceColor::BLACK)
 		return;
 
 	// every time the player clicks on a piece, the reachable tiles are reset
@@ -123,12 +124,15 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 	if (Field->TileMarked.Num() == 0)
 		return;
 
+	// spawn marked tile where i can move my piece
 	for (int32 k = 0; k < Field->TileMarked.Num(); k++) {
+		// get x,y position
 		int32 x = Field->TileMarked[k]->GetGridPosition()[0];
 		int32 y = Field->TileMarked[k]->GetGridPosition()[1];
 		FVector Location = Field->GetRelativeLocationByXYPosition(x, y);
 		TSubclassOf<ATile> Class = (Field->TileMarked[k]->GetTileStatus() == ETileStatus::MARKED) ? Field->TileClassMarked : Field->TileClassPieceToCapture;
 		ATile* Obj = GetWorld()->SpawnActor<ATile>(Class, Location, FRotator(0.0f, 0.0f, 0.0f));
+		// spawn the marked tile
 		const float TileScale = Field->TileSize / 100;
 		Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
 		Obj->SetGridPosition(x, y);
@@ -177,7 +181,6 @@ void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 
 	// Before moving the piece, set the current tile status to EMPTY
 	Field->TileMap[FVector2D(CurrPiece->GetGridPosition()[0], CurrPiece->GetGridPosition()[1])]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
-
 	// move the piece
 	GMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
 	MyTurn = false;

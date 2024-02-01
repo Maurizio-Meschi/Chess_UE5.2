@@ -12,8 +12,21 @@
 #include "ChessPieces.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Containers/Map.h"
 #include "GameField.generated.h"
 
+USTRUCT()
+struct FRewind
+{
+	GENERATED_BODY()
+
+public:
+	FRewind() = default;
+
+	AChessPieces* PieceToRewind;
+	FVector2D Position;
+
+};
 
 UCLASS()
 class CHESS_API AGameField : public AActor
@@ -48,6 +61,10 @@ public:
 	// Given a position returns a piece
 	UPROPERTY(Transient)
 	TMap<FVector2D, AChessPieces*> PiecesMap;
+
+	// Give the number of play, get the pieces
+	UPROPERTY(Transient)
+	TMap<int32, FRewind> ArrayOfPlays;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float NormalizedCellPadding;

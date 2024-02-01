@@ -12,9 +12,9 @@ AChess_RandomPlayer::AChess_RandomPlayer()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
-	PieceColor = EPieceColor::WHITE;
+	PieceColor = EPieceColor::BLACK;
 }
 
 // Called when the game starts or when spawned
@@ -44,6 +44,7 @@ void AChess_RandomPlayer::OnTurn()
 	
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AI (Random) Turn"));
 	//GameInstance->SetTurnMessage(TEXT("AI (Random) Turn"));
+	GameInstance->IncrementNumPlayed();
 
 	FTimerHandle TimerHandle;
 
@@ -95,7 +96,7 @@ void AChess_RandomPlayer::OnTurn()
 				UE_LOG(LogTemp, Error, TEXT("Prima di accedere alla map - Bot"));
 				// Before moving the piece, set the current tile to be empty
 				Field->TileMap[FVector2D(x, y)]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
-
+				
 				GMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
 
 			} while (!PieceIsPossibleToMove);
@@ -107,11 +108,10 @@ void AChess_RandomPlayer::OnWin()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AI (Random) Wins!"));
 	//GameInstance->SetTurnMessage(TEXT("AI Wins!"));
-	//GameInstance->IncrementScoreAiPlayer();
 }
 
 void AChess_RandomPlayer::OnLose()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AI (Random) Loses!"));
-	// GameInstance->SetTurnMessage(TEXT("AI Loses!"));
+	//GameInstance->SetTurnMessage(TEXT("AI Loses!"));
 }

@@ -68,7 +68,7 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 					UE_LOG(LogTemp, Error, TEXT("No piece found"));
 
 
-				if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::WHITE : EPieceColor::BLACK))
+				if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 				{
 					SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
 					Field->TileMarked.Add(SelectedTile);
@@ -96,9 +96,4 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 			}
 		}
 	}
-}
-
-void AChessPawn::Capture()
-{
-
 }

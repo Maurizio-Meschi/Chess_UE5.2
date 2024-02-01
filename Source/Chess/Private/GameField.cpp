@@ -66,12 +66,12 @@ void AGameField::GenerateField()
 			{
 				// generate the chess pieces in the first row
 				Type = { ChessRook[0], ChessKnight[0], ChessBishop[0], ChessQueen[0], ChessKing[0], ChessBishop[0], ChessKnight[0], ChessRook[0] };
-				GenerateChessPieceInXYPosition(x, y, Type[y], EPieceColor::BLACK);
+				GenerateChessPieceInXYPosition(x, y, Type[y], EPieceColor::WHITE);
 			}
 			else
 			{
 				// generate the chess pieces in the second row
-				GenerateChessPieceInXYPosition(x, y, ChessPawn[0], EPieceColor::BLACK);
+				GenerateChessPieceInXYPosition(x, y, ChessPawn[0], EPieceColor::WHITE);
 			}
 		}
 		normalized_row = 8;
@@ -89,13 +89,13 @@ void AGameField::GenerateField()
 			if (k < 24)
 			{
 				// generate the chess pieces in the first row
-				GenerateChessPieceInXYPosition(x, y, ChessPawn[1], EPieceColor::WHITE);
+				GenerateChessPieceInXYPosition(x, y, ChessPawn[1], EPieceColor::BLACK);
 			}
 			else
 			{
 				// generate the chess pieces in the second row
 				Type = { ChessRook[1], ChessKnight[1], ChessBishop[1], ChessQueen[1], ChessKing[1], ChessBishop[1], ChessKnight[1], ChessRook[1] };
-				GenerateChessPieceInXYPosition(x, y, Type[y], EPieceColor::WHITE);
+				GenerateChessPieceInXYPosition(x, y, Type[y], EPieceColor::BLACK);
 			}
 		}
 		normalized_row = 24;

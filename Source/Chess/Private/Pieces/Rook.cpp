@@ -13,8 +13,3 @@ void ARook::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 {
 	
 }
-
-void ARook::Capture() 
-{
-
-}

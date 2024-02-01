@@ -8,8 +8,3 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 {
 	
 }
-
-void AKing::Capture()
-{
-
-}

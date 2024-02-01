@@ -14,7 +14,7 @@ AChessPieces::AChessPieces()
 
 	PieceGridPosition = FVector2D(0, 0);
 
-	Color = EPieceColor::BLACK;
+	Color = EPieceColor::WHITE;
 }
 
 // Called when the game starts or when spawned

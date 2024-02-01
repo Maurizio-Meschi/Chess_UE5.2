@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Chess_PlayerInterface.h"
-//#include "Chess_GameInstance.h"
+#include "Chess_GameInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Chess_HumanPlayer.generated.h"
@@ -29,11 +29,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	AChessPieces* CurrPiece;
 
-	const TArray<FString> ACTOR{ "BP_b_Rook_C", "BP_b_Knight_C", "BP_b_Bishop_C", "BP_b_Queen_C", "BP_b_Pawn_C", "BP_b_King_C" };
-	const TArray<FString> ENEMY_ACTOR{ "BP_w_Rook_C", "BP_w_Knight_C", "BP_w_Bishop_C", "BP_w_Queen_C", "BP_w_Pawn_C", "BP_w_King_C" };
+	const TArray<FString> ACTOR{ "BP_w_Rook_C", "BP_w_Knight_C", "BP_w_Bishop_C", "BP_w_Queen_C", "BP_w_Pawn_C", "BP_w_King_C" };
+	const TArray<FString> ENEMY_ACTOR{ "BP_b_Rook_C", "BP_b_Knight_C", "BP_b_Bishop_C", "BP_b_Queen_C", "BP_b_Pawn_C", "BP_b_King_C" };
 	const TArray<FString> TILE_ACTOR_ARRAY{ "BP_TileBlack_C", "BP_TileWhite_C" };
 
-	//UChess_GameInstance* GameInstance;
+	UChess_GameInstance* GameInstance;
 
 protected:
 	// Called when the game starts or when spawned

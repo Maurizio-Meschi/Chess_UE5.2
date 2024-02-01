@@ -13,8 +13,3 @@ void ABishop::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 {
 	
 }
-
-void ABishop::Capture()
-{
-
-}

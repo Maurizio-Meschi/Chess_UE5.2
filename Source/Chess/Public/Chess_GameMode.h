@@ -6,6 +6,7 @@
 #include "Chess_PlayerInterface.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameField.h"
+#include "Chess_GameInstance.h"
 #include "Chess_PlayerController.h"
 #include "Chess_GameMode.generated.h"
 

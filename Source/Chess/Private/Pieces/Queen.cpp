@@ -11,8 +11,3 @@ void AQueen::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 {
 
 }
-
-void AQueen::Capture()
-{
-
-}
