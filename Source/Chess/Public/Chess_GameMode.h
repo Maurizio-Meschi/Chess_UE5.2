@@ -25,7 +25,7 @@ public:
 	TArray<IChess_PlayerInterface*> Players;
 	int32 CurrentPlayer;
 	// tracks the number of moves in order to signal a drawn game
-	//int32 MoveCounter;
+	int32 MoveCounter;
 
 	// TSubclassOf is a template class that provides UClass type safety.
 	UPROPERTY(EditDefaultsOnly)

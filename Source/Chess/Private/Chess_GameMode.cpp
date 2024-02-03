@@ -26,6 +26,8 @@ AChess_GameMode::AChess_GameMode()
 	}
 
 	FieldSize = 8;
+
+	MoveCounter = 0;
 }
 
 void AChess_GameMode::BeginPlay()
@@ -89,16 +91,16 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 	FVector NewLocation = GField->GetActorLocation() + SpawnPosition;
 	UE_LOG(LogTemp, Error, TEXT("Prima di accedere alla map - game mode"));
 	GField->PiecesMap.Remove(FVector2D(Piece->GetGridPosition()[0], Piece->GetGridPosition()[0]));
-	Piece->SetGridPosition(Coord[0], Coord[1]);
+	Piece->SetGridPosition(Coord.X, Coord.Y);
 	GField->PiecesMap.Add(Coord, Piece);
 	Piece->SetActorLocation(NewLocation);
 
 	// Add the piece reference in the current played 
 	UChess_GameInstance* GInstance = Cast<UChess_GameInstance>(GetWorld()->GetAuthGameMode());
-	//FRewind Obj;
-	//Obj.PieceToRewind = Piece;  
-	//Obj.Position = Piece->GetGridPosition();
-	//GField->ArrayOfPlays.Add(GInstance->GetNumPlayed(), Obj);
+	FRewind Obj;
+	Obj.PieceToRewind = Piece;  
+	Obj.Position = Piece->GetGridPosition();
+	GField->ArrayOfPlays.Add(MoveCounter, Obj);
 
 	//TODO: win case
 
@@ -122,6 +124,7 @@ void AChess_GameMode::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord
 int32 AChess_GameMode::GetNextPlayer(int32 Player)
 {
 	Player++;
+	MoveCounter++;
 	if (!Players.IsValidIndex(Player))
 		Player = 0;
 	return Player;

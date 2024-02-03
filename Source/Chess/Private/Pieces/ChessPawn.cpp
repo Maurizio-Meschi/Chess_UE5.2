@@ -15,9 +15,9 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	UE_LOG(LogTemp, Warning, TEXT("This is Legal Move!"));
 	// get the coordinates of the pawn
 	FVector2D ChessPawnXYposition = PieceGridPosition;
-	int32 x = ChessPawnXYposition[0];
+	int32 x = ChessPawnXYposition.X;
 	int32 XMove = 0;
-	int32 y = ChessPawnXYposition[1];
+	int32 y = ChessPawnXYposition.Y;
 	int32 YMove = 0;
 	ATile* SelectedTile = nullptr;
 

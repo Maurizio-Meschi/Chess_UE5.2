@@ -56,7 +56,6 @@ void AChess_HumanPlayer::OnTurn()
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Your Turn"));
 	GameInstance->SetTurnMessage(TEXT("Human Turn"));
 	GameInstance->IncrementNumPlayed();
-	UE_LOG(LogTemp, Warning, TEXT("NumPlayed: %d"), GameInstance->GetNumPlayed());
 }
 void AChess_HumanPlayer::OnWin()
 {
