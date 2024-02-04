@@ -89,11 +89,17 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 		return;
 	}
 	FVector NewLocation = GField->GetActorLocation() + SpawnPosition;
-	UE_LOG(LogTemp, Error, TEXT("Prima di accedere alla map - game mode"));
-	GField->PiecesMap.Remove(FVector2D(Piece->GetGridPosition()[0], Piece->GetGridPosition()[0]));
+
+	CriticalSection.Lock();
+
+	UE_LOG(LogTemp, Error, TEXT("Ho tolto il pezzo nella vecchia posizione"));
+	GField->PiecesMap.Remove(FVector2D(Piece->GetGridPosition().X, Piece->GetGridPosition().Y));
 	Piece->SetGridPosition(Coord.X, Coord.Y);
+	UE_LOG(LogTemp, Error, TEXT("L'ho messo in qello nuovo"));
 	GField->PiecesMap.Add(Coord, Piece);
 	Piece->SetActorLocation(NewLocation);
+
+	CriticalSection.Unlock();
 
 	// Add the piece reference in the current played 
 	UChess_GameInstance* GInstance = Cast<UChess_GameInstance>(GetWorld()->GetAuthGameMode());
@@ -109,13 +115,18 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 
 void AChess_GameMode::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 {
-	//GField->PiecesMap.Remove(Coord);
+	CriticalSection.Lock();
+	UE_LOG(LogTemp, Error, TEXT("Ho tolto il pezzo catturato dalla mappa"));
+	GField->PiecesMap.Remove(Coord);
 	//GField->PiecesArray.Remove(PieceToCapture);
 	if (PieceToCapture->Color == EPieceColor::BLACK)
 	{
 		GField->BotPieces.Remove(PieceToCapture);
 		GField->BotPieces.Shrink();
 	}
+
+	CriticalSection.Unlock();
+
 	PieceToCapture->SetActorHiddenInGame(true);
 	PieceToCapture->SetActorEnableCollision(false);
 	//PieceToCapture->PieceDestroy();

@@ -86,7 +86,13 @@ void AChess_RandomPlayer::OnTurn()
 				if (TileActor->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
 				{
 					TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+
+					GMode->CriticalSection.Lock();
+
 					AChessPieces* PieceToCapture = Field->PiecesMap[(Coord)];
+
+					GMode->CriticalSection.Unlock();
+
 					GMode->CapturePiece(PieceToCapture, Coord);
 				}
 				TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
@@ -94,14 +100,19 @@ void AChess_RandomPlayer::OnTurn()
 				int32 x = CurrPiece->GetGridPosition()[0];
 				int32 y = CurrPiece->GetGridPosition()[1];
 				UE_LOG(LogTemp, Error, TEXT("Prima di accedere alla map - Bot"));
+
+				GMode->CriticalSection.Lock();
+
 				// Before moving the piece, set the current tile to be empty
 				Field->TileMap[FVector2D(x, y)]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+
+				GMode->CriticalSection.Unlock();
 				
 				GMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
 
 			} while (!PieceIsPossibleToMove);
 
-		}, 3, false);
+		}, 0.5, false);
 }
 
 void AChess_RandomPlayer::OnWin()

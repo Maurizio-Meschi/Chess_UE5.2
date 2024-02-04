@@ -19,10 +19,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 Value;
 
-	// The pawn can make a different move on its first play
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool FirstPlay;
-
 	// defines the movements of the piece
 	void LegalMove(int32 PlayerNumber, bool IsHumanPlayer) override;
+
+	void Mark(int32 x, int32 y, int32 PlayerNumber);
+	void MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer);
 };
