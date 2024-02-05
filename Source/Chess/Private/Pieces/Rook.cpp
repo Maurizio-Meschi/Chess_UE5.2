@@ -20,14 +20,6 @@ void ARook::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
 
-	if (GameModeClass != nullptr)
-		GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
-	else
-		UE_LOG(LogTemp, Error, TEXT("Game Mode is null"));
-
-	AGameField* Field = GMode->GField;
-
-	
 	XMove   = IsHumanPlayer ? 1 : -1;
 
 
@@ -67,31 +59,35 @@ void ARook::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool&
 		UE_LOG(LogTemp, Error, TEXT("Game Mode is null"));
 
 	AGameField* Field = GMode->GField;
+
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
+
 	ATile* SelectedTile = nullptr;
 
 	GMode->CriticalSection.Lock();
 
-	SelectedTile = Field->TileMap[FVector2D(x, y)];
+	SelectedTile = TileMap[FVector2D(x, y)];
 
 	GMode->CriticalSection.Unlock();
 
 	if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
 	{
 		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
-		Field->TileMarked.Add(SelectedTile);
+		Field->AddTileMarked(SelectedTile);
 	}
 	else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 	{
 		GMode->CriticalSection.Lock();
 
-		AChessPieces* SelectedPiece = Field->PiecesMap[FVector2D(x, y)];
+		AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
 
 		GMode->CriticalSection.Unlock();
 
 		if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 		{
 			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
-			Field->TileMarked.Add(SelectedTile);
+			Field->AddTileMarked(SelectedTile);
 			Marked = true;
 		}
 		else

@@ -52,7 +52,12 @@ void AChess_RandomPlayer::OnTurn()
 		{
 			AChess_GameMode* GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 			AGameField* Field = GMode->GField;
-			TArray<AChessPieces*> PiecesArray = Field->BotPieces;
+
+			TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+			TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
+
+			TArray<AChessPieces*> PiecesArray = Field->GetBotPieces();
+
 			bool PieceIsPossibleToMove = false;
 			int32 RIndex;
 			Field->ResetTileMarked();
@@ -66,16 +71,18 @@ void AChess_RandomPlayer::OnTurn()
 				// check the possible move
 				CurrPiece->LegalMove(PlayerNumber, false);
 
-				if (Field->TileMarked.Num() == 0)
+				TArray<ATile*> TileMarked = Field->GetTileMarked();
+
+				if (TileMarked.Num() == 0)
 					continue;
 
 				PieceIsPossibleToMove = true;
 
 				// select the marked tile to move
-				int32 RIndexToMovePiece = FMath::Rand() % Field->TileMarked.Num();
+				int32 RIndexToMovePiece = FMath::Rand() % TileMarked.Num();
 
 				// take the tile where move the piece
-				ATile* TileActor = Field->TileMarked[RIndexToMovePiece];
+				ATile* TileActor = TileMarked[RIndexToMovePiece];
 				FVector SpawnPosition = TileActor->GetActorLocation();
 
 				FVector2D Coord = TileActor->GetGridPosition();
@@ -89,7 +96,7 @@ void AChess_RandomPlayer::OnTurn()
 
 					GMode->CriticalSection.Lock();
 
-					AChessPieces* PieceToCapture = Field->PiecesMap[(Coord)];
+					AChessPieces* PieceToCapture = PiecesMap[(Coord)];
 
 					GMode->CriticalSection.Unlock();
 
@@ -97,14 +104,14 @@ void AChess_RandomPlayer::OnTurn()
 				}
 				TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
-				int32 x = CurrPiece->GetGridPosition()[0];
-				int32 y = CurrPiece->GetGridPosition()[1];
+				int32 x = CurrPiece->GetGridPosition().X;
+				int32 y = CurrPiece->GetGridPosition().Y;
 				UE_LOG(LogTemp, Error, TEXT("Prima di accedere alla map - Bot"));
 
 				GMode->CriticalSection.Lock();
 
 				// Before moving the piece, set the current tile to be empty
-				Field->TileMap[FVector2D(x, y)]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+				TileMap[FVector2D(x, y)]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 
 				GMode->CriticalSection.Unlock();
 				

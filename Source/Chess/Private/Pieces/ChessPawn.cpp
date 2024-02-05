@@ -60,9 +60,12 @@ void AChessPawn::Mark(int32 x, int32 y, int32 PlayerNumber)
 	ATile* SelectedTile = nullptr;
 	AGameField* Field = GMode->GField;
 
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
+
 	GMode->CriticalSection.Lock();
 
-	SelectedTile = Field->TileMap[FVector2D(x, y)];
+	SelectedTile = TileMap[FVector2D(x, y)];
 
 	GMode->CriticalSection.Unlock();
 
@@ -72,7 +75,7 @@ void AChessPawn::Mark(int32 x, int32 y, int32 PlayerNumber)
 	if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
 	{
 		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
-		Field->TileMarked.Add(SelectedTile);
+		Field->AddTileMarked(SelectedTile);
 	}
 }
 
@@ -81,16 +84,19 @@ void AChessPawn::MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHuma
 	ATile* SelectedTile = nullptr;
 	AGameField* Field = GMode->GField;
 
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
+
 	GMode->CriticalSection.Lock();
 
-	SelectedTile = Field->TileMap[FVector2D(x, y)];
+	SelectedTile = TileMap[FVector2D(x, y)];
 
 	if (SelectedTile == nullptr)
 		UE_LOG(LogTemp, Error, TEXT("No tile found"));
 
 	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 	{
-		AChessPieces* SelectedPiece = Field->PiecesMap[FVector2D(x, y)];
+		AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
 		if (SelectedPiece == nullptr)
 			UE_LOG(LogTemp, Error, TEXT("No piece found"));
 
@@ -98,7 +104,7 @@ void AChessPawn::MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHuma
 		if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 		{
 			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
-			Field->TileMarked.Add(SelectedTile);
+			Field->AddTileMarked(SelectedTile);
 		}
 	}
 	GMode->CriticalSection.Unlock();

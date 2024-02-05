@@ -16,66 +16,31 @@
 #include "GameField.generated.h"
 
 USTRUCT()
-struct FRewind
+struct FGFieldTSubClass
 {
 	GENERATED_BODY()
 
 public:
-	FRewind() = default;
+	FGFieldTSubClass();									
 
-	AChessPieces* PieceToRewind;
-	FVector2D Position;
+	FGFieldTSubClass& operator=(const FGFieldTSubClass& Other)
+	{
+		if (this != &Other)
+		{
+			// Copia gli array di oggetti TSubclassOf
+			TileClass = Other.TileClass;
+			TileClassMarked = Other.TileClassMarked;
+			TileClassPieceToCapture = Other.TileClassPieceToCapture;
+			ChessRook = Other.ChessRook;
+			ChessKing = Other.ChessKing;
+			ChessKnight = Other.ChessKnight;
+			ChessQueen = Other.ChessQueen;
+			ChessBishop = Other.ChessBishop;
+			ChessPawn = Other.ChessPawn;
+		}
+		return *this;
+	}
 
-};
-
-UCLASS()
-class CHESS_API AGameField : public AActor
-{
-	GENERATED_BODY()
-
-	static constexpr int32 SECOND_ROW_FIELD = 2;
-	static constexpr int32 PENULTIMATE_ROW_FIELD = 6;
-	static constexpr int32 LAST_ROW_FIELD = 8;
-
-public:
-	UPROPERTY(Transient)
-	TArray<ATile*> TileArray;
-	
-	UPROPERTY(Transient)
-	TArray<AChessPieces*> PiecesArray;
-
-	UPROPERTY(Transient)
-	TArray<AChessPieces*> BotPieces;
-
-	// Vector with tile marked
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TArray<ATile*> TileMarked;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TArray<ATile*> TileMarkedSpawn;
-
-	// Given a position returns a tile
-	UPROPERTY(Transient)
-	TMap<FVector2D, ATile*> TileMap;
-
-	// Given a position returns a piece
-	UPROPERTY(Transient)
-	TMap<FVector2D, AChessPieces*> PiecesMap;
-
-	// Give the number of play, get the pieces
-	UPROPERTY(Transient)
-	TMap<int32, FRewind> ArrayOfPlays;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float NormalizedCellPadding;
-
-	static const int32 NOT_ASSIGNED = -1;
-
-	// size of field
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 Size;
-
-	// TSubclassOf template class that provides UClass type safety
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<ATile>> TileClass;
 
@@ -102,6 +67,52 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<AChessPawn>> ChessPawn;
+};
+
+UCLASS()
+class CHESS_API AGameField : public AActor
+{
+	GENERATED_BODY()
+
+	static constexpr int32 SECOND_ROW_FIELD = 2;
+	static constexpr int32 PENULTIMATE_ROW_FIELD = 6;
+	static constexpr int32 LAST_ROW_FIELD = 8;
+
+private:
+	UPROPERTY(Transient)
+	TArray<ATile*> TileArray;
+
+	UPROPERTY(Transient)
+	TArray<AChessPieces*> BotPieces;
+
+	// Vector with tile marked
+	UPROPERTY(Transient)
+	TArray<ATile*> TileMarked;
+
+	//TODO: mettere dinamicamente il materiale e togliere questo vettore
+	UPROPERTY(Transient)
+	TArray<ATile*> TileMarkedSpawn;
+
+	// Given a position returns a tile
+	UPROPERTY(Transient)
+	TMap<FVector2D, ATile*> TileMap;
+
+	// Given a position returns a piece
+	UPROPERTY(Transient)
+	TMap<FVector2D, AChessPieces*> PiecesMap;
+
+public:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float NormalizedCellPadding;
+
+	// size of field
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 Size;
+
+	// TSubclassOf template class that provides UClass type safety
+	UPROPERTY(EditAnywhere)
+	FGFieldTSubClass GameFieldSubClass;
 
 	// tile padding dimension
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -133,10 +144,33 @@ public:
 	FVector2D GetPosition(const FHitResult& Hit);
 
 	// return the array of tile pointers
-	TArray<ATile*> GetTileArray();
+	TArray<ATile*>& GetTileArray();
 
-	// return the array of chess piece pointers
-	TArray<AChessPieces*>& GetPiecesArray();
+	TArray<AChessPieces*>& GetBotPieces() { return BotPieces; }
+
+	TArray<ATile*>& GetTileMarked() { return TileMarked; }
+
+	TArray<ATile*>& GetTileMarkedSpawn() { return TileMarkedSpawn; }
+
+	TMap<FVector2D, ATile*>& GetTileMap() { return TileMap; }
+
+	TMap<FVector2D, AChessPieces*>& GetPiecesMap() { return PiecesMap; }
+
+	void AddBotPieces(AChessPieces* Piece) { BotPieces.Add(Piece); }
+
+	void AddTileMarked(ATile* Tile) { TileMarked.Add(Tile); }
+
+	void AddTileMarkedSpawn(ATile* Tile) { TileMarkedSpawn.Add(Tile); }
+
+	void AddTileMap(FVector2D Position, ATile* Tile) { TileMap.Add(Position, Tile); }
+
+	void AddPiecesMap(FVector2D Position, AChessPieces* Piece) { PiecesMap.Add(Position, Piece); }
+
+	void TileMapRemove(FVector2D Position) { TileMap.Remove(Position); }
+
+	void PiecesMapRemove(FVector2D Position) { PiecesMap.Remove(Position); }
+
+	void BotPiecesRemove(AChessPieces* Piece) { BotPieces.Remove(Piece); BotPieces.Shrink(); }
 
 	// return a relative position given (x,y) position
 	FVector GetRelativeLocationByXYPosition(const int32 InX, const int32 InY) const;

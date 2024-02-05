@@ -13,7 +13,8 @@
 void AChess_HumanPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
+	Field = GMode->GField;
 }
 
 // Called every frame
@@ -41,7 +42,10 @@ AChess_HumanPlayer::AChess_HumanPlayer()
 	SetRootComponent(Camera);
 
 	GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (GameInstance == nullptr) UE_LOG(LogTemp, Warning, TEXT("Nullll!"))
+	if (GameInstance == nullptr) UE_LOG(LogTemp, Warning, TEXT("Nullll!"));
+
+	GMode = nullptr;
+	Field = nullptr;
 
 	//default value
 	PlayerNumber = -1;
@@ -71,8 +75,6 @@ void AChess_HumanPlayer::OnLose()
 
 void AChess_HumanPlayer::OnClick()
 {
-	AChess_GameMode* GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
-	AGameField* Field = GMode->GField;
 	//Structure containing information about one hit of a trace, such as point of impact and surface normal at that point
 	FHitResult Hit = FHitResult(ForceInit);
 	// GetHitResultUnderCursor function sends a ray from the mouse position and gives the corresponding hit results
@@ -103,8 +105,9 @@ void AChess_HumanPlayer::OnClick()
 
 void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 {
-	AChess_GameMode* GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
-	AGameField* Field = GMode->GField;
+	// every time the player clicks on a piece, the reachable tiles are reset
+	Field->ResetTileMarked();
+
 	// get the piece
 	CurrPiece = Cast<AChessPieces>(HitActor);
 
@@ -112,37 +115,38 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 	if (CurrPiece->Color == EPieceColor::BLACK)
 		return;
 
-	// every time the player clicks on a piece, the reachable tiles are reset
-	Field->ResetTileMarked();
 	// marks the tiles where the player can move his piece
 	CurrPiece->LegalMove(PlayerNumber, true);
+
+	TArray<ATile*> TileMarked = Field->GetTileMarked();
+
 	// sets that the player has chosen the piece to move
 	PieceChoose = true;
 
 	// if the selected piece cannot move, do nothing
-	if (Field->TileMarked.Num() == 0)
+	if (TileMarked.Num() == 0) 
 		return;
+		
 
 	// spawn marked tile where i can move my piece
-	for (int32 k = 0; k < Field->TileMarked.Num(); k++) {
+	for (int32 k = 0; k < TileMarked.Num(); k++) {
 		// get x,y position
-		int32 x = Field->TileMarked[k]->GetGridPosition()[0];
-		int32 y = Field->TileMarked[k]->GetGridPosition()[1];
+		int32 x = TileMarked[k]->GetGridPosition().X;
+		int32 y = TileMarked[k]->GetGridPosition().Y;
 		FVector Location = Field->GetRelativeLocationByXYPosition(x, y);
-		TSubclassOf<ATile> Class = (Field->TileMarked[k]->GetTileStatus() == ETileStatus::MARKED) ? Field->TileClassMarked : Field->TileClassPieceToCapture;
+		TSubclassOf<ATile> Class = (TileMarked[k]->GetTileStatus() == ETileStatus::MARKED) ? Field->GameFieldSubClass.TileClassMarked : Field->GameFieldSubClass.TileClassPieceToCapture;
 		ATile* Obj = GetWorld()->SpawnActor<ATile>(Class, Location, FRotator(0.0f, 0.0f, 0.0f));
 		// spawn the marked tile
 		const float TileScale = Field->TileSize / 100;
 		Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
 		Obj->SetGridPosition(x, y);
-		Field->TileMarkedSpawn.Add(Obj);
+		Field->AddTileMarkedSpawn(Obj);
 	}
 }
 
 void AChess_HumanPlayer::ManageClickTile(AActor* HitActor, FString ClassName)
 {
-	AChess_GameMode* GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
-	AGameField* Field = GMode->GField;
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 
 	PieceChoose = false;
 
@@ -163,7 +167,7 @@ void AChess_HumanPlayer::ManageClickTile(AActor* HitActor, FString ClassName)
 
 		GMode->CriticalSection.Lock();
 
-		ATile* EnemyTile = Field->TileMap[(EnemyPiece->GetGridPosition())];
+		ATile* EnemyTile = TileMap[(EnemyPiece->GetGridPosition())];
 
 		GMode->CriticalSection.Unlock();
 
@@ -174,8 +178,7 @@ void AChess_HumanPlayer::ManageClickTile(AActor* HitActor, FString ClassName)
 
 void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 {
-	AChess_GameMode* GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
-	AGameField* Field = GMode->GField;
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 
 	// Set the tile status to OCCUPIED where the piece will be placed
 	TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
@@ -186,7 +189,7 @@ void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 	GMode->CriticalSection.Lock();
 
 	// Before moving the piece, set the current tile status to EMPTY
-	Field->TileMap[FVector2D(CurrPiece->GetGridPosition()[0], CurrPiece->GetGridPosition()[1])]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+	TileMap[FVector2D(CurrPiece->GetGridPosition().X, CurrPiece->GetGridPosition().Y)]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 
 	GMode->CriticalSection.Unlock();
 
@@ -197,8 +200,8 @@ void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 
 void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 {
-	AChess_GameMode* GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
-	AGameField* Field = GMode->GField;
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
 	// Set the tile status to OCCUPIED where the piece will be placed
 	EnemyTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
@@ -209,7 +212,7 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 	GMode->CriticalSection.Lock();
 
 	// reference to the piece to be captured
-	AChessPieces* PieceToCapture = Field->PiecesMap[(Coord)];
+	AChessPieces* PieceToCapture = PiecesMap[(Coord)];
 
 	GMode->CriticalSection.Unlock();
 
@@ -219,7 +222,7 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 	GMode->CriticalSection.Lock();
 
 	// Before moving the piece, set the current tile to be empty
-	Field->TileMap[FVector2D(CurrPiece->GetGridPosition()[0], CurrPiece->GetGridPosition()[1])]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+	TileMap[FVector2D(CurrPiece->GetGridPosition().X, CurrPiece->GetGridPosition().Y)]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 
 	GMode->CriticalSection.Unlock();
 

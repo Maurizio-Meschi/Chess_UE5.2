@@ -3,6 +3,19 @@
 #include "GameField.h"
 #include "Chess_GameMode.h"
 
+
+FGFieldTSubClass::FGFieldTSubClass()
+{
+	TileClass.SetNum(2);
+	ChessRook.SetNum(2);
+	ChessKing.SetNum(2);
+	ChessKnight.SetNum(2);
+	ChessQueen.SetNum(2);
+	ChessBishop.SetNum(2);
+	ChessPawn.SetNum(2);
+}
+
+
 // Sets default values
 AGameField::AGameField()
 {
@@ -15,13 +28,6 @@ AGameField::AGameField()
 	// tile padding dimension
 	CellPadding = 5;
 	// one black piece and one white piece
-	TileClass.SetNum(2);
-	ChessRook.SetNum(2);
-	ChessKing.SetNum(2);
-	ChessKnight.SetNum(2);
-	ChessQueen.SetNum(2);
-	ChessBishop.SetNum(2);
-	ChessPawn.SetNum(2);
 }
 
 void AGameField::OnConstruction(const FTransform& Transform)
@@ -46,7 +52,7 @@ void AGameField::GenerateField()
 		for (int32 y = 0; y < Size; y++)
 		{
 			// spawn black tile followed by white tile
-			GenerateTileInXYPosition(x, y, TileClass[i]);
+			GenerateTileInXYPosition(x, y, GameFieldSubClass.TileClass[i]);
 			!i ? ++i : i = 0;
 		}
 		// swap the white tile with the black tile every row
@@ -56,7 +62,14 @@ void AGameField::GenerateField()
 	// Spawn chess pieces human player
 	int k = 0;
 	int normalized_row = 0;
-	TArray<TSubclassOf<AChessPieces>> Type;
+
+	const TArray<TSubclassOf<AChessPieces>> WHITE_PIECE = { GameFieldSubClass.ChessRook[0], GameFieldSubClass.ChessKnight[0], GameFieldSubClass.ChessBishop[0],
+															GameFieldSubClass.ChessQueen[0], GameFieldSubClass.ChessKing[0], GameFieldSubClass.ChessBishop[0],
+															GameFieldSubClass.ChessKnight[0], GameFieldSubClass.ChessRook[0] };
+
+	const TArray<TSubclassOf<AChessPieces>> BLACK_PIECE = { GameFieldSubClass.ChessRook[1], GameFieldSubClass.ChessKnight[1], GameFieldSubClass.ChessBishop[1],
+															GameFieldSubClass.ChessQueen[1], GameFieldSubClass.ChessKing[1], GameFieldSubClass.ChessBishop[1],
+															GameFieldSubClass.ChessKnight[1],GameFieldSubClass.ChessRook[1] };
 	for (int32 x = 0; x < SECOND_ROW_FIELD; x++)
 	{
 		for (int32 y = 0; y < Size; y++)
@@ -65,13 +78,12 @@ void AGameField::GenerateField()
 			if (k < 8) 
 			{
 				// generate the chess pieces in the first row
-				Type = { ChessRook[0], ChessKnight[0], ChessBishop[0], ChessQueen[0], ChessKing[0], ChessBishop[0], ChessKnight[0], ChessRook[0] };
-				GenerateChessPieceInXYPosition(x, y, Type[y], EPieceColor::WHITE);
+				GenerateChessPieceInXYPosition(x, y, WHITE_PIECE[y], EPieceColor::WHITE);
 			}
 			else
 			{
 				// generate the chess pieces in the second row
-				GenerateChessPieceInXYPosition(x, y, ChessPawn[0], EPieceColor::WHITE);
+				GenerateChessPieceInXYPosition(x, y, GameFieldSubClass.ChessPawn[0], EPieceColor::WHITE);
 			}
 		}
 		normalized_row = 8;
@@ -89,21 +101,15 @@ void AGameField::GenerateField()
 			if (k < 24)
 			{
 				// generate the chess pieces in the first row
-				GenerateChessPieceInXYPosition(x, y, ChessPawn[1], EPieceColor::BLACK);
+				GenerateChessPieceInXYPosition(x, y, GameFieldSubClass.ChessPawn[1], EPieceColor::BLACK);
 			}
 			else
 			{
 				// generate the chess pieces in the second row
-				Type = { ChessRook[1], ChessKnight[1], ChessBishop[1], ChessQueen[1], ChessKing[1], ChessBishop[1], ChessKnight[1], ChessRook[1] };
-				GenerateChessPieceInXYPosition(x, y, Type[y], EPieceColor::BLACK);
+				GenerateChessPieceInXYPosition(x, y, BLACK_PIECE[y], EPieceColor::BLACK);
 			}
 		}
 		normalized_row = 24;
-	}
-	
-	for (int32 w = 16; w < 32; w++)
-	{
-		BotPieces.Add(PiecesArray[w]);
 	}
 }
 
@@ -130,8 +136,9 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	Obj->SetColor(color);
 	ATile* CurrTile = TileMap[FVector2D(x, y)];
 	color == EPieceColor::BLACK ? CurrTile->SetTileStatus(0, ETileStatus::OCCUPIED) : CurrTile->SetTileStatus(1, ETileStatus::OCCUPIED);
-	PiecesArray.Add(Obj);
 	PiecesMap.Add(FVector2D(x, y), Obj);
+	if (color == EPieceColor::BLACK)
+		BotPieces.Add(Obj);
 }
 
 FVector2D AGameField::GetPosition(const FHitResult& Hit)
@@ -139,14 +146,9 @@ FVector2D AGameField::GetPosition(const FHitResult& Hit)
 	return Cast<ATile>(Hit.GetActor())->GetGridPosition();
 }
 
-TArray<ATile*> AGameField::GetTileArray()
+TArray<ATile*>& AGameField::GetTileArray()
 {
 	return TileArray;
-}
-
-TArray<AChessPieces*>& AGameField::GetPiecesArray()
-{
-	return PiecesArray;
 }
 
 // get the space position

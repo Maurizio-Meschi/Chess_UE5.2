@@ -34,6 +34,8 @@ public:
 	const TArray<FString> TILE_ACTOR_ARRAY{ "BP_TileBlack_C", "BP_TileWhite_C" };
 
 	UChess_GameInstance* GameInstance;
+	AGameField* Field;
+	AChess_GameMode* GMode;
 
 protected:
 	// Called when the game starts or when spawned
