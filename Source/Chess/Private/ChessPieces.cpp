@@ -31,14 +31,6 @@ bool AChessPieces::CheckCoord(int32 x, int32 y)
 	if (x < 0 || x > 7 || y < 0 || y > 7) return false;
 	return true;
 }
-// Called every frame
-/*
-void AChessPieces::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-*/
 
 void AChessPieces::SetGridPosition(const double InX, const double InY)
 {
@@ -48,6 +40,51 @@ void AChessPieces::SetGridPosition(const double InX, const double InY)
 void AChessPieces::SetColor(EPieceColor color)
 {
 	Color = color;
+}
+
+void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked)
+{
+	if (GameModeClass != nullptr)
+		GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	else
+		UE_LOG(LogTemp, Error, TEXT("Game Mode is null"));
+
+	AGameField* Field = GMode->GField;
+
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
+
+	ATile* SelectedTile = nullptr;
+
+	GMode->CriticalSection.Lock();
+
+	SelectedTile = TileMap[FVector2D(x, y)];
+
+	GMode->CriticalSection.Unlock();
+
+	if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
+	{
+		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
+		Field->AddTileMarked(SelectedTile);
+	}
+	else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+	{
+		GMode->CriticalSection.Lock();
+
+		AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
+
+		GMode->CriticalSection.Unlock();
+
+		if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
+		{
+			if (SelectedPiece->GetClass()->GetName() != (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
+			{
+				SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
+				Field->AddTileMarked(SelectedTile);
+			}
+		}
+		Marked = true;
+	}
 }
 
 void AChessPieces::PieceDestroy()

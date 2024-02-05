@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "../../Public/Pieces/Rook.h"
 #include "../Public/Chess_GameMode.h"
 
@@ -48,50 +47,6 @@ void ARook::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 		if (MarkedForward && MarkedBackwards) break;
 
 		IsHumanPlayer ? YMove++ : YMove--;
-	}
-}
-
-void ARook::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked)
-{
-	if (GameModeClass != nullptr)
-		GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
-	else
-		UE_LOG(LogTemp, Error, TEXT("Game Mode is null"));
-
-	AGameField* Field = GMode->GField;
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	ATile* SelectedTile = nullptr;
-
-	GMode->CriticalSection.Lock();
-
-	SelectedTile = TileMap[FVector2D(x, y)];
-
-	GMode->CriticalSection.Unlock();
-
-	if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
-	{
-		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
-		Field->AddTileMarked(SelectedTile);
-	}
-	else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
-	{
-		GMode->CriticalSection.Lock();
-
-		AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
-
-		GMode->CriticalSection.Unlock();
-
-		if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
-		{
-			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
-			Field->AddTileMarked(SelectedTile);
-			Marked = true;
-		}
-		else
-			Marked = true;
 	}
 }
 

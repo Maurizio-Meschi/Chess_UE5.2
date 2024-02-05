@@ -20,6 +20,4 @@ public:
 
 	// defines the movements of the piece
 	void LegalMove(int32 PlayerNumber, bool IsHumanPlayer) override;
-
-	void Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked);
 };

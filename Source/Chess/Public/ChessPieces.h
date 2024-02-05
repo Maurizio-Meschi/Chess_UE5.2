@@ -44,9 +44,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EPieceColor Color;
 
-	// Called every frame
-	//virtual void Tick(float DeltaTime) override;
-
 	// set chess piece position
 	void SetGridPosition(const double InX, const double InY);
 
@@ -62,6 +59,8 @@ public:
 	}
 
 	virtual void LegalMove(int32 PlayerNumber, bool IsHumanPlayer) {};
+
+	void Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked);
 
 	UFUNCTION()
 	void PieceDestroy();

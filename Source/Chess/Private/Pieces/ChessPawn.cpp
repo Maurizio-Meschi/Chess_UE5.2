@@ -103,8 +103,11 @@ void AChessPawn::MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHuma
 
 		if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 		{
-			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
-			Field->AddTileMarked(SelectedTile);
+			if (SelectedPiece->GetClass()->GetName() != (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
+			{
+				SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
+				Field->AddTileMarked(SelectedTile);
+			}
 		}
 	}
 	GMode->CriticalSection.Unlock();

@@ -3,122 +3,13 @@
 #pragma once
 
 #include "Tile.h"
-#include "Pieces/Bishop.h"
-#include "Pieces/ChessPawn.h"
-#include "Pieces/King.h"
-#include "Pieces/Knight.h"
-#include "Pieces/Queen.h"
-#include "Pieces/Rook.h"
-#include "ChessPieces.h"
+#include "GFieldElement/ManageField.h"
+#include "GFieldElement/GFieldSubClass.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Containers/Map.h"
 #include "GameField.generated.h"
 
-USTRUCT()
-struct FGFieldTSubClass
-{
-	GENERATED_BODY()
-
-public:
-	FGFieldTSubClass();									
-
-	FGFieldTSubClass& operator=(const FGFieldTSubClass& Other)
-	{
-		if (this != &Other)
-		{
-			// Copia gli array di oggetti TSubclassOf
-			TileClass = Other.TileClass;
-			TileClassMarked = Other.TileClassMarked;
-			TileClassPieceToCapture = Other.TileClassPieceToCapture;
-			ChessRook = Other.ChessRook;
-			ChessKing = Other.ChessKing;
-			ChessKnight = Other.ChessKnight;
-			ChessQueen = Other.ChessQueen;
-			ChessBishop = Other.ChessBishop;
-			ChessPawn = Other.ChessPawn;
-		}
-		return *this;
-	}
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<ATile>> TileClass;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ATile> TileClassMarked;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ATile> TileClassPieceToCapture;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<ARook>> ChessRook;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<AKing>> ChessKing;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<AKnight>> ChessKnight;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<AQueen>> ChessQueen;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<ABishop>> ChessBishop;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<AChessPawn>> ChessPawn;
-};
-
-UCLASS(Abstract)
-class CHESS_API AElementsToManageField : public AActor
-{
-	GENERATED_BODY()
-protected:
-	UPROPERTY(Transient)
-	TArray<ATile*> TileArray;
-
-	UPROPERTY(Transient)
-	TArray<AChessPieces*> BotPieces;
-
-	// Vector with tile marked
-	UPROPERTY(Transient)
-	TArray<ATile*> TileMarked;
-
-	//TODO: mettere dinamicamente il materiale e togliere questo vettore
-	UPROPERTY(Transient)
-	TArray<ATile*> TileMarkedSpawn;
-
-	// Given a position returns a tile
-	UPROPERTY(Transient)
-	TMap<FVector2D, ATile*> TileMap;
-
-	// Given a position returns a piece
-	UPROPERTY(Transient)
-	TMap<FVector2D, AChessPieces*> PiecesMap;
-public:
-	// return the array of tile pointers
-	TArray<ATile*>& GetTileArray() { return TileArray; };
-	TArray<AChessPieces*>& GetBotPieces() { return BotPieces; }
-	TArray<ATile*>& GetTileMarked() { return TileMarked; }
-	TArray<ATile*>& GetTileMarkedSpawn() { return TileMarkedSpawn; }
-	TMap<FVector2D, ATile*>& GetTileMap() { return TileMap; }
-	TMap<FVector2D, AChessPieces*>& GetPiecesMap() { return PiecesMap; }
-
-	void AddBotPieces(AChessPieces* Piece) { BotPieces.Add(Piece); }
-	void AddTileArray(ATile* Tile) { TileArray.Add(Tile); }
-	void AddTileMarked(ATile* Tile) { TileMarked.Add(Tile); }
-	void AddTileMarkedSpawn(ATile* Tile) { TileMarkedSpawn.Add(Tile); }
-	void AddTileMap(FVector2D Position, ATile* Tile) { TileMap.Add(Position, Tile); }
-	void AddPiecesMap(FVector2D Position, AChessPieces* Piece) { PiecesMap.Add(Position, Piece); }
-
-	void TileMapRemove(FVector2D Position) { TileMap.Remove(Position); }
-	void PiecesMapRemove(FVector2D Position) { PiecesMap.Remove(Position); }
-	void BotPiecesRemove(AChessPieces* Piece) { BotPieces.Remove(Piece); BotPieces.Shrink(); }
-
-	void ResetTileMarked();
-
-	void TileMarkedDestroy();
-};
 
 UCLASS()
 class CHESS_API AGameField : public AElementsToManageField
@@ -130,9 +21,6 @@ class CHESS_API AGameField : public AElementsToManageField
 	static constexpr int32 LAST_ROW_FIELD = 8;
 
 public:
-
-	//UPROPERTY(Transient)
-	//UElementsToManageField* ManageField;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float NormalizedCellPadding;

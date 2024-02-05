@@ -14,7 +14,7 @@ class CHESS_API UChess_GameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
-public:
+protected:
 	// score value for human player
 	UPROPERTY(EditAnywhere)
 	int32 NumPlayed = 0;
@@ -23,6 +23,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	FString CurrentTurnMessage = "Current Player";
 
+public:
+	
 	// increment the score for human player
 	void IncrementNumPlayed();
 

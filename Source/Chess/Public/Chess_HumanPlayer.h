@@ -23,18 +23,15 @@ public:
 
 	UCameraComponent* Camera;
 
-	UPROPERTY(VisibleAnywhere)
-	bool PieceChoose;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	AChessPieces* CurrPiece;
-
 	const TArray<FString> ACTOR{ "BP_w_Rook_C", "BP_w_Knight_C", "BP_w_Bishop_C", "BP_w_Queen_C", "BP_w_Pawn_C", "BP_w_King_C" };
 	const TArray<FString> ENEMY_ACTOR{ "BP_b_Rook_C", "BP_b_Knight_C", "BP_b_Bishop_C", "BP_b_Queen_C", "BP_b_Pawn_C", "BP_b_King_C" };
 	const TArray<FString> TILE_ACTOR_ARRAY{ "BP_TileBlack_C", "BP_TileWhite_C" };
 
+	UPROPERTY(VisibleAnywhere)
 	UChess_GameInstance* GameInstance;
+	UPROPERTY(VisibleAnywhere)
 	AGameField* Field;
+	UPROPERTY(VisibleAnywhere)
 	AChess_GameMode* GMode;
 
 protected:
@@ -42,6 +39,12 @@ protected:
 	virtual void BeginPlay() override;
 
 	bool MyTurn = false;
+
+	UPROPERTY(VisibleAnywhere)
+	bool PieceChoose;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	AChessPieces* CurrPiece;
 
 public:	
 	// Called every frame

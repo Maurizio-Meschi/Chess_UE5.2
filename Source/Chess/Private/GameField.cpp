@@ -3,41 +3,6 @@
 #include "GameField.h"
 #include "Chess_GameMode.h"
 
-
-FGFieldTSubClass::FGFieldTSubClass()
-{
-	TileClass.SetNum(2);
-	ChessRook.SetNum(2);
-	ChessKing.SetNum(2);
-	ChessKnight.SetNum(2);
-	ChessQueen.SetNum(2);
-	ChessBishop.SetNum(2);
-	ChessPawn.SetNum(2);
-}
-
-void AElementsToManageField::ResetTileMarked()
-{
-	for (int32 i = 0; i < TileMarked.Num(); i++)
-	{
-		if (TileMarked[i]->GetTileStatus() == ETileStatus::MARKED)
-			TileMarked[i]->SetTileStatus(-1, ETileStatus::EMPTY);
-
-		if (TileMarked[i]->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
-			TileMarked[i]->SetTileStatus(1, ETileStatus::OCCUPIED);
-	}
-	TileMarked.Empty();
-}
-
-void AElementsToManageField::TileMarkedDestroy()
-{
-	for (int32 i = 0; i < TileMarkedSpawn.Num(); i++)
-	{
-		TileMarkedSpawn[i]->Destroy();
-	}
-	TileMarkedSpawn.Empty();
-}
-
-
 // Sets default values
 AGameField::AGameField()
 {
@@ -84,12 +49,14 @@ void AGameField::GenerateField()
 	int k = 0;
 	int normalized_row = 0;
 
-	const TArray<TSubclassOf<AChessPieces>> WHITE_PIECE = { GameFieldSubClass.ChessRook[0], GameFieldSubClass.ChessKnight[0], GameFieldSubClass.ChessBishop[0],
-															GameFieldSubClass.ChessQueen[0], GameFieldSubClass.ChessKing[0], GameFieldSubClass.ChessBishop[0],
+	const TArray<TSubclassOf<AChessPieces>> WHITE_PIECE = { GameFieldSubClass.ChessRook[0], GameFieldSubClass.ChessKnight[0], 
+															GameFieldSubClass.ChessBishop[0], GameFieldSubClass.ChessQueen[0], 
+															GameFieldSubClass.ChessKing[0], GameFieldSubClass.ChessBishop[0],
 															GameFieldSubClass.ChessKnight[0], GameFieldSubClass.ChessRook[0] };
 
-	const TArray<TSubclassOf<AChessPieces>> BLACK_PIECE = { GameFieldSubClass.ChessRook[1], GameFieldSubClass.ChessKnight[1], GameFieldSubClass.ChessBishop[1],
-															GameFieldSubClass.ChessQueen[1], GameFieldSubClass.ChessKing[1], GameFieldSubClass.ChessBishop[1],
+	const TArray<TSubclassOf<AChessPieces>> BLACK_PIECE = { GameFieldSubClass.ChessRook[1], GameFieldSubClass.ChessKnight[1], 
+															GameFieldSubClass.ChessBishop[1], GameFieldSubClass.ChessQueen[1], 
+															GameFieldSubClass.ChessKing[1], GameFieldSubClass.ChessBishop[1],
 															GameFieldSubClass.ChessKnight[1],GameFieldSubClass.ChessRook[1] };
 	for (int32 x = 0; x < SECOND_ROW_FIELD; x++)
 	{

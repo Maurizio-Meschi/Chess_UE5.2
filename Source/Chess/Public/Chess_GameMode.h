@@ -27,17 +27,21 @@ class CHESS_API AChess_GameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
-public:
-	FCriticalSection CriticalSection;
+private:
 
 	// tracks if the game is over
 	bool IsGameOver;
-	// array of player interfaces
-	TArray<IChess_PlayerInterface*> Players;
 
 	int32 CurrentPlayer;
+
 	// tracks the number of moves in order to signal a drawn game
 	int32 MoveCounter;
+
+public:
+	FCriticalSection CriticalSection;
+
+	// array of player interfaces
+	TArray<IChess_PlayerInterface*> Players;
 
 	// TSubclassOf is a template class that provides UClass type safety.
 	UPROPERTY(EditDefaultsOnly)
