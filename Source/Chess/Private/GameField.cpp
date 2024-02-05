@@ -15,6 +15,28 @@ FGFieldTSubClass::FGFieldTSubClass()
 	ChessPawn.SetNum(2);
 }
 
+void AElementsToManageField::ResetTileMarked()
+{
+	for (int32 i = 0; i < TileMarked.Num(); i++)
+	{
+		if (TileMarked[i]->GetTileStatus() == ETileStatus::MARKED)
+			TileMarked[i]->SetTileStatus(-1, ETileStatus::EMPTY);
+
+		if (TileMarked[i]->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
+			TileMarked[i]->SetTileStatus(1, ETileStatus::OCCUPIED);
+	}
+	TileMarked.Empty();
+}
+
+void AElementsToManageField::TileMarkedDestroy()
+{
+	for (int32 i = 0; i < TileMarkedSpawn.Num(); i++)
+	{
+		TileMarkedSpawn[i]->Destroy();
+	}
+	TileMarkedSpawn.Empty();
+}
+
 
 // Sets default values
 AGameField::AGameField()
@@ -27,7 +49,6 @@ AGameField::AGameField()
 	TileSize = 120;
 	// tile padding dimension
 	CellPadding = 5;
-	// one black piece and one white piece
 }
 
 void AGameField::OnConstruction(const FTransform& Transform)
@@ -146,10 +167,6 @@ FVector2D AGameField::GetPosition(const FHitResult& Hit)
 	return Cast<ATile>(Hit.GetActor())->GetGridPosition();
 }
 
-TArray<ATile*>& AGameField::GetTileArray()
-{
-	return TileArray;
-}
 
 // get the space position
 FVector AGameField::GetRelativeLocationByXYPosition(const int32 InX, const int32 InY) const
@@ -163,31 +180,4 @@ FVector2D AGameField::GetXYPositionByRelativeLocation(const FVector& Location) c
 	const double y = Location[1] / (TileSize * NormalizedCellPadding);
 	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("x=%f,y=%f"), x, y));
 	return FVector2D(x, y);
-}
-
-void AGameField::ResetTileMarked()
-{
-	for (int32 i = 0; i < TileMarked.Num(); i++)
-	{
-		if (TileMarked[i]->GetTileStatus() == ETileStatus::MARKED)
-			TileMarked[i]->SetTileStatus(-1, ETileStatus::EMPTY);
-
-		if (TileMarked[i]->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
-			TileMarked[i]->SetTileStatus(1, ETileStatus::OCCUPIED);
-	}
-	TileMarked.Empty();
-}
-
-void AGameField::TileMarkedDestroy()
-{
-	for (int32 i = 0; i < TileMarkedSpawn.Num(); i++)
-	{
-		TileMarkedSpawn[i]->Destroy();
-	}
-	TileMarkedSpawn.Empty();
-}
-
-inline bool AGameField::IsValidPosition(const FVector2D Position) const
-{
-	return 0 <= Position[0] && Position[0] < Size && 0 <= Position[1] && Position[1] < Size;
 }

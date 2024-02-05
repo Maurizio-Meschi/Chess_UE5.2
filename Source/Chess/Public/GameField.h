@@ -69,16 +69,11 @@ public:
 	TArray<TSubclassOf<AChessPawn>> ChessPawn;
 };
 
-UCLASS()
-class CHESS_API AGameField : public AActor
+UCLASS(Abstract)
+class CHESS_API AElementsToManageField : public AActor
 {
 	GENERATED_BODY()
-
-	static constexpr int32 SECOND_ROW_FIELD = 2;
-	static constexpr int32 PENULTIMATE_ROW_FIELD = 6;
-	static constexpr int32 LAST_ROW_FIELD = 8;
-
-private:
+protected:
 	UPROPERTY(Transient)
 	TArray<ATile*> TileArray;
 
@@ -100,8 +95,44 @@ private:
 	// Given a position returns a piece
 	UPROPERTY(Transient)
 	TMap<FVector2D, AChessPieces*> PiecesMap;
+public:
+	// return the array of tile pointers
+	TArray<ATile*>& GetTileArray() { return TileArray; };
+	TArray<AChessPieces*>& GetBotPieces() { return BotPieces; }
+	TArray<ATile*>& GetTileMarked() { return TileMarked; }
+	TArray<ATile*>& GetTileMarkedSpawn() { return TileMarkedSpawn; }
+	TMap<FVector2D, ATile*>& GetTileMap() { return TileMap; }
+	TMap<FVector2D, AChessPieces*>& GetPiecesMap() { return PiecesMap; }
+
+	void AddBotPieces(AChessPieces* Piece) { BotPieces.Add(Piece); }
+	void AddTileArray(ATile* Tile) { TileArray.Add(Tile); }
+	void AddTileMarked(ATile* Tile) { TileMarked.Add(Tile); }
+	void AddTileMarkedSpawn(ATile* Tile) { TileMarkedSpawn.Add(Tile); }
+	void AddTileMap(FVector2D Position, ATile* Tile) { TileMap.Add(Position, Tile); }
+	void AddPiecesMap(FVector2D Position, AChessPieces* Piece) { PiecesMap.Add(Position, Piece); }
+
+	void TileMapRemove(FVector2D Position) { TileMap.Remove(Position); }
+	void PiecesMapRemove(FVector2D Position) { PiecesMap.Remove(Position); }
+	void BotPiecesRemove(AChessPieces* Piece) { BotPieces.Remove(Piece); BotPieces.Shrink(); }
+
+	void ResetTileMarked();
+
+	void TileMarkedDestroy();
+};
+
+UCLASS()
+class CHESS_API AGameField : public AElementsToManageField
+{
+	GENERATED_BODY()
+
+	static constexpr int32 SECOND_ROW_FIELD = 2;
+	static constexpr int32 PENULTIMATE_ROW_FIELD = 6;
+	static constexpr int32 LAST_ROW_FIELD = 8;
 
 public:
+
+	//UPROPERTY(Transient)
+	//UElementsToManageField* ManageField;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float NormalizedCellPadding;
@@ -143,46 +174,9 @@ public:
 	// return a (x,y) position given a hit (click) on a field tile
 	FVector2D GetPosition(const FHitResult& Hit);
 
-	// return the array of tile pointers
-	TArray<ATile*>& GetTileArray();
-
-	TArray<AChessPieces*>& GetBotPieces() { return BotPieces; }
-
-	TArray<ATile*>& GetTileMarked() { return TileMarked; }
-
-	TArray<ATile*>& GetTileMarkedSpawn() { return TileMarkedSpawn; }
-
-	TMap<FVector2D, ATile*>& GetTileMap() { return TileMap; }
-
-	TMap<FVector2D, AChessPieces*>& GetPiecesMap() { return PiecesMap; }
-
-	void AddBotPieces(AChessPieces* Piece) { BotPieces.Add(Piece); }
-
-	void AddTileMarked(ATile* Tile) { TileMarked.Add(Tile); }
-
-	void AddTileMarkedSpawn(ATile* Tile) { TileMarkedSpawn.Add(Tile); }
-
-	void AddTileMap(FVector2D Position, ATile* Tile) { TileMap.Add(Position, Tile); }
-
-	void AddPiecesMap(FVector2D Position, AChessPieces* Piece) { PiecesMap.Add(Position, Piece); }
-
-	void TileMapRemove(FVector2D Position) { TileMap.Remove(Position); }
-
-	void PiecesMapRemove(FVector2D Position) { PiecesMap.Remove(Position); }
-
-	void BotPiecesRemove(AChessPieces* Piece) { BotPieces.Remove(Piece); BotPieces.Shrink(); }
-
 	// return a relative position given (x,y) position
 	FVector GetRelativeLocationByXYPosition(const int32 InX, const int32 InY) const;
 
 	// return (x,y) position given a relative position
 	FVector2D GetXYPositionByRelativeLocation(const FVector& Location) const;
-
-	// 
-	void ResetTileMarked();
-
-	void TileMarkedDestroy();
-
-	// checking if is a valid field position
-	inline bool IsValidPosition(const FVector2D Position) const;
 };
