@@ -108,7 +108,20 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 	Obj.Position = Piece->GetGridPosition();
 	ArrayOfPlays.Add(Obj);
 
-	//TODO: win case
+	UE_LOG(LogTemp, Error, TEXT("Player: %d"), CurrentPlayer);
+
+	if (GField->Checkmate(static_cast<bool>(CurrentPlayer)))
+	{
+		IsGameOver = true;
+		Players[CurrentPlayer]->OnWin();
+		for (int32 i = 0; i < Players.Num(); i++)
+		{
+			if (i != CurrentPlayer)
+			{
+				Players[i]->OnLose();
+			}
+		}
+	}
 
 	TurnNextPlayer();
 }

@@ -64,13 +64,13 @@ void AChess_HumanPlayer::OnTurn()
 void AChess_HumanPlayer::OnWin()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("You Win!"));
-	//GameInstance->SetTurnMessage(TEXT("Human Wins!"));
+	GameInstance->SetTurnMessage(TEXT("Human Wins!"));
 }
 
 void AChess_HumanPlayer::OnLose()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("You Lose!"));
-	//GameInstance->SetTurnMessage(TEXT("Human Loses!"));
+	GameInstance->SetTurnMessage(TEXT("Human Loses!"));
 }
 
 void AChess_HumanPlayer::OnClick()

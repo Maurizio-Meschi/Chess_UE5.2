@@ -4,6 +4,7 @@
 
 #include "../Tile.h"
 #include "../ChessPieces.h"
+#include "../Pieces/King.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Containers/Map.h"
@@ -27,6 +28,8 @@ protected:
 	//TODO: mettere dinamicamente il materiale e togliere questo vettore
 	UPROPERTY(Transient)
 	TArray<ATile*> TileMarkedSpawn;
+
+	TArray<AKing*> KingArray;
 
 	// Given a position returns a tile
 	UPROPERTY(Transient)

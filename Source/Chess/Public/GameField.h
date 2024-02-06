@@ -67,4 +67,6 @@ public:
 
 	// return (x,y) position given a relative position
 	FVector2D GetXYPositionByRelativeLocation(const FVector& Location) const;
+
+	bool Checkmate(bool IsHumanPlayer);
 };

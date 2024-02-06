@@ -17,4 +17,6 @@ public:
 
 	// defines the movements of the piece
 	void LegalMove(int32 PlayerNumber, bool IsHumanPlayer) override;
+
+	bool CheckKingSituation(int32 x, int32 y, bool IsHumanPlayer);
 };

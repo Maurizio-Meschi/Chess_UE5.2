@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GameField.h"
+#include "Pieces/King.h"
 #include "Chess_GameMode.h"
 
 // Sets default values
@@ -127,6 +128,10 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	PiecesMap.Add(FVector2D(x, y), Obj);
 	if (color == EPieceColor::BLACK)
 		BotPieces.Add(Obj);
+	if (Class == GameFieldSubClass.ChessKing[0])
+		KingArray.Add(Cast<AKing>(Obj));
+	if (Class == GameFieldSubClass.ChessKing[1])
+		KingArray.Add(Cast<AKing>(Obj));
 }
 
 FVector2D AGameField::GetPosition(const FHitResult& Hit)
@@ -148,3 +153,50 @@ FVector2D AGameField::GetXYPositionByRelativeLocation(const FVector& Location) c
 	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("x=%f,y=%f"), x, y));
 	return FVector2D(x, y);
 }
+
+bool AGameField::Checkmate(bool IsHumanPlayer)
+{
+	AKing* King = (IsHumanPlayer ? KingArray[0] : KingArray[1]);
+	FVector2D KingPosition = King->GetGridPosition();
+	int32 x = KingPosition.X;
+	int32 y = KingPosition.Y;
+
+	int32 XMove = IsHumanPlayer ? 1 : -1;
+	int32 YMove = IsHumanPlayer ? 1 : -1;
+
+	bool IsKingStuck = false;
+
+	if (King->CheckCoord(x + XMove, y + YMove))
+		IsKingStuck = King->CheckKingSituation(x + XMove, y + YMove, IsHumanPlayer);
+
+	if (King->CheckCoord(x - XMove, y - YMove) && IsKingStuck)
+		IsKingStuck = King->CheckKingSituation(x - XMove, y - YMove, IsHumanPlayer);
+
+	XMove = IsHumanPlayer ? 1 : -1;
+	YMove = IsHumanPlayer ? 1 : -1;
+
+	if (King->CheckCoord(x + XMove, y - YMove) && IsKingStuck)
+		IsKingStuck = King->CheckKingSituation(x + XMove, y - YMove, IsHumanPlayer);
+
+	if (King->CheckCoord(x - XMove, y + YMove) && IsKingStuck)
+		IsKingStuck = King->CheckKingSituation(x - XMove, y + YMove, IsHumanPlayer);
+
+	XMove = IsHumanPlayer ? 1 : -1;
+
+	if (King->CheckCoord(x + XMove, y) && IsKingStuck)
+		IsKingStuck = King->CheckKingSituation(x + XMove, y, IsHumanPlayer);
+
+	if (King->CheckCoord(x - XMove, y) && IsKingStuck)
+		IsKingStuck = King->CheckKingSituation(x - XMove, y, IsHumanPlayer);
+	
+	YMove = IsHumanPlayer ? 1 : -1;
+
+	if (King->CheckCoord(x, y + YMove) && IsKingStuck)
+		IsKingStuck = King->CheckKingSituation(x, y + YMove, IsHumanPlayer);
+
+	if (King->CheckCoord(x, y - YMove) && IsKingStuck)
+		IsKingStuck = King->CheckKingSituation(x, y - YMove, IsHumanPlayer);
+
+	return IsKingStuck;
+}
+

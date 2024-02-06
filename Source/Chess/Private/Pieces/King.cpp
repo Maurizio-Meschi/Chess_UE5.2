@@ -2,6 +2,8 @@
 
 
 #include "../../Public/Pieces/King.h"
+#include "Chess_GameMode.h"
+
 AKing::AKing() {}
 
 void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
@@ -23,9 +25,6 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	if (CheckCoord(x - XMove, y - YMove) && !MarkedBackwards)
 		Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
 
-	IsHumanPlayer ? XMove++ : XMove--;
-	IsHumanPlayer ? YMove++ : YMove--;
-
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
 	MarkedForward = false;
@@ -37,21 +36,15 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	if (CheckCoord(x - XMove, y + YMove) && !MarkedBackwards)
 		Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
 
-	IsHumanPlayer ? XMove++ : XMove--;
-	IsHumanPlayer ? YMove++ : YMove--;
-
 	XMove = IsHumanPlayer ? 1 : -1;
 	MarkedForward = false;
 	MarkedBackwards = false;
-
 
 	if (CheckCoord(x + XMove, y) && !MarkedForward)
 		Mark(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
 
 	if (CheckCoord(x - XMove, y) && !MarkedBackwards)
 		Mark(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
-
-	IsHumanPlayer ? XMove++ : XMove--;
 	
 	YMove = IsHumanPlayer ? 1 : -1;
 	MarkedForward = false;
@@ -62,6 +55,40 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 
 	if (CheckCoord(x, y - YMove) && !MarkedBackwards)
 		Mark(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+}
 
-	IsHumanPlayer ? YMove++ : YMove--;
+bool AKing::CheckKingSituation(int32 x, int32 y, bool IsHumanPlayer)
+{
+	if (GameModeClass != nullptr)
+		GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	else
+		UE_LOG(LogTemp, Error, TEXT("Game Mode is null"));
+
+	AGameField* Field = GMode->GField;
+
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
+
+	ATile* SelectedTile = nullptr;
+
+	GMode->CriticalSection.Lock();
+
+	SelectedTile = TileMap[FVector2D(x, y)];
+
+	GMode->CriticalSection.Unlock();
+
+	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+	{
+		GMode->CriticalSection.Lock();
+
+		AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
+
+		GMode->CriticalSection.Unlock();
+
+		if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
+		{
+			return true;
+		}
+	}
+	return false;
 }
