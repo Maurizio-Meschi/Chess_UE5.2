@@ -90,18 +90,7 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 
 	if (Field->IsCheckmateSituation)
 	{
-		if (!CaptureSituation && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE ||
-			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
-		{
-			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
-			Field->AddTileMarked(SelectedTile);
-		}
-
-		if (CaptureSituation && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
-		{
-			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
-			Field->AddTileMarked(SelectedTile);
-		}
+		ManagerCheckMateSituationPawn(SelectedTile, PlayerNumber);
 	}
 	else
 	{
@@ -128,10 +117,29 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 				}
 			}
 		}
-		if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
+		if (CaptureSituation && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
 		{
 			SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::BLOCK_KING);;
 		}
+	}
+}
+
+void AChessPawn::ManagerCheckMateSituationPawn(ATile* SelectedTile, int32 PlayerNumber)
+{
+	AGameField* Field = GMode->GField;
+
+	if (!CaptureSituation && 
+		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE ||
+		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_AND_BLOCK_KING)
+	{
+		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
+		Field->AddTileMarked(SelectedTile);
+	}
+
+	if (CaptureSituation && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
+	{
+		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
+		Field->AddTileMarked(SelectedTile);
 	}
 }
 

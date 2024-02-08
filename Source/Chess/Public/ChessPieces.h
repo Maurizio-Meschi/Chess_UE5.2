@@ -66,6 +66,8 @@ public:
 
 	void CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked);
 
+	void ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlayer, bool& Marked, ATile* SelectedTile);
+
 	void FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2, int32 PlayerNumber);
 
 	UFUNCTION()

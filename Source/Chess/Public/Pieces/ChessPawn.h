@@ -31,5 +31,5 @@ public:
 
 	void CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer);
 
-
+	void ManagerCheckMateSituationPawn(ATile* SelectedTile, int32 PlayerNumber);
 };

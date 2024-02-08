@@ -2,6 +2,7 @@
 
 
 #include "ChessPieces.h"
+#include "Pieces/ChessPawn.h"
 #include "GameField.h"
 #include "Tile.h"
 #include "Chess_GameMode.h"
@@ -95,11 +96,8 @@ void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer
 
 void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked)
 {
-	if (GameModeClass != nullptr)
-		GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
-	else
-		UE_LOG(LogTemp, Error, TEXT("Game Mode is null"));
-
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	
 	AGameField* Field = GMode->GField;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
@@ -113,54 +111,32 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 
 	if (Field->IsCheckmateSituation)
 	{
-		if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE)
-		{
-			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
-			Field->AddTileMarked(SelectedTile);
-		}
-		// impedisco alle pedine di saltare i loro pezzi illegalmente
-		if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
-		{
-			GMode->CriticalSection.Lock();
-			AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
-			GMode->CriticalSection.Unlock();
-
-			if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::WHITE : EPieceColor::BLACK))
-			{
-				Marked = true;
-			}
-		}
-
-		if (this->GetClass()->GetName() != (IsHumanPlayer ? "BP_w_King_C" : "BP_b_King_C") && 
-			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
-		{
-			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
-			Field->AddTileMarked(SelectedTile);
-			Marked = true;
-		}
-
-		if (this->GetClass()->GetName() == (IsHumanPlayer ? "BP_w_King_C" : "BP_b_King_C")
-			&& SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
-		{
-			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
-			Field->AddTileMarked(SelectedTile);
-		}
-		//for (int32 i = 0; i < Field->GetTileMarked().Num(); i++) {
-			//UE_LOG(LogTemp, Error, TEXT("Sono il bot %s e ho trovato: %s"), *this->GetName(), *Field->GetTileMarked()[i]->GetName());
-		//}
-		//Field->ResetTileMarked();
+		ManageCheckMateSituation(PlayerNumber, IsHumanPlayer, Marked, SelectedTile);
 	}
 	else
 	{
 		// Questa è valida solo per il king
 		if (IsKing && SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
 		{
-			if (IsKing)
-			{
-				SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
-			}
+			SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
 
 		}
+		// Tentativo per evitare che catturando una pedina mi vada ad esporre
+		if (IsKing && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+		{
+			GMode->CriticalSection.Lock();
+			AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
+			GMode->CriticalSection.Unlock();
+
+			if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
+			{
+				if (SelectedPiece->GetClass()->GetName() != (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
+				{
+					SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
+				}
+			}
+		}
+
 		// controllo se una pedina può andare diretta contro il re
 		else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 		{
@@ -191,6 +167,57 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 	}
 }
 
+void AChessPieces::ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlayer, bool& Marked, ATile* SelectedTile)
+{
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+
+	AGameField* Field = GMode->GField;
+
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
+
+	if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE)
+	{
+		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
+		Field->AddTileMarked(SelectedTile);
+	}
+
+	if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_AND_BLOCK_KING &&
+		this->GetClass()->GetName() != (IsHumanPlayer ? "BP_w_King_C" : "BP_b_King_C"))
+	{
+		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
+		Field->AddTileMarked(SelectedTile);
+	}
+
+	// impedisco alle pedine di saltare i pezzi illegalmente
+	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+	{
+		GMode->CriticalSection.Lock();
+		AChessPieces* SelectedPiece = PiecesMap[SelectedTile->GetGridPosition()];
+		GMode->CriticalSection.Unlock();
+
+		//if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::WHITE : EPieceColor::BLACK))
+		//{
+			Marked = true;
+		//}
+	}
+
+	if (this->GetClass()->GetName() != (IsHumanPlayer ? "BP_w_King_C" : "BP_b_King_C") &&
+		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
+	{
+		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
+		Field->AddTileMarked(SelectedTile);
+		Marked = true;
+	}
+
+	if (this->GetClass()->GetName() == (IsHumanPlayer ? "BP_w_King_C" : "BP_b_King_C")
+		&& SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
+	{
+		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
+		Field->AddTileMarked(SelectedTile);
+	}
+}
+
 void AChessPieces::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2, int32 PlayerNumber)
 {
 	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
@@ -217,7 +244,11 @@ void AChessPieces::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2,
 			GMode->CriticalSection.Lock();
 			UE_LOG(LogTemp, Error, TEXT("x: %d, y: %d"), x, y);
 			SelectedTile = TileMap[FVector2D(x, y)];
-			SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_TO_AVOID_CHECKMATE);
+			if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING ||
+				SelectedTile->GetStatusCheckmate() == EStatusCheckmate::BLOCK_KING)
+				SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_AND_BLOCK_KING);
+			else
+				SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_TO_AVOID_CHECKMATE);
 
 			GMode->CriticalSection.Unlock();
 		}

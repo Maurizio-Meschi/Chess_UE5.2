@@ -2,13 +2,13 @@
 
 ## Bug
 - [x] Key not found in TMap -> where?
-- [x] Sometimes bot doesn't make any plays -> Find the reason
-- [ ] Key non found is back -> wtf??
+- [ ] Sometimes bot doesn't make any plays -> Find the reason
+- [x] Key non found is back -> where?
 
 ## TODO
 
 - [x] Change color huamn
-- [ ] uniformare la chessPawn e sitemare la game field
+- [x] uniformare la chessPawn e sitemare la game field
 - [x] King -> ogni giocata devo verificare se una o più pedine avversarie possono catturare il re. Se vero metto le tile in uno stato BLOCK_KING 
             e devo spostare il re in una tile consentita oppure spostare una pedina che blocchi il movimento. Per Fare questo metto tutte le tile 
             che portano al re nello stato DANGER. A quel punto potrò spostare la pedina solo nelle caselle con stato danger.
@@ -31,6 +31,7 @@
 - [x] Nota: devo marcare solo le tile in cui la pedina può effettivamente raggiungere il king
 - [x] Sistemare il mark delle tile -> l'algoritmo per trovare tutte li tile tra due punti non funziona a dovere
 - [x] Il king non può mangiare la pedina che la sta minaccaindo -> verificare questa situazione
+- [ ] Una pedina non può muoversi se questa giocata espone il re -> gestire
 - [ ] Se il king può muoversi solo a destra e io lo sto minaccaindo con una queen/rook lui si sposta a destra, ma teoricamente non
       scappa dalla minaccia -> dovrebbe esser sconfitta.
 - [ ] Se più pedine minacciano il re dovrei verificare che esiste una mossa univoca per scappare da entrambe le minaccie
