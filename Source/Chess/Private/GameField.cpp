@@ -193,6 +193,5 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 	}
 
 	KingUnderAttack = false;
-	UE_LOG(LogTemp, Error, TEXT("Game filed forse ok! "));
 	return true;
 }

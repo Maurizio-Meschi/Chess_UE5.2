@@ -31,14 +31,14 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 
 	// check if the next first vertical tile is empty and if true, mark the tile
 	XMove = IsHumanPlayer ? 1 : -1;
-	if (CheckCoord(x + XMove, y)) 
+	if (CheckCoord(x + XMove, y) && !MarkedForward)
 	{
 		CaptureSituation = false;
 
 		if (Field->CheckSituation)
 			CheckMateSituationPawn(x + XMove, y, PlayerNumber, IsHumanPlayer);
 		else
-			MarkTile(x + XMove, y, PlayerNumber);
+			MarkTile(x + XMove, y, PlayerNumber, MarkedForward);
 	}
 
 	// check if it is possible to capture an enemy piece
@@ -62,14 +62,14 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	if (x == 1)
 	{
 		XMove = IsHumanPlayer ? 2 : -2;
-		if (CheckCoord(x + XMove, y))
+		if (CheckCoord(x + XMove, y) && !MarkedForward)
 		{
 			CaptureSituation = false;
 
 			if (Field->CheckSituation)
 				CheckMateSituationPawn(x + XMove, y, PlayerNumber, IsHumanPlayer);
 			else
-				MarkTile(x + XMove, y, PlayerNumber);
+				MarkTile(x + XMove, y, PlayerNumber, MarkedForward);
 		}
 	}
 }
@@ -90,14 +90,14 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 
 	if (Field->IsCheckmateSituation)
 	{
-		if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE ||
+		if (!CaptureSituation && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE ||
 			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
 		{
 			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
 			Field->AddTileMarked(SelectedTile);
 		}
 
-		if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
+		if (CaptureSituation && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
 		{
 			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
 			Field->AddTileMarked(SelectedTile);
@@ -170,7 +170,7 @@ void AChessPawn::MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHuma
 	}
 }
 
-void AChessPawn::MarkTile(int32 x, int32 y, int32 PlayerNumber)
+void AChessPawn::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool &Marked)
 {
 	ATile* SelectedTile = nullptr;
 	AGameField* Field = GMode->GField;
@@ -186,6 +186,10 @@ void AChessPawn::MarkTile(int32 x, int32 y, int32 PlayerNumber)
 
 	if (SelectedTile == nullptr)
 		UE_LOG(LogTemp, Error, TEXT("No tile found"));
+	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+	{
+		Marked = true;
+	}
 
 	if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
 	{

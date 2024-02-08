@@ -63,8 +63,12 @@ void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer
 	SelectedTile = TileMap[FVector2D(x, y)];
 
 	GMode->CriticalSection.Unlock();
-	
-	if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
+	if (this->GetClass()->GetName() == (IsHumanPlayer ? "BP_w_King_C" : "BP_b_King_C") &&
+		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::BLOCK_KING)
+	{
+		return;
+	}
+	else if(SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
 	{
 		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
 		Field->AddTileMarked(SelectedTile);
@@ -114,8 +118,21 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
 			Field->AddTileMarked(SelectedTile);
 		}
+		// impedisco alle pedine di saltare i loro pezzi illegalmente
+		if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+		{
+			GMode->CriticalSection.Lock();
+			AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
+			GMode->CriticalSection.Unlock();
 
-		if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
+			if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::WHITE : EPieceColor::BLACK))
+			{
+				Marked = true;
+			}
+		}
+
+		if (this->GetClass()->GetName() != (IsHumanPlayer ? "BP_w_King_C" : "BP_b_King_C") && 
+			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
 		{
 			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
 			Field->AddTileMarked(SelectedTile);
@@ -190,15 +207,15 @@ void AChessPieces::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2,
 	int32 stepY = (deltaY > 0) ? 1 : -1;
 
 	int32 x = P1.X;
-	int32 y = P2.Y;
+	int32 y = P1.Y;
 
 
 	// Bresenham algorithm.
-	while (x != P1.X || y != P2.Y)
+	while (x != P2.X || y != P2.Y)
 	{
-		if (CheckCoord(x, y)) {
+		if (CheckCoord(x, y) && FVector2D(x, y) != P1 && FVector2D(x, y) != P1) {
 			GMode->CriticalSection.Lock();
-
+			UE_LOG(LogTemp, Error, TEXT("x: %d, y: %d"), x, y);
 			SelectedTile = TileMap[FVector2D(x, y)];
 			SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_TO_AVOID_CHECKMATE);
 

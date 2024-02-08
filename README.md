@@ -29,12 +29,12 @@
             marco solo le Tile che hanno stato MARK_TO_AVOID_CHECKMATE
 
 - [x] Nota: devo marcare solo le tile in cui la pedina può effettivamente raggiungere il king
-- [ ] Sistemare il mark delle tile -> l'algoritmo per trovare tutte li tile tra due punti non funziona a dovere
-- [ ] Il king non può mangiare la pedina che la sta minaccaindo -> verificare questa situazione
+- [x] Sistemare il mark delle tile -> l'algoritmo per trovare tutte li tile tra due punti non funziona a dovere
+- [x] Il king non può mangiare la pedina che la sta minaccaindo -> verificare questa situazione
 - [ ] Se il king può muoversi solo a destra e io lo sto minaccaindo con una queen/rook lui si sposta a destra, ma teoricamente non
       scappa dalla minaccia -> dovrebbe esser sconfitta.
 - [ ] Se più pedine minacciano il re dovrei verificare che esiste una mossa univoca per scappare da entrambe le minaccie
-- [ ] Il re non può fare una giocata che lo espone alla minaccia
+- [x] Il re non può fare una giocata che lo espone alla minaccia
 
 
 ## PiecesRecap
