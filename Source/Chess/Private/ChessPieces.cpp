@@ -184,33 +184,35 @@ void AChessPieces::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2,
 
 	ATile* SelectedTile = nullptr;
 
-	int32 deltaX = FMath::Abs(P2.X - P1.X);
-	int32 deltaY = FMath::Abs(P2.Y - P1.Y);
-	int32 stepX = P1.X < P2.X ? 1 : -1;
-	int32 stepY = P1.Y < P2.Y ? 1 : -1;
-	int32 errore = deltaX - deltaY;
+	int32 deltaX = P2.X - P1.X;
+	int32 deltaY = P2.Y - P1.Y;
+	int32 stepX = (deltaX > 0) ? 1 : -1;
+	int32 stepY = (deltaY > 0) ? 1 : -1;
+
 	int32 x = P1.X;
-	int32 y = P1.Y;
+	int32 y = P2.Y;
+
 
 	// Bresenham algorithm.
 	while (x != P1.X || y != P2.Y)
 	{
-		GMode->CriticalSection.Lock();
+		if (CheckCoord(x, y)) {
+			GMode->CriticalSection.Lock();
 
-		SelectedTile = TileMap[FVector2D(x, y)];
-		SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_TO_AVOID_CHECKMATE);
+			SelectedTile = TileMap[FVector2D(x, y)];
+			SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_TO_AVOID_CHECKMATE);
 
-		GMode->CriticalSection.Unlock();
+			GMode->CriticalSection.Unlock();
+		}
+		int32 offsetX = FMath::Abs(x - P1.X);
+		int32 offsetY = FMath::Abs(y - P1.Y);
 
-		int32 erroreDoppio = errore * 2;
-		if (erroreDoppio > -deltaY)
+		if (offsetX < FMath::Abs(deltaX))
 		{
-			errore -= deltaY;
 			x += stepX;
 		}
-		if (erroreDoppio < deltaX)
+		if (offsetY < FMath::Abs(deltaY))
 		{
-			errore += deltaX;
 			y += stepY;
 		}
 	}
