@@ -15,15 +15,6 @@ AChess_GameMode::AChess_GameMode()
 	PlayerControllerClass = AChess_PlayerController::StaticClass();
 
 	DefaultPawnClass = AChess_HumanPlayer::StaticClass();
-	static ConstructorHelpers::FClassFinder<AGameField> BlueprintClassFinder(TEXT("/Game/Path/To/BP_GameField"));
-	if (BlueprintClassFinder.Succeeded())
-	{
-		GameFieldClass = BlueprintClassFinder.Class;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to find Blueprint class!"));
-	}
 
 	FieldSize = 8;
 
@@ -92,7 +83,6 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 
 	CriticalSection.Lock();
 
-	UE_LOG(LogTemp, Error, TEXT("Ho tolto il pezzo nella vecchia posizione"));
 	GField->PiecesMapRemove(FVector2D(Piece->GetGridPosition().X, Piece->GetGridPosition().Y));
 	Piece->SetGridPosition(Coord.X, Coord.Y);
 	
@@ -107,23 +97,60 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 	Obj.PieceToRewind = Piece;  
 	Obj.Position = Piece->GetGridPosition();
 	ArrayOfPlays.Add(Obj);
+	UE_LOG(LogTemp, Error, TEXT("Pezzo mosso"));
 
-	UE_LOG(LogTemp, Error, TEXT("Player: %d"), CurrentPlayer);
+	// TODO cambaire la struttura -> questo era nella nextPlayer
+	//CurrentPlayer = GetNextPlayer(CurrentPlayer);
 
-	if (GField->Checkmate(static_cast<bool>(CurrentPlayer)))
+	GField->IsCheckmateSituation = false;
+	GField->ResetTileMarked();
+
+	TArray<ATile*>& TileArray = GField->GetTileArray();
+	for (int32 i = 0; i < TileArray.Num(); i++)
 	{
-		IsGameOver = true;
-		Players[CurrentPlayer]->OnWin();
-		for (int32 i = 0; i < Players.Num(); i++)
+		TileArray[i]->SEtStatusCheckmate(-1, EStatusCheckmate::NEUTRAL);
+	}
+	UE_LOG(LogTemp, Error, TEXT("Tocca a: %d"), CurrentPlayer);
+
+	bool IsHumanPlayer = static_cast<bool>(CurrentPlayer);
+	if (GField->Check(PlayerNumber, IsHumanPlayer))
+	{
+		GField->IsCheckmateSituation = true;
+		GField->ResetTileMarked();
+		TArray<AChessPieces*> Pieces = (IsHumanPlayer ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
+		for (int32 i = 0; i < Pieces.Num(); i++) 
 		{
-			if (i != CurrentPlayer)
+			UE_LOG(LogTemp, Error, TEXT("Chiamate bellosee"));
+			Pieces[i]->LegalMove(PlayerNumber, IsHumanPlayer);
+			//if (GField->GetTileMarked().Num() != 0)
+				//break;
+		}
+
+		if (GField->GetTileMarked().Num() == 0)
+		{
+			IsGameOver = true;
+			Players[CurrentPlayer]->OnWin();
+			UE_LOG(LogTemp, Error, TEXT("Vittoria confused uga buga"));
+			for (int32 i = 0; i < Players.Num(); i++)
 			{
-				Players[i]->OnLose();
+				if (i != CurrentPlayer)
+				{
+					Players[i]->OnLose();
+					return;
+				}
 			}
 		}
+		GField->ResetTileMarked();
+		//GField->TileMarkedDestroy();
+		TurnNextPlayer();
 	}
-
-	TurnNextPlayer();
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Procedo"));
+		GField->ResetTileMarked();
+		GField->CheckSituation = false;
+		TurnNextPlayer();
+	}
 }
 
 void AChess_GameMode::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
@@ -135,6 +162,10 @@ void AChess_GameMode::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord
 	if (PieceToCapture->Color == EPieceColor::BLACK)
 	{
 		GField->BotPiecesRemove(PieceToCapture);
+	}
+	else
+	{
+		GField->HumanPlayerPiecesRemove(PieceToCapture);
 	}
 
 	CriticalSection.Unlock();

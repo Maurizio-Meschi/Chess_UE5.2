@@ -19,9 +19,17 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 Value;
 
+	bool CaptureSituation;
+
 	// defines the movements of the piece
 	void LegalMove(int32 PlayerNumber, bool IsHumanPlayer) override;
 
-	void Mark(int32 x, int32 y, int32 PlayerNumber);
+	//void Mark(int32 x, int32 y, int32 PlayerNumber);
 	void MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer);
+
+	void MarkTile(int32 x, int32 y, int32 PlayerNumber);
+
+	void CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer);
+
+
 };

@@ -19,16 +19,29 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
 
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	AGameField* Field = GMode->GField;
+
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 2 : -2;
 
 	for (int32 k = 0; k < 2; k++)
 	{
 		if (CheckCoord(x + XMove, y + YMove) && !MarkedForward)
-			Mark(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			else
+				Mark(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		}
 
 		if (CheckCoord(x - XMove, y - YMove) && !MarkedBackwards)
-			Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			else
+				Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		}
 
 		XMove = IsHumanPlayer ? 2 : -2;
 		YMove = IsHumanPlayer ? 1 : -1;
@@ -42,10 +55,20 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	for (int32 k = 0; k < 2; k++)
 	{
 		if (CheckCoord(x + XMove, y - YMove) && !MarkedForward)
-			Mark(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			else
+				Mark(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		}
 
 		if (CheckCoord(x - XMove, y + YMove) && !MarkedBackwards)
-			Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			else
+				Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		}
 
 		XMove = IsHumanPlayer ? 2 : -2;
 		YMove = IsHumanPlayer ? 1 : -1;

@@ -41,6 +41,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float TileSize;
 
+	bool KingUnderAttack;
+
+	bool IsCheckmateSituation;
+
+	bool CheckSituation;
+
 	// Sets default values for this actor's properties
 	AGameField();
 
@@ -68,5 +74,5 @@ public:
 	// return (x,y) position given a relative position
 	FVector2D GetXYPositionByRelativeLocation(const FVector& Location) const;
 
-	bool Checkmate(bool IsHumanPlayer);
+	bool Check(int32 PlayerNumber, bool IsHumanPlayer);
 };

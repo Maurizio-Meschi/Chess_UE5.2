@@ -40,9 +40,20 @@ void ATile::SetTileStatus(const int32 TileOwner, const ETileStatus TileStatus)
 	Status = TileStatus;
 }
 
+void ATile::SEtStatusCheckmate(const int32 TileOwner, const EStatusCheckmate TileStatus)
+{
+	PlayerOwner = TileOwner;
+	CheckmateStatus = TileStatus;
+}
+
 ETileStatus ATile::GetTileStatus()
 {
 	return Status;
+}
+
+EStatusCheckmate ATile::GetStatusCheckmate()
+{
+	return CheckmateStatus;
 }
 
 int32 ATile::GetOwner()

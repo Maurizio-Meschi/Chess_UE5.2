@@ -7,6 +7,8 @@
 AChessPawn::AChessPawn()
 {
 	Value = 1;
+
+	CaptureSituation = false;
 }
 
 void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
@@ -19,6 +21,8 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	int32 y = ChessPawnXYposition.Y;
 	int32 YMove = 0;
 
+	bool MarkedForward = false;
+
 	if (GameModeClass != nullptr) 
 		GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	else
@@ -29,7 +33,12 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	XMove = IsHumanPlayer ? 1 : -1;
 	if (CheckCoord(x + XMove, y)) 
 	{
-		Mark(x + XMove, y, PlayerNumber);
+		CaptureSituation = false;
+
+		if (Field->CheckSituation)
+			CheckMateSituationPawn(x + XMove, y, PlayerNumber, IsHumanPlayer);
+		else
+			MarkTile(x + XMove, y, PlayerNumber);
 	}
 
 	// check if it is possible to capture an enemy piece
@@ -40,7 +49,12 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 		YMove = IsHumanPlayer ? i : -i;
 		if (CheckCoord(x + XMove, y + YMove))
 		{
-			MarkToCapture(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer);
+			CaptureSituation = true;
+
+			if (Field->CheckSituation)
+				CheckMateSituationPawn(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer);
+			else
+				MarkToCapture(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer);
 		}
 		i = -1;
 	}
@@ -50,12 +64,113 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 		XMove = IsHumanPlayer ? 2 : -2;
 		if (CheckCoord(x + XMove, y))
 		{
-			Mark(x + XMove, y, PlayerNumber);
+			CaptureSituation = false;
+
+			if (Field->CheckSituation)
+				CheckMateSituationPawn(x + XMove, y, PlayerNumber, IsHumanPlayer);
+			else
+				MarkTile(x + XMove, y, PlayerNumber);
 		}
 	}
 }
 
-void AChessPawn::Mark(int32 x, int32 y, int32 PlayerNumber)
+void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer)
+{
+	ATile* SelectedTile = nullptr;
+	AGameField* Field = GMode->GField;
+
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
+
+	GMode->CriticalSection.Lock();
+
+	SelectedTile = TileMap[FVector2D(x, y)];
+
+	GMode->CriticalSection.Unlock();
+
+	if (Field->IsCheckmateSituation)
+	{
+		if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE ||
+			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
+		{
+			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
+			Field->AddTileMarked(SelectedTile);
+		}
+
+		if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
+		{
+			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
+			Field->AddTileMarked(SelectedTile);
+		}
+	}
+	else
+	{
+		if (CaptureSituation && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+		{
+			GMode->CriticalSection.Lock();
+			AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
+			GMode->CriticalSection.Unlock();
+			if (SelectedPiece == nullptr)
+				UE_LOG(LogTemp, Error, TEXT("No piece found"));
+
+
+			if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
+			{
+				if (SelectedPiece->GetClass()->GetName() == (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
+				{
+					Field->KingUnderAttack = true;
+					FVector2d PiecePosition = this->GetGridPosition();
+					GMode->CriticalSection.Lock();
+					TileMap[PiecePosition]->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
+					GMode->CriticalSection.Unlock();
+					// Marca le tile per arrivare al re
+					FindTileBetweenP1P2(PiecePosition, FVector2D(x, y), PlayerNumber);
+				}
+			}
+		}
+		if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
+		{
+			SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::BLOCK_KING);;
+		}
+	}
+}
+
+void AChessPawn::MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer)
+{
+	ATile* SelectedTile = nullptr;
+	AGameField* Field = GMode->GField;
+
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
+
+	GMode->CriticalSection.Lock();
+	SelectedTile = TileMap[FVector2D(x, y)];
+	GMode->CriticalSection.Unlock();
+
+	if (SelectedTile == nullptr)
+		UE_LOG(LogTemp, Error, TEXT("No tile found"));
+
+	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+	{
+		GMode->CriticalSection.Lock();
+		AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
+		GMode->CriticalSection.Unlock();
+		if (SelectedPiece == nullptr)
+			UE_LOG(LogTemp, Error, TEXT("No piece found"));
+
+
+		if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
+		{
+			if (SelectedPiece->GetClass()->GetName() != (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
+			{
+				SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
+				Field->AddTileMarked(SelectedTile);
+			}
+		}
+	}
+}
+
+void AChessPawn::MarkTile(int32 x, int32 y, int32 PlayerNumber)
 {
 	ATile* SelectedTile = nullptr;
 	AGameField* Field = GMode->GField;
@@ -79,36 +194,3 @@ void AChessPawn::Mark(int32 x, int32 y, int32 PlayerNumber)
 	}
 }
 
-void AChessPawn::MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer)
-{
-	ATile* SelectedTile = nullptr;
-	AGameField* Field = GMode->GField;
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	GMode->CriticalSection.Lock();
-
-	SelectedTile = TileMap[FVector2D(x, y)];
-
-	if (SelectedTile == nullptr)
-		UE_LOG(LogTemp, Error, TEXT("No tile found"));
-
-	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
-	{
-		AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
-		if (SelectedPiece == nullptr)
-			UE_LOG(LogTemp, Error, TEXT("No piece found"));
-
-
-		if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
-		{
-			if (SelectedPiece->GetClass()->GetName() != (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
-			{
-				SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
-				Field->AddTileMarked(SelectedTile);
-			}
-		}
-	}
-	GMode->CriticalSection.Unlock();
-}

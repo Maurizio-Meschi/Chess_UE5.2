@@ -44,6 +44,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EPieceColor Color;
 
+	bool IsKing;
+
 	// set chess piece position
 	void SetGridPosition(const double InX, const double InY);
 
@@ -61,6 +63,10 @@ public:
 	virtual void LegalMove(int32 PlayerNumber, bool IsHumanPlayer) {};
 
 	void Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked);
+
+	void CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked);
+
+	void FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2, int32 PlayerNumber);
 
 	UFUNCTION()
 	void PieceDestroy();

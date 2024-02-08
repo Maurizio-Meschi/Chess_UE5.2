@@ -4,7 +4,7 @@
 #include "../../Public/Pieces/King.h"
 #include "Chess_GameMode.h"
 
-AKing::AKing() {}
+AKing::AKing() { }
 
 void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 {
@@ -16,14 +16,27 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
 
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	AGameField* Field = GMode->GField;
+
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
 
 	if (CheckCoord(x + XMove, y + YMove) && !MarkedForward)
-		Mark(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+	{
+		if (Field->CheckSituation)
+			CheckMateSituation(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		else
+			Mark(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+	}
 
 	if (CheckCoord(x - XMove, y - YMove) && !MarkedBackwards)
-		Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+	{
+		if (Field->CheckSituation)
+			CheckMateSituation(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		else
+			Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+	}
 
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
@@ -31,30 +44,60 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	MarkedBackwards = false;
 
 	if (CheckCoord(x + XMove, y - YMove) && !MarkedForward)
-		Mark(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+	{
+		if (Field->CheckSituation)
+			CheckMateSituation(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		else
+			Mark(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+	}
 
 	if (CheckCoord(x - XMove, y + YMove) && !MarkedBackwards)
-		Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+	{
+		if (Field->CheckSituation)
+			CheckMateSituation(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		else
+			Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+	}
 
 	XMove = IsHumanPlayer ? 1 : -1;
 	MarkedForward = false;
 	MarkedBackwards = false;
 
 	if (CheckCoord(x + XMove, y) && !MarkedForward)
-		Mark(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
+	{
+		if (Field->CheckSituation)
+			CheckMateSituation(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
+		else
+			Mark(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
+	}
 
 	if (CheckCoord(x - XMove, y) && !MarkedBackwards)
-		Mark(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+	{
+		if (Field->CheckSituation)
+			CheckMateSituation(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		else
+			Mark(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+	}
 	
 	YMove = IsHumanPlayer ? 1 : -1;
 	MarkedForward = false;
 	MarkedBackwards = false;
 
 	if (CheckCoord(x, y + YMove) && !MarkedForward)
-		Mark(x, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+	{
+		if (Field->CheckSituation)
+			CheckMateSituation(x, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		else
+			Mark(x, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+	}
 
 	if (CheckCoord(x, y - YMove) && !MarkedBackwards)
-		Mark(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+	{
+		if (Field->CheckSituation)
+			CheckMateSituation(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		else
+			Mark(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+	}
 }
 
 bool AKing::CheckKingSituation(int32 x, int32 y, bool IsHumanPlayer)

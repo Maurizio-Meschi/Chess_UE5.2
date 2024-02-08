@@ -2,6 +2,8 @@
 
 
 #include "../../Public/Pieces/Queen.h"
+#include "../Public/Chess_GameMode.h"
+
 AQueen::AQueen()
 {
 	Value = 9;
@@ -17,16 +19,29 @@ void AQueen::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
 
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	AGameField* Field = GMode->GField;
+
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
 
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x + XMove, y + YMove) && !MarkedForward)
-			Mark(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			else
+				Mark(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		}
 
 		if (CheckCoord(x - XMove, y - YMove) && !MarkedBackwards)
-			Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			else
+				Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		}
 
 		IsHumanPlayer ? XMove++ : XMove--;
 		IsHumanPlayer ? YMove++ : YMove--;
@@ -40,10 +55,20 @@ void AQueen::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x + XMove, y - YMove) && !MarkedForward)
-			Mark(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			else
+				Mark(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		}
 
 		if (CheckCoord(x - XMove, y + YMove) && !MarkedBackwards)
-			Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			else
+				Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		}
 
 		IsHumanPlayer ? XMove++ : XMove--;
 		IsHumanPlayer ? YMove++ : YMove--;
@@ -58,10 +83,20 @@ void AQueen::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x + XMove, y) && !MarkedForward)
-			Mark(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
+			else
+				Mark(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
+		}
 
 		if (CheckCoord(x - XMove, y) && !MarkedBackwards)
-			Mark(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			else
+				Mark(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		}
 
 		IsHumanPlayer ? XMove++ : XMove--;
 	}
@@ -72,10 +107,20 @@ void AQueen::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x, y + YMove) && !MarkedForward)
-			Mark(x, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			else
+				Mark(x, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		}
 
 		if (CheckCoord(x, y - YMove) && !MarkedBackwards)
-			Mark(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			else
+				Mark(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		}
 
 		if (MarkedForward && MarkedBackwards) break;
 

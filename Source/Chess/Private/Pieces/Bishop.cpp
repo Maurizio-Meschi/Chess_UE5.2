@@ -18,16 +18,29 @@ void ABishop::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
 
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	AGameField* Field = GMode->GField;
+
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
 
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x + XMove, y + YMove) && !MarkedForward)
-			Mark(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			else
+				Mark(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		}
 
 		if (CheckCoord(x - XMove, y - YMove) && !MarkedBackwards)
-			Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			else
+				Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		}
 
 		IsHumanPlayer ? XMove++ : XMove--;
 		IsHumanPlayer ? YMove++ : YMove--;
@@ -41,10 +54,20 @@ void ABishop::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x + XMove, y - YMove) && !MarkedForward)
-			Mark(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			else
+				Mark(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		}
 
 		if (CheckCoord(x - XMove, y + YMove) && !MarkedBackwards)
-			Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		{
+			if (Field->CheckSituation)
+				CheckMateSituation(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			else
+				Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		}
 
 		IsHumanPlayer ? XMove++ : XMove--;
 		IsHumanPlayer ? YMove++ : YMove--;

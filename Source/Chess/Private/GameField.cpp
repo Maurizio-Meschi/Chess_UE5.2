@@ -15,6 +15,12 @@ AGameField::AGameField()
 	TileSize = 120;
 	// tile padding dimension
 	CellPadding = 5;
+
+	KingUnderAttack = false;
+
+	IsCheckmateSituation = false;
+
+	CheckSituation = false;
 }
 
 void AGameField::OnConstruction(const FTransform& Transform)
@@ -126,8 +132,12 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	ATile* CurrTile = TileMap[FVector2D(x, y)];
 	color == EPieceColor::BLACK ? CurrTile->SetTileStatus(0, ETileStatus::OCCUPIED) : CurrTile->SetTileStatus(1, ETileStatus::OCCUPIED);
 	PiecesMap.Add(FVector2D(x, y), Obj);
+
 	if (color == EPieceColor::BLACK)
 		BotPieces.Add(Obj);
+	else
+		HumanPlayerPieces.Add(Obj);
+
 	if (Class == GameFieldSubClass.ChessKing[0])
 		KingArray.Add(Cast<AKing>(Obj));
 	if (Class == GameFieldSubClass.ChessKing[1])
@@ -154,49 +164,35 @@ FVector2D AGameField::GetXYPositionByRelativeLocation(const FVector& Location) c
 	return FVector2D(x, y);
 }
 
-bool AGameField::Checkmate(bool IsHumanPlayer)
+bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 {
+	ResetCheckArray();
 	AKing* King = (IsHumanPlayer ? KingArray[0] : KingArray[1]);
-	FVector2D KingPosition = King->GetGridPosition();
-	int32 x = KingPosition.X;
-	int32 y = KingPosition.Y;
 
-	int32 XMove = IsHumanPlayer ? 1 : -1;
-	int32 YMove = IsHumanPlayer ? 1 : -1;
+	CheckSituation = true;
 
-	bool IsKingStuck = false;
+	// mark the tile (status MARK_BY_KING)
+	King->IsKing = true;
+	King->LegalMove(PlayerNumber, IsHumanPlayer);
+	King->IsKing = false;
 
-	if (King->CheckCoord(x + XMove, y + YMove))
-		IsKingStuck = King->CheckKingSituation(x + XMove, y + YMove, IsHumanPlayer);
+	// Check if the enemy can attack the king
+	TArray<AChessPieces*> Pieces = (IsHumanPlayer ? BotPieces : HumanPlayerPieces);
+	for (int32 i = 0; i < Pieces.Num(); i++)
+	{
+		Pieces[i]->LegalMove(!PlayerNumber, !IsHumanPlayer);
+	}
+	if (!KingUnderAttack)
+		return false;
 
-	if (King->CheckCoord(x - XMove, y - YMove) && IsKingStuck)
-		IsKingStuck = King->CheckKingSituation(x - XMove, y - YMove, IsHumanPlayer);
+	for (int32 i = 0; i < TileArray.Num(); i++) {
+		if(TileArray[i]->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE ||
+			TileArray[i]->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING ||
+			TileArray[i]->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
+			UE_LOG(LogTemp, Error, TEXT("MARK_TO_AVOID_CHECKMATE: %s"), *TileArray[i]->GetName());
+	}
 
-	XMove = IsHumanPlayer ? 1 : -1;
-	YMove = IsHumanPlayer ? 1 : -1;
-
-	if (King->CheckCoord(x + XMove, y - YMove) && IsKingStuck)
-		IsKingStuck = King->CheckKingSituation(x + XMove, y - YMove, IsHumanPlayer);
-
-	if (King->CheckCoord(x - XMove, y + YMove) && IsKingStuck)
-		IsKingStuck = King->CheckKingSituation(x - XMove, y + YMove, IsHumanPlayer);
-
-	XMove = IsHumanPlayer ? 1 : -1;
-
-	if (King->CheckCoord(x + XMove, y) && IsKingStuck)
-		IsKingStuck = King->CheckKingSituation(x + XMove, y, IsHumanPlayer);
-
-	if (King->CheckCoord(x - XMove, y) && IsKingStuck)
-		IsKingStuck = King->CheckKingSituation(x - XMove, y, IsHumanPlayer);
-	
-	YMove = IsHumanPlayer ? 1 : -1;
-
-	if (King->CheckCoord(x, y + YMove) && IsKingStuck)
-		IsKingStuck = King->CheckKingSituation(x, y + YMove, IsHumanPlayer);
-
-	if (King->CheckCoord(x, y - YMove) && IsKingStuck)
-		IsKingStuck = King->CheckKingSituation(x, y - YMove, IsHumanPlayer);
-
-	return IsKingStuck;
+	KingUnderAttack = false;
+	UE_LOG(LogTemp, Error, TEXT("Game filed forse ok! "));
+	return true;
 }
-

@@ -23,3 +23,18 @@ void AElementsToManageField::TileMarkedDestroy()
 	}
 	TileMarkedSpawn.Empty();
 }
+
+void AElementsToManageField::ResetCheckArray()
+{
+	CheckArray.Empty();
+	CheckArray.SetNum(0);
+}
+
+void AElementsToManageField::ResetCheckArrayTile()
+{
+	for (int32 i = 0; i < CheckArrayTile.Num(); i++)
+	{
+		CheckArrayTile[i]->SEtStatusCheckmate(-1, EStatusCheckmate::NEUTRAL);
+	}
+	CheckArrayTile.Empty();
+}

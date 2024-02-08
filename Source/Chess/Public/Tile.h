@@ -15,6 +15,16 @@ enum class ETileStatus : uint8
 	MARKED				UMETA(DisplayNmae = "Marked"),
 };
 
+UENUM()
+enum class EStatusCheckmate : uint8
+{
+	NEUTRAL						UMETA(DisplayName = "Neutral"),
+    MARK_BY_KING				UMETA(DisplayName = "mark by king"),
+	MARK_TO_AVOID_CHECKMATE		UMETA(DisplayName = "Mark to avoid checkmate"),
+	CAPTURE_TO_AVOID_CHECKMATE  UMETA(DisplayName = "Capture to avoid checkmate"),
+	BLOCK_KING					UMETA(DisplayName = "Block King"),
+};
+
 UCLASS()
 class CHESS_API ATile : public AActor
 {
@@ -27,11 +37,15 @@ public:
 	// set the player owner and the status of a tile
 	void SetTileStatus(const int32 TileOwner, const ETileStatus TileStatus);
 
+	void SEtStatusCheckmate(const int32 TileOwner, const EStatusCheckmate TileStatus);
+
 	// set the (x, y) position
 	void SetGridPosition(const double InX, const double InY);
 
 	// get the tile status
 	ETileStatus GetTileStatus();
+
+	EStatusCheckmate GetStatusCheckmate();
 
 	// get the tile owner
 	int32 GetOwner();
@@ -51,6 +65,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	ETileStatus Status;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	EStatusCheckmate CheckmateStatus;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 PlayerOwner;
