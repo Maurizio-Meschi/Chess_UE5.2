@@ -33,7 +33,7 @@
 - [x] Il king non può mangiare la pedina che la sta minaccaindo -> verificare questa situazione
 - [ ] Una pedina non può muoversi se questa giocata espone il re -> gestire
 - [x] rilevato movimento errato del pedone quando il re è sotto scacco da un cavallo -> le tile in mezzo non devono esser marcate
-- [ ] Se il king può muoversi solo a destra e io lo sto minaccaindo con una queen/rook lui si sposta a destra, ma teoricamente non
+- [x] Se il king può muoversi solo a destra e io lo sto minaccaindo con una queen/rook lui si sposta a destra, ma teoricamente non
       scappa dalla minaccia -> dovrebbe esser sconfitta.
 - [ ] Se più pedine minacciano il re dovrei verificare che esiste una mossa univoca per scappare da entrambe le minaccie
 - [x] Il re non può fare una giocata che lo espone alla minaccia

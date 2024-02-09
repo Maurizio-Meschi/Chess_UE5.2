@@ -121,7 +121,7 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 			SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
 
 		}
-		// Tentativo per evitare che catturando una pedina mi vada ad esporre
+		// Evito che catturando una pedina mi vada ad esporre
 		if (IsKing && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 		{
 			GMode->CriticalSection.Lock();
@@ -160,8 +160,11 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 						FindTileBetweenP1P2(PiecePosition, FVector2D(x, y), PlayerNumber);
 					}
 				}
+				else
+					Marked = true;
 			}
-			Marked = true;
+			else
+				Marked = true;
 		}
 		// controllo se una pedina può andare in una cella in cui si potrebbe spostare il re
 		if (!IsKing && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)

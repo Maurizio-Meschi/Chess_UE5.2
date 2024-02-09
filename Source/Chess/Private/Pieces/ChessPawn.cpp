@@ -13,7 +13,6 @@ AChessPawn::AChessPawn()
 
 void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 {
-	UE_LOG(LogTemp, Warning, TEXT("This is Legal Move!"));
 	// get the coordinates of the pawn
 	FVector2D ChessPawnXYposition = PieceGridPosition;
 	int32 x = ChessPawnXYposition.X;
@@ -22,11 +21,8 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	int32 YMove = 0;
 
 	bool MarkedForward = false;
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 
-	if (GameModeClass != nullptr) 
-		GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
-	else
-		UE_LOG(LogTemp, Error, TEXT("Game Mode is null"));
 	AGameField* Field = GMode->GField;
 
 	// check if the next first vertical tile is empty and if true, mark the tile
@@ -83,9 +79,7 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
 	GMode->CriticalSection.Lock();
-
 	SelectedTile = TileMap[FVector2D(x, y)];
-
 	GMode->CriticalSection.Unlock();
 
 	if (Field->IsCheckmateSituation)
@@ -99,9 +93,6 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 			GMode->CriticalSection.Lock();
 			AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
 			GMode->CriticalSection.Unlock();
-			if (SelectedPiece == nullptr)
-				UE_LOG(LogTemp, Error, TEXT("No piece found"));
-
 
 			if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 			{
@@ -129,8 +120,8 @@ void AChessPawn::ManagerCheckMateSituationPawn(ATile* SelectedTile, int32 Player
 	AGameField* Field = GMode->GField;
 
 	if (!CaptureSituation && 
-		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE ||
-		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_AND_BLOCK_KING)
+		(SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE ||
+		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_AND_BLOCK_KING))
 	{
 		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
 		Field->AddTileMarked(SelectedTile);

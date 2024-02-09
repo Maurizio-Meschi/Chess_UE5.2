@@ -167,6 +167,7 @@ FVector2D AGameField::GetXYPositionByRelativeLocation(const FVector& Location) c
 bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 {
 	ResetCheckArray();
+	AChess_GameMode* GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	AKing* King = (IsHumanPlayer ? KingArray[0] : KingArray[1]);
 
 	CheckSituation = true;
@@ -180,10 +181,28 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 	TArray<AChessPieces*> Pieces = (IsHumanPlayer ? BotPieces : HumanPlayerPieces);
 	for (int32 i = 0; i < Pieces.Num(); i++)
 	{
+		/*
+		FVector2D Position = Pieces[i]->GetGridPosition();
+
+		GMode->CriticalSection.Lock();
+		if (TileMap[Position]->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
+			TileMap[Position]->SEtStatusCheckmate(!PlayerNumber, EStatusCheckmate::BLOCK_KING);
+		GMode->CriticalSection.Unlock();
+		*/
 		Pieces[i]->LegalMove(!PlayerNumber, !IsHumanPlayer);
 	}
 	if (!KingUnderAttack)
 		return false;
+
+	GMode->CriticalSection.Lock();
+	for (int32 i = 0; i < Pieces.Num(); i++)
+	{
+		FVector2D Position = Pieces[i]->GetGridPosition();
+
+		if (TileMap[Position]->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
+			TileMap[Position]->SEtStatusCheckmate(!PlayerNumber, EStatusCheckmate::BLOCK_KING);
+	}
+	GMode->CriticalSection.Unlock();
 
 	for (int32 i = 0; i < TileArray.Num(); i++) {
 		if(TileArray[i]->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE ||
