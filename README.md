@@ -5,6 +5,13 @@
 - [ ] Sometimes bot doesn't make any plays -> Find the reason
 - [x] Key non found is back -> where?
 
+
+## Code
+- [ ] Commentare le funzioni
+- [ ] ChessPieces e ChessPawn verificare se si possono togliere un po di variabili e mettere come attributi della classe
+- [ ] Controllare le variabile MarkedForword etc nelle varie classi -> non sempre utili, ma essendo un riferimento devo passare un bool
+
+
 ## TODO
 
 - [x] Change color huamn
@@ -31,12 +38,12 @@
 - [x] Nota: devo marcare solo le tile in cui la pedina può effettivamente raggiungere il king
 - [x] Sistemare il mark delle tile -> l'algoritmo per trovare tutte li tile tra due punti non funziona a dovere
 - [x] Il king non può mangiare la pedina che la sta minaccaindo -> verificare questa situazione
-- [ ] Una pedina non può muoversi se questa giocata espone il re -> gestire
 - [x] rilevato movimento errato del pedone quando il re è sotto scacco da un cavallo -> le tile in mezzo non devono esser marcate
 - [x] Se il king può muoversi solo a destra e io lo sto minaccaindo con una queen/rook lui si sposta a destra, ma teoricamente non
       scappa dalla minaccia -> dovrebbe esser sconfitta.
-- [ ] Se più pedine minacciano il re dovrei verificare che esiste una mossa univoca per scappare da entrambe le minaccie
 - [x] Il re non può fare una giocata che lo espone alla minaccia
+- [ ] Se più pedine minacciano il re dovrei verificare che esiste una mossa univoca per scappare da entrambe le minaccie
+- [ ] Una pedina non può muoversi se questa giocata espone il re -> gestire
 
 
 ## PiecesRecap

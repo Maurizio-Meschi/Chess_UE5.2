@@ -204,13 +204,6 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 	}
 	GMode->CriticalSection.Unlock();
 
-	for (int32 i = 0; i < TileArray.Num(); i++) {
-		if(TileArray[i]->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE ||
-			TileArray[i]->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING ||
-			TileArray[i]->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
-			UE_LOG(LogTemp, Error, TEXT("MARK_TO_AVOID_CHECKMATE: %s"), *TileArray[i]->GetName());
-	}
-
 	KingUnderAttack = false;
 	return true;
 }

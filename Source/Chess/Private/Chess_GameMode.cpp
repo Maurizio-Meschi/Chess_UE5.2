@@ -97,11 +97,29 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 	Obj.PieceToRewind = Piece;  
 	Obj.Position = Piece->GetGridPosition();
 	ArrayOfPlays.Add(Obj);
-	UE_LOG(LogTemp, Error, TEXT("Pezzo mosso"));
+	
+	CheckWinAndGoNextPlayer(PlayerNumber);
+}
 
-	// TODO cambaire la struttura -> questo era nella nextPlayer
-	//CurrentPlayer = GetNextPlayer(CurrentPlayer);
+void AChess_GameMode::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
+{
+	CriticalSection.Lock();
+	GField->PiecesMapRemove(Coord);
 
+	if (PieceToCapture->Color == EPieceColor::BLACK)
+		GField->BotPiecesRemove(PieceToCapture);
+	else
+		GField->HumanPlayerPiecesRemove(PieceToCapture);
+
+	CriticalSection.Unlock();
+
+	PieceToCapture->SetActorHiddenInGame(true);
+	PieceToCapture->SetActorEnableCollision(false);
+	//PieceToCapture->PieceDestroy();
+}
+
+void AChess_GameMode::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
+{
 	GField->IsCheckmateSituation = false;
 	GField->ResetTileMarked();
 
@@ -110,7 +128,6 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 	{
 		TileArray[i]->SEtStatusCheckmate(-1, EStatusCheckmate::NEUTRAL);
 	}
-	UE_LOG(LogTemp, Error, TEXT("Tocca a: %d"), CurrentPlayer);
 
 	bool IsHumanPlayer = static_cast<bool>(CurrentPlayer);
 	if (GField->Check(PlayerNumber, IsHumanPlayer))
@@ -118,12 +135,11 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 		GField->IsCheckmateSituation = true;
 		GField->ResetTileMarked();
 		TArray<AChessPieces*> Pieces = (IsHumanPlayer ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
-		for (int32 i = 0; i < Pieces.Num(); i++) 
+		for (int32 i = 0; i < Pieces.Num(); i++)
 		{
-			UE_LOG(LogTemp, Error, TEXT("Chiamate bellosee"));
 			Pieces[i]->LegalMove(PlayerNumber, IsHumanPlayer);
-			//if (GField->GetTileMarked().Num() != 0)
-				//break;
+			if (GField->GetTileMarked().Num() != 0)
+				break;
 		}
 
 		if (GField->GetTileMarked().Num() == 0)
@@ -140,39 +156,12 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 				}
 			}
 		}
-		GField->ResetTileMarked();
-		//GField->TileMarkedDestroy();
-		TurnNextPlayer();
 	}
 	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Procedo"));
-		GField->ResetTileMarked();
 		GField->CheckSituation = false;
-		TurnNextPlayer();
-	}
-}
 
-void AChess_GameMode::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
-{
-	CriticalSection.Lock();
-	UE_LOG(LogTemp, Error, TEXT("Ho tolto il pezzo catturato dalla mappa"));
-	GField->PiecesMapRemove(Coord);
-	//GField->PiecesArray.Remove(PieceToCapture);
-	if (PieceToCapture->Color == EPieceColor::BLACK)
-	{
-		GField->BotPiecesRemove(PieceToCapture);
-	}
-	else
-	{
-		GField->HumanPlayerPiecesRemove(PieceToCapture);
-	}
-
-	CriticalSection.Unlock();
-
-	PieceToCapture->SetActorHiddenInGame(true);
-	PieceToCapture->SetActorEnableCollision(false);
-	//PieceToCapture->PieceDestroy();
+	GField->ResetTileMarked();
+	TurnNextPlayer();
 }
 
 int32 AChess_GameMode::GetNextPlayer(int32 Player)

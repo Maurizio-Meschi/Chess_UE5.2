@@ -73,6 +73,8 @@ public:
 
 	void CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord);
 
+	void CheckWinAndGoNextPlayer(const int32 PlayerNumber);
+
 	// get the next player index
 	int32 GetNextPlayer(int32 Player);
 

@@ -47,11 +47,7 @@ void AChessPieces::SetColor(EPieceColor color)
 
 void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked)
 {
-	if (GameModeClass != nullptr)
-		GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
-	else
-		UE_LOG(LogTemp, Error, TEXT("Game Mode is null"));
-
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	AGameField* Field = GMode->GField;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
@@ -60,10 +56,9 @@ void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer
 	ATile* SelectedTile = nullptr;
 
 	GMode->CriticalSection.Lock();
-
 	SelectedTile = TileMap[FVector2D(x, y)];
-
 	GMode->CriticalSection.Unlock();
+
 	if (this->GetClass()->GetName() == (IsHumanPlayer ? "BP_w_King_C" : "BP_b_King_C") &&
 		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::BLOCK_KING)
 	{
@@ -77,9 +72,7 @@ void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer
 	else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 	{
 		GMode->CriticalSection.Lock();
-
 		AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
-
 		GMode->CriticalSection.Unlock();
 
 		if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
@@ -116,55 +109,13 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 	else
 	{
 		// Questa è valida solo per il king
-		if (IsKing && SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
-		{
-			SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
-
-		}
-		// Evito che catturando una pedina mi vada ad esporre
-		if (IsKing && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
-		{
-			GMode->CriticalSection.Lock();
-			AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
-			GMode->CriticalSection.Unlock();
-
-			if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
-			{
-				if (SelectedPiece->GetClass()->GetName() != (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
-				{
-					SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
-				}
-			}
-		}
+		if (IsKing)
+			ManageCheckSituationKing(x, y, PlayerNumber, IsHumanPlayer, SelectedTile);
 
 		// controllo se una pedina può andare diretta contro il re
 		else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 		{
-			GMode->CriticalSection.Lock();
-			AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
-			GMode->CriticalSection.Unlock();
-
-			if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
-			{
-				if (SelectedPiece->GetClass()->GetName() == (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
-				{
-					Field->KingUnderAttack = true;
-					// non devo marcare le tile intermedie perchè il cavallo va diretto dal re
-					if (this->GetClass()->GetName() != (IsHumanPlayer ? "BP_w_Knight_C" : "BP_b_Knight_C"))
-					{
-						FVector2d PiecePosition = this->GetGridPosition();
-						GMode->CriticalSection.Lock();
-						TileMap[PiecePosition]->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
-						GMode->CriticalSection.Unlock();
-						// Marca le tile per arrivare al re
-						FindTileBetweenP1P2(PiecePosition, FVector2D(x, y), PlayerNumber);
-					}
-				}
-				else
-					Marked = true;
-			}
-			else
-				Marked = true;
+			ManageCheckSituationOccpied(x, y, PlayerNumber, IsHumanPlayer, SelectedTile, Marked);
 		}
 		// controllo se una pedina può andare in una cella in cui si potrebbe spostare il re
 		if (!IsKing && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
@@ -223,6 +174,62 @@ void AChessPieces::ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlay
 		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
 		Field->AddTileMarked(SelectedTile);
 	}
+}
+
+void AChessPieces::ManageCheckSituationKing(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, ATile* SelectedTile)
+{
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	AGameField* Field = GMode->GField;
+	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
+
+	if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
+	{
+		SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
+
+	}
+	// Evito che catturando una pedina mi vada ad esporre
+	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+	{
+		GMode->CriticalSection.Lock();
+		AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
+		GMode->CriticalSection.Unlock();
+
+		if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
+		{
+			if (SelectedPiece->GetClass()->GetName() != (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
+			{
+				SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
+			}
+		}
+	}
+}
+
+void AChessPieces::ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, ATile* SelectedTile, bool& Marked)
+{
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	AGameField* Field = GMode->GField;
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
+
+	GMode->CriticalSection.Lock();
+	AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
+	GMode->CriticalSection.Unlock();
+
+	if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE) &&
+		SelectedPiece->GetClass()->GetName() == (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
+	{
+		Field->KingUnderAttack = true;
+		FVector2d PiecePosition = this->GetGridPosition();
+		GMode->CriticalSection.Lock();
+		TileMap[PiecePosition]->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
+		GMode->CriticalSection.Unlock();
+
+		// non devo marcare le tile intermedie perchè il cavallo va diretto dal re
+		if (this->GetClass()->GetName() != (IsHumanPlayer ? "BP_w_Knight_C" : "BP_b_Knight_C"))
+			FindTileBetweenP1P2(PiecePosition, FVector2D(x, y), PlayerNumber);
+	}
+	else
+		Marked = true;
 }
 
 void AChessPieces::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2, int32 PlayerNumber)
