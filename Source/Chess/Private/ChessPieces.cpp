@@ -149,12 +149,16 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 				if (SelectedPiece->GetClass()->GetName() == (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
 				{
 					Field->KingUnderAttack = true;
-					FVector2d PiecePosition = this->GetGridPosition();
-					GMode->CriticalSection.Lock();
-					TileMap[PiecePosition]->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
-					GMode->CriticalSection.Unlock();
-					// Marca le tile per arrivare al re
-					FindTileBetweenP1P2(PiecePosition, FVector2D(x, y), PlayerNumber);
+					// non devo marcare le tile intermedie perchè il cavallo va diretto dal re
+					if (this->GetClass()->GetName() != (IsHumanPlayer ? "BP_w_Knight_C" : "BP_b_Knight_C"))
+					{
+						FVector2d PiecePosition = this->GetGridPosition();
+						GMode->CriticalSection.Lock();
+						TileMap[PiecePosition]->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
+						GMode->CriticalSection.Unlock();
+						// Marca le tile per arrivare al re
+						FindTileBetweenP1P2(PiecePosition, FVector2D(x, y), PlayerNumber);
+					}
 				}
 			}
 			Marked = true;
