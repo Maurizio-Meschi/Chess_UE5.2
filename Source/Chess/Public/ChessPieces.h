@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Tile.h"
-//#include "Chess_GameMode.h"
+#include "PawnPromotion.h"
 #include "GameFramework/Actor.h"
 #include "ChessPieces.generated.h"
 

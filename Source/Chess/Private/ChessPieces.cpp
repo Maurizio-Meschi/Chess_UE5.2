@@ -120,7 +120,7 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 		// controllo se una pedina può andare in una cella in cui si potrebbe spostare il re
 		if (!IsKing && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
 		{
-			SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::BLOCK_KING);
+			SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::BLOCK_KING);
 		}
 	}
 }
@@ -184,7 +184,7 @@ void AChessPieces::ManageCheckSituationKing(int32 x, int32 y, int32 PlayerNumber
 
 	if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
 	{
-		SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
+		SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
 
 	}
 	// Evito che catturando una pedina mi vada ad esporre
@@ -198,7 +198,7 @@ void AChessPieces::ManageCheckSituationKing(int32 x, int32 y, int32 PlayerNumber
 		{
 			if (SelectedPiece->GetClass()->GetName() != (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
 			{
-				SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
+				SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
 			}
 		}
 	}
@@ -221,7 +221,7 @@ void AChessPieces::ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNum
 		Field->KingUnderAttack = true;
 		FVector2d PiecePosition = this->GetGridPosition();
 		GMode->CriticalSection.Lock();
-		TileMap[PiecePosition]->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
+		TileMap[PiecePosition]->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
 		GMode->CriticalSection.Unlock();
 
 		// non devo marcare le tile intermedie perchè il cavallo va diretto dal re
@@ -260,9 +260,9 @@ void AChessPieces::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2,
 			SelectedTile = TileMap[FVector2D(x, y)];
 			if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING ||
 				SelectedTile->GetStatusCheckmate() == EStatusCheckmate::BLOCK_KING)
-				SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_AND_BLOCK_KING);
+				SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_AND_BLOCK_KING);
 			else
-				SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_TO_AVOID_CHECKMATE);
+				SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_TO_AVOID_CHECKMATE);
 
 			GMode->CriticalSection.Unlock();
 		}

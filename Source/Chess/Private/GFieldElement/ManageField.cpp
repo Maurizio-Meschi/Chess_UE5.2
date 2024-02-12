@@ -34,7 +34,7 @@ void AElementsToManageField::ResetCheckArrayTile()
 {
 	for (int32 i = 0; i < CheckArrayTile.Num(); i++)
 	{
-		CheckArrayTile[i]->SEtStatusCheckmate(-1, EStatusCheckmate::NEUTRAL);
+		CheckArrayTile[i]->SetStatusCheckmate(-1, EStatusCheckmate::NEUTRAL);
 	}
 	CheckArrayTile.Empty();
 }

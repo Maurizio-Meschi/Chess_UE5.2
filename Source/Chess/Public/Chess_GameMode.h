@@ -59,6 +59,8 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	AGameField* GField;
 
+	AChess_PlayerController* PlayerController;
+
 	AChess_GameMode();
 
 	// Called when the game starts or when spawned

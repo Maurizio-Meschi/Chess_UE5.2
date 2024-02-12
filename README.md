@@ -10,6 +10,7 @@
 - [ ] Commentare le funzioni
 - [ ] ChessPieces e ChessPawn verificare se si possono togliere un po di variabili e mettere come attributi della classe
 - [ ] Controllare le variabile MarkedForword etc nelle varie classi -> non sempre utili, ma essendo un riferimento devo passare un bool
+- [ ] Spostare movePiece, capturePiece e win in una calsse "ManagerPieces"
 
 
 ## TODO
@@ -44,6 +45,13 @@
 - [x] Il re non può fare una giocata che lo espone alla minaccia
 - [ ] Se più pedine minacciano il re dovrei verificare che esiste una mossa univoca per scappare da entrambe le minaccie
 - [ ] Una pedina non può muoversi se questa giocata espone il re -> gestire
+
+
+## PawnPromotion 
+- [ ] Creare una classe che crei il widget prendendo un layout UMG e poi gestisca il click del bottone.
+      Potrei distuggere il pawn appena arriva all'ottava riga e far aprire il menu con i bottoni. 
+      Il cambio della pedina devo farlo dopo aver mosso il pawn ed esso è arrivato all'8 riga -> quindi nella game mode
+
 
 
 ## PiecesRecap

@@ -7,6 +7,9 @@
 #include "Chess_HumanPlayer.h"
 #include "Chess_RandomPlayer.h"
 #include "Chess_GameInstance.h"
+#include "PawnPromotion.h"
+#include "Async/TaskGraphInterfaces.h"
+#include "Async/TaskGraphInterfaces.h"
 #include "EngineUtils.h"
 #include "Engine/World.h"
 
@@ -55,6 +58,8 @@ void AChess_GameMode::BeginPlay()
 	// AI player = 1
 	Players.Add(AI);
 
+	PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
 	this->ChoosePlayerAndStartGame();
 }
 
@@ -91,6 +96,32 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 
 	CriticalSection.Unlock();
 
+	if (Piece->GetClass()->GetName() == "BP_w_Pawn_C")
+	{
+		
+		if (static_cast<int32>(Piece->GetGridPosition().X) == 7)
+		{
+			FGraphEventRef MyTask = FFunctionGraphTask::CreateAndDispatchWhenReady([Piece]()
+			{
+				// Apri il menu di promozione e metti in pausa il gioco
+				//Piece->OpenPromotionMenu(Piece);
+				UPawnPromotion* PromotionInstance = NewObject<UPawnPromotion>();
+				if (PromotionInstance)
+				{
+					// Imposta il pezzo da promuovere
+					PromotionInstance->SetpieceToPromote(Piece);
+					PromotionInstance->IsHumanPlayer = true;
+						// Visualizza il menu di promozione
+					PromotionInstance->PawnPromotion();
+
+					// Metti in pausa il gioco
+					//UGameplayStatics::SetGamePaused(GetWorld(), true);
+				}
+				PromotionInstance->ConditionalBeginDestroy();
+			}, TStatId(), nullptr, ENamedThreads::GameThread);
+		}
+
+	}
 	// Add the piece reference in the current played 
 	UChess_GameInstance* GInstance = Cast<UChess_GameInstance>(GetWorld()->GetAuthGameMode());
 	FRewind Obj;
@@ -126,7 +157,7 @@ void AChess_GameMode::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 	TArray<ATile*>& TileArray = GField->GetTileArray();
 	for (int32 i = 0; i < TileArray.Num(); i++)
 	{
-		TileArray[i]->SEtStatusCheckmate(-1, EStatusCheckmate::NEUTRAL);
+		TileArray[i]->SetStatusCheckmate(-1, EStatusCheckmate::NEUTRAL);
 	}
 
 	bool IsHumanPlayer = static_cast<bool>(CurrentPlayer);

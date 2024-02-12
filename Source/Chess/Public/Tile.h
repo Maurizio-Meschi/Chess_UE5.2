@@ -38,7 +38,7 @@ public:
 	// set the player owner and the status of a tile
 	void SetTileStatus(const int32 TileOwner, const ETileStatus TileStatus);
 
-	void SEtStatusCheckmate(const int32 TileOwner, const EStatusCheckmate TileStatus);
+	void SetStatusCheckmate(const int32 TileOwner, const EStatusCheckmate TileStatus);
 
 	// set the (x, y) position
 	void SetGridPosition(const double InX, const double InY);

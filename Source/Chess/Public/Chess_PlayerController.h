@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Chess_HumanPlayer.h"
+#include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "InputActionValue.h"
 #include "EnhancedInputComponent.h"
@@ -25,9 +26,15 @@ public:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputMappingContext* ChessContext;
 
-
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* ClickAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<UUserWidget> InventoryWidgetClass;
+
+	UUserWidget* InventoryWidget;
+
+	UUserWidget* GetInvetoryWidget() { return InventoryWidget; }
 
 	void ClickOnGrid();
 

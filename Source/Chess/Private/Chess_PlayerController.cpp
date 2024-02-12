@@ -3,11 +3,24 @@
 
 #include "Chess_PlayerController.h"
 #include "Components/InputComponent.h"
+#include "UObject/SoftObjectPtr.h"
+#include "UMG.h"
+#include "Engine/World.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
+#include "PawnPromotion.h"
 
 AChess_PlayerController::AChess_PlayerController()
 {
 	bShowMouseCursor = true;
 	bEnableClickEvents = true;
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetBPClass(TEXT("/Game/Blueprints/HUD_PawnPromotion"));
+
+	if (InventoryWidgetBPClass.Succeeded())
+	{
+		InventoryWidgetClass = InventoryWidgetBPClass.Class; 
+	}
 }
 
 void AChess_PlayerController::BeginPlay()
@@ -17,6 +30,22 @@ void AChess_PlayerController::BeginPlay()
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(ChessContext, 0);
+	}
+
+	// Only create the UI on the local machine (dose not excist on the server.)
+	if (IsLocalPlayerController())
+	{
+		if (InventoryWidgetClass)
+		{
+			if (!InventoryWidget) // If the widget is not created and == NULL
+			{
+				InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass); // Create Widget
+				if (!InventoryWidget)
+					return;
+				InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
+				InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
+			}
+		}
 	}
 }
 

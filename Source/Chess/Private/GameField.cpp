@@ -186,7 +186,7 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 
 		GMode->CriticalSection.Lock();
 		if (TileMap[Position]->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
-			TileMap[Position]->SEtStatusCheckmate(!PlayerNumber, EStatusCheckmate::BLOCK_KING);
+			TileMap[Position]->SetStatusCheckmate(!PlayerNumber, EStatusCheckmate::BLOCK_KING);
 		GMode->CriticalSection.Unlock();
 		*/
 		Pieces[i]->LegalMove(!PlayerNumber, !IsHumanPlayer);
@@ -200,7 +200,7 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 		FVector2D Position = Pieces[i]->GetGridPosition();
 
 		if (TileMap[Position]->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
-			TileMap[Position]->SEtStatusCheckmate(!PlayerNumber, EStatusCheckmate::BLOCK_KING);
+			TileMap[Position]->SetStatusCheckmate(!PlayerNumber, EStatusCheckmate::BLOCK_KING);
 	}
 	GMode->CriticalSection.Unlock();
 

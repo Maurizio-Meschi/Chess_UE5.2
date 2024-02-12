@@ -101,7 +101,7 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 					Field->KingUnderAttack = true;
 					FVector2d PiecePosition = this->GetGridPosition();
 					GMode->CriticalSection.Lock();
-					TileMap[PiecePosition]->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
+					TileMap[PiecePosition]->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
 					GMode->CriticalSection.Unlock();
 					// Marca le tile per arrivare al re
 					FindTileBetweenP1P2(PiecePosition, FVector2D(x, y), PlayerNumber);
@@ -110,7 +110,7 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 		}
 		if (CaptureSituation && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
 		{
-			SelectedTile->SEtStatusCheckmate(PlayerNumber, EStatusCheckmate::BLOCK_KING);;
+			SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::BLOCK_KING);;
 		}
 	}
 }
