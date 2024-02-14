@@ -25,7 +25,7 @@ AChessPieces::AChessPieces()
 void AChessPieces::BeginPlay()
 {
 	Super::BeginPlay();
-	AChess_GameMode* GameMOde = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	//GameMode->GField->OnResetEvent.AddDynamic(this, &ABaseSign::SelfDestroy);
 }
 
@@ -47,7 +47,6 @@ void AChessPieces::SetColor(EPieceColor color)
 
 void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked)
 {
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	AGameField* Field = GMode->GField;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
@@ -88,9 +87,7 @@ void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer
 }
 
 void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked)
-{
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
-	
+{	
 	AGameField* Field = GMode->GField;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
@@ -118,7 +115,7 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 			ManageCheckSituationOccpied(x, y, PlayerNumber, IsHumanPlayer, SelectedTile, Marked);
 		}
 		// controllo se una pedina può andare in una cella in cui si potrebbe spostare il re
-		if (!IsKing && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
+		if (!IsKing && (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING || SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING))
 		{
 			SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::BLOCK_KING);
 		}
@@ -127,8 +124,6 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 
 void AChessPieces::ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlayer, bool& Marked, ATile* SelectedTile)
 {
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
-
 	AGameField* Field = GMode->GField;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
@@ -160,7 +155,7 @@ void AChessPieces::ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlay
 		//}
 	}
 
-	if (this->GetClass()->GetName() != (IsHumanPlayer ? "BP_w_King_C" : "BP_b_King_C") &&
+	if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING ||
 		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
 	{
 		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
@@ -178,7 +173,6 @@ void AChessPieces::ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlay
 
 void AChessPieces::ManageCheckSituationKing(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, ATile* SelectedTile)
 {
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	AGameField* Field = GMode->GField;
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
@@ -206,7 +200,6 @@ void AChessPieces::ManageCheckSituationKing(int32 x, int32 y, int32 PlayerNumber
 
 void AChessPieces::ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, ATile* SelectedTile, bool& Marked)
 {
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	AGameField* Field = GMode->GField;
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
@@ -234,7 +227,6 @@ void AChessPieces::ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNum
 
 void AChessPieces::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2, int32 PlayerNumber)
 {
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	AGameField* Field = GMode->GField;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();

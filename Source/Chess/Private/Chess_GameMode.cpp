@@ -27,7 +27,7 @@ AChess_GameMode::AChess_GameMode()
 void AChess_GameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
+	PromotionInstance = NewObject<UPawnPromotion>();
 	IsGameOver = false;
 
 	//MoveCounter = 0;
@@ -96,40 +96,28 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 
 	CriticalSection.Unlock();
 
-	if (Piece->GetClass()->GetName() == "BP_w_Pawn_C")
+	if (Piece->GetClass()->GetName() == "BP_w_Pawn_C" && static_cast<int32>(Piece->GetGridPosition().X) == 7)
 	{
-		
-		if (static_cast<int32>(Piece->GetGridPosition().X) == 7)
+		if (PromotionInstance)
 		{
-			FGraphEventRef MyTask = FFunctionGraphTask::CreateAndDispatchWhenReady([Piece]()
-			{
-				// Apri il menu di promozione e metti in pausa il gioco
-				//Piece->OpenPromotionMenu(Piece);
-				UPawnPromotion* PromotionInstance = NewObject<UPawnPromotion>();
-				if (PromotionInstance)
-				{
-					// Imposta il pezzo da promuovere
-					PromotionInstance->SetpieceToPromote(Piece);
-					PromotionInstance->IsHumanPlayer = true;
-						// Visualizza il menu di promozione
-					PromotionInstance->PawnPromotion();
-
-					// Metti in pausa il gioco
-					//UGameplayStatics::SetGamePaused(GetWorld(), true);
-				}
-				PromotionInstance->ConditionalBeginDestroy();
-			}, TStatId(), nullptr, ENamedThreads::GameThread);
+			PromotionInstance->SetpieceToPromote(Piece);
+			//PromotionInstance->SetGameMode(this);
+			PromotionInstance->IsHumanPlayer = true;
+			PromotionInstance->PawnPromotion();
+			PromotionInstance->OnPromotionCompleted.AddUObject(this, &AChess_GameMode::HandlePromotionCompleted);
 		}
-
 	}
-	// Add the piece reference in the current played 
-	UChess_GameInstance* GInstance = Cast<UChess_GameInstance>(GetWorld()->GetAuthGameMode());
-	FRewind Obj;
-	Obj.PieceToRewind = Piece;  
-	Obj.Position = Piece->GetGridPosition();
-	ArrayOfPlays.Add(Obj);
-	
-	CheckWinAndGoNextPlayer(PlayerNumber);
+	else
+	{
+		// Add the piece reference in the current played 
+		UChess_GameInstance* GInstance = Cast<UChess_GameInstance>(GetWorld()->GetAuthGameMode());
+		FRewind Obj;
+		Obj.PieceToRewind = Piece;
+		Obj.Position = Piece->GetGridPosition();
+		ArrayOfPlays.Add(Obj);
+
+		CheckWinAndGoNextPlayer(PlayerNumber);
+	}
 }
 
 void AChess_GameMode::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
@@ -145,8 +133,7 @@ void AChess_GameMode::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord
 	CriticalSection.Unlock();
 
 	PieceToCapture->SetActorHiddenInGame(true);
-	PieceToCapture->SetActorEnableCollision(false);
-	//PieceToCapture->PieceDestroy();
+	PieceToCapture->SetActorEnableCollision(false);;
 }
 
 void AChess_GameMode::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
@@ -161,6 +148,7 @@ void AChess_GameMode::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 	}
 
 	bool IsHumanPlayer = static_cast<bool>(CurrentPlayer);
+	
 	if (GField->Check(PlayerNumber, IsHumanPlayer))
 	{
 		GField->IsCheckmateSituation = true;
@@ -177,7 +165,7 @@ void AChess_GameMode::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 		{
 			IsGameOver = true;
 			Players[CurrentPlayer]->OnWin();
-			UE_LOG(LogTemp, Error, TEXT("Vittoria confused uga buga"));
+			
 			for (int32 i = 0; i < Players.Num(); i++)
 			{
 				if (i != CurrentPlayer)

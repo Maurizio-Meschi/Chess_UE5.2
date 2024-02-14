@@ -34,6 +34,7 @@ void AGameField::OnConstruction(const FTransform& Transform)
 void AGameField::BeginPlay()
 {
 	Super::BeginPlay();
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	GenerateField();
 }
 
@@ -167,11 +168,12 @@ FVector2D AGameField::GetXYPositionByRelativeLocation(const FVector& Location) c
 bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 {
 	ResetCheckArray();
-	AChess_GameMode* GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	if (GMode == nullptr) UE_LOG(LogTemp, Error, TEXT("GMode nulla anche nella gamefield!!"))
 	AKing* King = (IsHumanPlayer ? KingArray[0] : KingArray[1]);
 
 	CheckSituation = true;
-
+	UE_LOG(LogTemp, Error, TEXT("Nella check prima dell'esplosione con IsHumanPlayer = %s"), IsHumanPlayer ? TEXT("True") : TEXT("False"));
 	// mark the tile (status MARK_BY_KING)
 	King->IsKing = true;
 	King->LegalMove(PlayerNumber, IsHumanPlayer);
@@ -181,14 +183,6 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 	TArray<AChessPieces*> Pieces = (IsHumanPlayer ? BotPieces : HumanPlayerPieces);
 	for (int32 i = 0; i < Pieces.Num(); i++)
 	{
-		/*
-		FVector2D Position = Pieces[i]->GetGridPosition();
-
-		GMode->CriticalSection.Lock();
-		if (TileMap[Position]->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
-			TileMap[Position]->SetStatusCheckmate(!PlayerNumber, EStatusCheckmate::BLOCK_KING);
-		GMode->CriticalSection.Unlock();
-		*/
 		Pieces[i]->LegalMove(!PlayerNumber, !IsHumanPlayer);
 	}
 	if (!KingUnderAttack)
@@ -200,7 +194,7 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 		FVector2D Position = Pieces[i]->GetGridPosition();
 
 		if (TileMap[Position]->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
-			TileMap[Position]->SetStatusCheckmate(!PlayerNumber, EStatusCheckmate::BLOCK_KING);
+			TileMap[Position]->SetStatusCheckmate(!PlayerNumber, EStatusCheckmate::CAPTURE_BY_KING);
 	}
 	GMode->CriticalSection.Unlock();
 

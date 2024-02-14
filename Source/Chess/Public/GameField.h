@@ -21,6 +21,7 @@ class CHESS_API AGameField : public AElementsToManageField
 	static constexpr int32 LAST_ROW_FIELD = 8;
 
 public:
+	AChess_GameMode* GMode;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float NormalizedCellPadding;

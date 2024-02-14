@@ -21,7 +21,7 @@ AChess_RandomPlayer::AChess_RandomPlayer()
 void AChess_RandomPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 }
 
 // Called every frame
@@ -41,16 +41,14 @@ void AChess_RandomPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 void AChess_RandomPlayer::OnTurn()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Turno bot!"));
-	
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AI (Random) Turn"));
 	GameInstance->SetTurnMessage(TEXT("AI (Random) Turn"));
 	GameInstance->IncrementNumPlayed();
-
+	
 	FTimerHandle TimerHandle;
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 		{
-			AChess_GameMode* GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 			AGameField* Field = GMode->GField;
 
 			TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();

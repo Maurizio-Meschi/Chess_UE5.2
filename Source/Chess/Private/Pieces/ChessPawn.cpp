@@ -21,7 +21,6 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	int32 YMove = 0;
 
 	bool MarkedForward = false;
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 
 	AGameField* Field = GMode->GField;
 
@@ -108,7 +107,8 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 				}
 			}
 		}
-		if (CaptureSituation && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
+		if (CaptureSituation && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING || 
+			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING)
 		{
 			SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::BLOCK_KING);;
 		}

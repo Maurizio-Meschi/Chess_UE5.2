@@ -25,16 +25,14 @@ void UPawnPromotion::SetpieceToPromote(AChessPieces* Piece)
 void UPawnPromotion::PawnPromotion()
 {
     if (IsHumanPlayer)
-    {
         PawnPromotionHuman();
-    }
     else
         PawnPromotionBot();
 }
 
 void UPawnPromotion::PawnPromotionHuman()
 {
-    GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+    AChess_GameMode* GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
     AChess_PlayerController* ChessPlayerController = GMode->PlayerController;
 
     AGameField* Field = GMode->GField;
@@ -50,9 +48,9 @@ void UPawnPromotion::PawnPromotionHuman()
 
     if (WidgetGraph)
     {
-        ChessPlayerController->InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+       WidgetGraph->SetVisibility(ESlateVisibility::Visible);
         // Metti in pausa il gioco
-        UGameplayStatics::SetGamePaused(GetWorld(), true);
+        //UGameplayStatics::SetGamePaused(GetWorld(), true);
         // Associa la funzione di callback al clic dei bottoni
         UButton* QueenButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("QueenButton")));
         if (QueenButton)
@@ -88,26 +86,30 @@ void UPawnPromotion::PawnPromotionBot()
 void UPawnPromotion::ManageQueenButton()
 {
     SpawnNewPiece(Class[0]);
+    OnPromotionCompleted.Broadcast();
 }
 
 void UPawnPromotion::ManageRookButton()
 {
     SpawnNewPiece(Class[1]);
+    OnPromotionCompleted.Broadcast();
 }
 
 void UPawnPromotion::ManageBishopButton()
 {
     SpawnNewPiece(Class[2]);
+    OnPromotionCompleted.Broadcast();
 }
 
 void UPawnPromotion::ManagePawnButton()
 {
     SpawnNewPiece(Class[3]);
+    OnPromotionCompleted.Broadcast();
 }
 
 void UPawnPromotion::SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass)
 {
-    //auto GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+    auto GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
     AGameField* Field = GMode->GField;
 
     TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
@@ -118,9 +120,17 @@ void UPawnPromotion::SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass)
     PieceToPromote->SetActorEnableCollision(false);
     GMode->CriticalSection.Lock();
     Field->PiecesMapRemove(Position);
+    if (PieceToPromote->Color == EPieceColor::BLACK)
+        Field->BotPiecesRemove(PieceToPromote);
+    else
+        Field->HumanPlayerPiecesRemove(PieceToPromote);
     Field->GenerateChessPieceInXYPosition(Position.X, Position.Y, PieceClass, IsHumanPlayer ? EPieceColor::WHITE : EPieceColor::BLACK);
     GMode->CriticalSection.Unlock();
     WidgetGraph->SetVisibility(ESlateVisibility::Hidden);
-    UGameplayStatics::SetGamePaused(GetWorld(), false);
     
+    FRewind Obj;
+    Obj.PieceToRewind = PieceToPromote;
+    Obj.Position = PieceToPromote->GetGridPosition();
+    GMode->ArrayOfPlays.Add(Obj);
+    UE_LOG(LogTemp, Error, TEXT("Fine della spawnPiece"));
 }

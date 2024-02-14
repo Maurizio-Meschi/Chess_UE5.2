@@ -15,10 +15,10 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	int32 YMove = 0;
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
-
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	UE_LOG(LogTemp, Error, TEXT("Nella king legamove prima dell'esplosione con IsHumanPlayer = %s"), IsHumanPlayer ? TEXT("True") : TEXT("False"));
+	if (GMode == nullptr) UE_LOG(LogTemp, Error, TEXT("GMode Nulla"));
 	AGameField* Field = GMode->GField;
-
+	UE_LOG(LogTemp, Error, TEXT("Nella king legal move prima dell'esplosione con IsHumanPlayer = %s e dopo aver preso il riferimento al field"), IsHumanPlayer ? TEXT("True") : TEXT("False"));
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
 

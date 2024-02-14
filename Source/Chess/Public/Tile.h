@@ -24,6 +24,7 @@ enum class EStatusCheckmate : uint8
 	MARK_AND_BLOCK_KING  		UMETA(DisplayName = "Mark to avoid checkmate"),
 	CAPTURE_TO_AVOID_CHECKMATE  UMETA(DisplayName = "Capture to avoid checkmate"),
 	BLOCK_KING					UMETA(DisplayName = "Block King"),
+	CAPTURE_BY_KING				UMETA(DisplayName = "Capture by King"),
 };
 
 UCLASS()

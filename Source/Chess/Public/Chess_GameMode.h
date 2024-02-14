@@ -22,6 +22,8 @@ public:
 	FVector2D Position;
 };
 
+DECLARE_DELEGATE(FFunctionDelegate);
+
 UCLASS()
 class CHESS_API AChess_GameMode : public AGameModeBase
 {
@@ -37,7 +39,10 @@ private:
 	// tracks the number of moves in order to signal a drawn game
 	int32 MoveCounter;
 
+	UPawnPromotion* PromotionInstance;
+
 public:
+
 	FCriticalSection CriticalSection;
 
 	// array of player interfaces
@@ -83,4 +88,8 @@ public:
 	// called at the end of the game turn
 	void TurnNextPlayer();
 	
+	void HandlePromotionCompleted()
+	{
+		CheckWinAndGoNextPlayer(CurrentPlayer);
+	}
 };

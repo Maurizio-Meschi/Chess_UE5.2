@@ -19,7 +19,6 @@ void AQueen::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
 
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	AGameField* Field = GMode->GField;
 
 	XMove = IsHumanPlayer ? 1 : -1;
