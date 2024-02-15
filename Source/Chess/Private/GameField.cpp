@@ -133,7 +133,6 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	ATile* CurrTile = TileMap[FVector2D(x, y)];
 	color == EPieceColor::BLACK ? CurrTile->SetTileStatus(0, ETileStatus::OCCUPIED) : CurrTile->SetTileStatus(1, ETileStatus::OCCUPIED);
 	PiecesMap.Add(FVector2D(x, y), Obj);
-
 	if (color == EPieceColor::BLACK)
 		BotPieces.Add(Obj);
 	else
@@ -168,8 +167,6 @@ FVector2D AGameField::GetXYPositionByRelativeLocation(const FVector& Location) c
 bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 {
 	ResetCheckArray();
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
-	if (GMode == nullptr) UE_LOG(LogTemp, Error, TEXT("GMode nulla anche nella gamefield!!"))
 	AKing* King = (IsHumanPlayer ? KingArray[0] : KingArray[1]);
 
 	CheckSituation = true;

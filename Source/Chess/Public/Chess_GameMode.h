@@ -45,6 +45,8 @@ public:
 
 	FCriticalSection CriticalSection;
 
+	FCriticalSection MutexForDelegate;
+
 	// array of player interfaces
 	TArray<IChess_PlayerInterface*> Players;
 

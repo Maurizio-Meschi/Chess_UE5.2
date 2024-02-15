@@ -21,7 +21,7 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	int32 YMove = 0;
 
 	bool MarkedForward = false;
-
+	GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
 	AGameField* Field = GMode->GField;
 
 	// check if the next first vertical tile is empty and if true, mark the tile

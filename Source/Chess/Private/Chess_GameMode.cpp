@@ -88,7 +88,7 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 
 	CriticalSection.Lock();
 
-	GField->PiecesMapRemove(FVector2D(Piece->GetGridPosition().X, Piece->GetGridPosition().Y));
+	GField->PiecesMapRemove(Piece->GetGridPosition());
 	Piece->SetGridPosition(Coord.X, Coord.Y);
 	
 	GField->AddPiecesMap(Coord, Piece);
@@ -103,8 +103,21 @@ void AChess_GameMode::MovePiece(const int32 PlayerNumber, const FVector& SpawnPo
 			PromotionInstance->SetpieceToPromote(Piece);
 			//PromotionInstance->SetGameMode(this);
 			PromotionInstance->IsHumanPlayer = true;
-			PromotionInstance->PawnPromotion();
+			//PromotionInstance->PawnPromotion();
+			FGraphEventRef GameThreadTask = FFunctionGraphTask::CreateAndDispatchWhenReady([=]()
+				{
+					PromotionInstance->PawnPromotion();
+				}, TStatId(), nullptr, ENamedThreads::GameThread);
+			UE_LOG(LogTemp, Error, TEXT("prima del controllo del delegato"));
+			
+			MutexForDelegate.Lock();
+			PromotionInstance->OnPromotionCompleted.RemoveAll(this);
+			MutexForDelegate.Unlock();
+
+			UE_LOG(LogTemp, Error, TEXT("nella addobject"));
+			MutexForDelegate.Lock();
 			PromotionInstance->OnPromotionCompleted.AddUObject(this, &AChess_GameMode::HandlePromotionCompleted);
+			MutexForDelegate.Unlock();
 		}
 	}
 	else

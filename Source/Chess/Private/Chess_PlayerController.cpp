@@ -42,8 +42,8 @@ void AChess_PlayerController::BeginPlay()
 				InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass); // Create Widget
 				if (!InventoryWidget)
 					return;
-				InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
-				InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
+				//InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
+				//InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
 			}
 		}
 	}

@@ -48,9 +48,9 @@ public:
 
     UUserWidget* WidgetGraph;
 
-    TArray< TSubclassOf<AChessPieces>> Class;
+    TArray<TSubclassOf<AChessPieces>> Class;
 
-    //AChess_GameMode* GMode;
+    AChess_GameMode* GMode;
 
     bool IsHumanPlayer = false;
 };

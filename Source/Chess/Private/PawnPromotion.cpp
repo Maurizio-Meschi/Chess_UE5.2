@@ -24,6 +24,7 @@ void UPawnPromotion::SetpieceToPromote(AChessPieces* Piece)
 
 void UPawnPromotion::PawnPromotion()
 {
+    UE_LOG(LogTemp, Error, TEXT("Pawn promotion!"));
     if (IsHumanPlayer)
         PawnPromotionHuman();
     else
@@ -32,10 +33,12 @@ void UPawnPromotion::PawnPromotion()
 
 void UPawnPromotion::PawnPromotionHuman()
 {
-    AChess_GameMode* GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
+    GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+    if (GMode == nullptr) UE_LOG(LogTemp, Error, TEXT("GMode nullptr nuu!"));
     AChess_PlayerController* ChessPlayerController = GMode->PlayerController;
 
     AGameField* Field = GMode->GField;
+    if (Class.Num() < 4) Class.SetNum(4);
     Class[0] = (IsHumanPlayer ? Field->GameFieldSubClass.ChessQueen[0] : Field->GameFieldSubClass.ChessQueen[1]);
     Class[1] = (IsHumanPlayer ? Field->GameFieldSubClass.ChessRook[0] : Field->GameFieldSubClass.ChessRook[1]);
     Class[2] = (IsHumanPlayer ? Field->GameFieldSubClass.ChessBishop[0] : Field->GameFieldSubClass.ChessBishop[1]);
@@ -45,33 +48,35 @@ void UPawnPromotion::PawnPromotionHuman()
         WidgetGraph = ChessPlayerController->GetInvetoryWidget();
     else 
         UE_LOG(LogTemp, Error, TEXT("PlayerControll Nulla"));
-
+    UE_LOG(LogTemp, Error, TEXT("Human"));
     if (WidgetGraph)
     {
-       WidgetGraph->SetVisibility(ESlateVisibility::Visible);
-        // Metti in pausa il gioco
-        //UGameplayStatics::SetGamePaused(GetWorld(), true);
-        // Associa la funzione di callback al clic dei bottoni
+        //WidgetGraph->SetVisibility(ESlateVisibility::Visible);
+        UE_LOG(LogTemp, Error, TEXT("Prima del viewport"));
+        //WidgetGraph->AddToViewport();
+        WidgetGraph->AddToViewport();
+
+        UE_LOG(LogTemp, Error, TEXT("Prima del bottone"));
         UButton* QueenButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("QueenButton")));
-        if (QueenButton)
-        {  
+        if (QueenButton && !QueenButton->OnClicked.IsBound())
+        {
             QueenButton->OnClicked.AddDynamic(this, &UPawnPromotion::ManageQueenButton);
         }
-        
+        UE_LOG(LogTemp, Error, TEXT("Prima del secondo bottone"));
         UButton* RookButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("RookButton")));
-        if (RookButton)
+        if (RookButton && !RookButton->OnClicked.IsBound())
         {
             RookButton->OnClicked.AddDynamic(this, &UPawnPromotion::ManageRookButton);
         }
 
         UButton* BishopButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("BishopButton")));
-        if (BishopButton)
+        if (BishopButton && !BishopButton->OnClicked.IsBound())
         {
             BishopButton->OnClicked.AddDynamic(this, &UPawnPromotion::ManageBishopButton);
         }
-
+        UE_LOG(LogTemp, Error, TEXT("Prima ultimo bottone"));
         UButton* PawnButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("PawnButton")));
-        if (PawnButton)
+        if (PawnButton && !PawnButton->OnClicked.IsBound())
         {
             PawnButton->OnClicked.AddDynamic(this, &UPawnPromotion::ManagePawnButton);
         }
@@ -86,30 +91,39 @@ void UPawnPromotion::PawnPromotionBot()
 void UPawnPromotion::ManageQueenButton()
 {
     SpawnNewPiece(Class[0]);
+    UE_LOG(LogTemp, Error, TEXT("prima del broadcast!"));
+    GMode->MutexForDelegate.Lock();
     OnPromotionCompleted.Broadcast();
+    GMode->MutexForDelegate.Unlock();
 }
 
 void UPawnPromotion::ManageRookButton()
 {
     SpawnNewPiece(Class[1]);
+    GMode->MutexForDelegate.Lock();
     OnPromotionCompleted.Broadcast();
+    GMode->MutexForDelegate.Unlock();
 }
 
 void UPawnPromotion::ManageBishopButton()
 {
     SpawnNewPiece(Class[2]);
+    GMode->MutexForDelegate.Lock();
     OnPromotionCompleted.Broadcast();
+    GMode->MutexForDelegate.Unlock();
 }
 
 void UPawnPromotion::ManagePawnButton()
 {
     SpawnNewPiece(Class[3]);
+    GMode->MutexForDelegate.Lock();
     OnPromotionCompleted.Broadcast();
+    GMode->MutexForDelegate.Unlock();
 }
 
 void UPawnPromotion::SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass)
 {
-    auto GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
+    //auto GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
     AGameField* Field = GMode->GField;
 
     TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
@@ -124,13 +138,16 @@ void UPawnPromotion::SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass)
         Field->BotPiecesRemove(PieceToPromote);
     else
         Field->HumanPlayerPiecesRemove(PieceToPromote);
-    Field->GenerateChessPieceInXYPosition(Position.X, Position.Y, PieceClass, IsHumanPlayer ? EPieceColor::WHITE : EPieceColor::BLACK);
     GMode->CriticalSection.Unlock();
-    WidgetGraph->SetVisibility(ESlateVisibility::Hidden);
+    Field->GenerateChessPieceInXYPosition(Position.X, Position.Y, PieceClass, IsHumanPlayer ? EPieceColor::WHITE : EPieceColor::BLACK);
+    //WidgetGraph->SetVisibility(ESlateVisibility::Hidden);
     
     FRewind Obj;
     Obj.PieceToRewind = PieceToPromote;
     Obj.Position = PieceToPromote->GetGridPosition();
     GMode->ArrayOfPlays.Add(Obj);
-    UE_LOG(LogTemp, Error, TEXT("Fine della spawnPiece"));
+
+    WidgetGraph->RemoveFromParent();
+          
+    //WidgetGraph->RemoveFromParent();
 }

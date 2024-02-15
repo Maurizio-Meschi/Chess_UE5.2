@@ -18,7 +18,7 @@ void ARook::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	int32 YMove = 0;
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
-
+	GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
 	AGameField* Field = GMode->GField;
 
 	XMove   = IsHumanPlayer ? 1 : -1;
