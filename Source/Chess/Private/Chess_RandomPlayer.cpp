@@ -5,6 +5,7 @@
 #include "ChessPieces.h"
 #include "GameField.h"
 #include "Tile.h"
+#include "ManagePiece.h"
 
 // Sets default values
 AChess_RandomPlayer::AChess_RandomPlayer()
@@ -13,7 +14,7 @@ AChess_RandomPlayer::AChess_RandomPlayer()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-
+	PieceManager = CreateDefaultSubobject<AManagePiece>(TEXT("PieceManager"));
 	PieceColor = EPieceColor::BLACK;
 }
 
@@ -22,6 +23,7 @@ void AChess_RandomPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	//PieceManager = NewObject<AManagePiece>();
 }
 
 // Called every frame
@@ -98,7 +100,7 @@ void AChess_RandomPlayer::OnTurn()
 
 					GMode->CriticalSection.Unlock();
 
-					GMode->CapturePiece(PieceToCapture, Coord);
+					PieceManager->CapturePiece(PieceToCapture, Coord);
 				}
 				TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
@@ -113,7 +115,7 @@ void AChess_RandomPlayer::OnTurn()
 
 				GMode->CriticalSection.Unlock();
 				
-				GMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
+				PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
 
 			} while (!PieceIsPossibleToMove);
 

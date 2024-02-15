@@ -4,6 +4,7 @@
 #include "ChessPieces.h"
 #include "GameField.h"
 #include "Tile.h"
+#include "ManagePiece.h"
 #include "Chess_GameMode.h"
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
@@ -15,6 +16,7 @@ void AChess_HumanPlayer::BeginPlay()
 	Super::BeginPlay();
 	GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
 	Field = GMode->GField;
+	//PieceManager = NewObject<AManagePiece>();
 }
 
 // Called every frame
@@ -38,6 +40,8 @@ AChess_HumanPlayer::AChess_HumanPlayer()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	// create a camera component
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+
+	PieceManager = CreateDefaultSubobject<AManagePiece>(TEXT("PieceManager"));
 	//set the camera as RootComponent
 	SetRootComponent(Camera);
 
@@ -194,7 +198,7 @@ void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 	GMode->CriticalSection.Unlock();
 
 	// move the piece
-	GMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
+	PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
 	MyTurn = false;
 }
 
@@ -217,7 +221,7 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 	GMode->CriticalSection.Unlock();
 
 	// capture the piece
-	GMode->CapturePiece(PieceToCapture, Coord);
+	PieceManager->CapturePiece(PieceToCapture, Coord);
 
 	GMode->CriticalSection.Lock();
 
@@ -227,7 +231,7 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 	GMode->CriticalSection.Unlock();
 
 	// move the piece
-	GMode->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
+	PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
 	MyTurn = false;
 }
 

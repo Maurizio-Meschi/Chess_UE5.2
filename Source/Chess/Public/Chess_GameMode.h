@@ -22,8 +22,6 @@ public:
 	FVector2D Position;
 };
 
-DECLARE_DELEGATE(FFunctionDelegate);
-
 UCLASS()
 class CHESS_API AChess_GameMode : public AGameModeBase
 {
@@ -32,20 +30,20 @@ class CHESS_API AChess_GameMode : public AGameModeBase
 private:
 
 	// tracks if the game is over
-	bool IsGameOver;
+	//bool IsGameOver;
 
-	int32 CurrentPlayer;
+	//int32 CurrentPlayer;
 
 	// tracks the number of moves in order to signal a drawn game
 	int32 MoveCounter;
-
-	UPawnPromotion* PromotionInstance;
 
 public:
 
 	FCriticalSection CriticalSection;
 
-	FCriticalSection MutexForDelegate;
+	bool IsGameOver;
+
+	int32 CurrentPlayer;
 
 	// array of player interfaces
 	TArray<IChess_PlayerInterface*> Players;
@@ -76,22 +74,9 @@ public:
 	// called at the start of the game
 	void ChoosePlayerAndStartGame();
 
-	// set the cell where place the chess piece
-	// I need the new position to place the piece and the old position to remove the piece that is moving
-	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord);
-
-	void CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord);
-
-	void CheckWinAndGoNextPlayer(const int32 PlayerNumber);
-
 	// get the next player index
 	int32 GetNextPlayer(int32 Player);
 
 	// called at the end of the game turn
 	void TurnNextPlayer();
-	
-	void HandlePromotionCompleted()
-	{
-		CheckWinAndGoNextPlayer(CurrentPlayer);
-	}
 };

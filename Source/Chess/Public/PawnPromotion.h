@@ -23,13 +23,15 @@ class CHESS_API UPawnPromotion : public UObject
 public:
     FPromotionCompletedEvent OnPromotionCompleted;
 
-    UPawnPromotion() { Class.SetNum(4); }
+    UPawnPromotion() { }
 
     void SetpieceToPromote(AChessPieces* Piece);
 
     //void SetGameMode(AChess_GameMode* GameMode) { GMode = GameMode; }
     void PawnPromotion();
-  
+
+    bool IsHumanPlayer = false;
+private:
     void PawnPromotionHuman();
     
     void PawnPromotionBot();
@@ -51,6 +53,4 @@ public:
     TArray<TSubclassOf<AChessPieces>> Class;
 
     AChess_GameMode* GMode;
-
-    bool IsHumanPlayer = false;
 };

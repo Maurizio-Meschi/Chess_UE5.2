@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Chess_PlayerInterface.h"
+#include "ManagePiece.h"
 #include "Chess_GameInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -45,6 +46,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	AChessPieces* CurrPiece;
+
+	AManagePiece* PieceManager;
 
 public:	
 	// Called every frame

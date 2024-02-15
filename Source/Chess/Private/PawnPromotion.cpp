@@ -11,6 +11,8 @@
 #include "Pieces/Rook.h"
 #include "ChessPieces.h"
 #include "Chess_PlayerController.h"
+#include "HAL/PlatformProcess.h"
+#include "Containers/UnrealString.h"
 #include "UObject/SoftObjectPtr.h"
 #include "UMG.h"
 #include "Engine/World.h"
@@ -38,11 +40,11 @@ void UPawnPromotion::PawnPromotionHuman()
     AChess_PlayerController* ChessPlayerController = GMode->PlayerController;
 
     AGameField* Field = GMode->GField;
-    if (Class.Num() < 4) Class.SetNum(4);
-    Class[0] = (IsHumanPlayer ? Field->GameFieldSubClass.ChessQueen[0] : Field->GameFieldSubClass.ChessQueen[1]);
-    Class[1] = (IsHumanPlayer ? Field->GameFieldSubClass.ChessRook[0] : Field->GameFieldSubClass.ChessRook[1]);
-    Class[2] = (IsHumanPlayer ? Field->GameFieldSubClass.ChessBishop[0] : Field->GameFieldSubClass.ChessBishop[1]);
-    Class[3] = (IsHumanPlayer ? Field->GameFieldSubClass.ChessPawn[0] : Field->GameFieldSubClass.ChessPawn[1]);
+    //if (Class.Num() < 4) Class.SetNum(4);
+    Class.Add(IsHumanPlayer ? Field->GameFieldSubClass.ChessQueen[0] : Field->GameFieldSubClass.ChessQueen[1]);
+    Class.Add(IsHumanPlayer ? Field->GameFieldSubClass.ChessRook[0] : Field->GameFieldSubClass.ChessRook[1]);
+    Class.Add(IsHumanPlayer ? Field->GameFieldSubClass.ChessBishop[0] : Field->GameFieldSubClass.ChessBishop[1]);
+    Class.Add(IsHumanPlayer ? Field->GameFieldSubClass.ChessPawn[0] : Field->GameFieldSubClass.ChessPawn[1]);
 
     if (ChessPlayerController)
         WidgetGraph = ChessPlayerController->GetInvetoryWidget();
@@ -51,10 +53,11 @@ void UPawnPromotion::PawnPromotionHuman()
     UE_LOG(LogTemp, Error, TEXT("Human"));
     if (WidgetGraph)
     {
-        //WidgetGraph->SetVisibility(ESlateVisibility::Visible);
         UE_LOG(LogTemp, Error, TEXT("Prima del viewport"));
-        //WidgetGraph->AddToViewport();
-        WidgetGraph->AddToViewport();
+        if (!WidgetGraph->IsInViewport())
+            WidgetGraph->AddToViewport();
+        if(GMode->GField == nullptr)
+            UE_LOG(LogTemp, Error, TEXT("controllo a caso->sara la viewport?"));
 
         UE_LOG(LogTemp, Error, TEXT("Prima del bottone"));
         UButton* QueenButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("QueenButton")));
@@ -91,34 +94,25 @@ void UPawnPromotion::PawnPromotionBot()
 void UPawnPromotion::ManageQueenButton()
 {
     SpawnNewPiece(Class[0]);
-    UE_LOG(LogTemp, Error, TEXT("prima del broadcast!"));
-    GMode->MutexForDelegate.Lock();
     OnPromotionCompleted.Broadcast();
-    GMode->MutexForDelegate.Unlock();
 }
 
 void UPawnPromotion::ManageRookButton()
 {
     SpawnNewPiece(Class[1]);
-    GMode->MutexForDelegate.Lock();
     OnPromotionCompleted.Broadcast();
-    GMode->MutexForDelegate.Unlock();
 }
 
 void UPawnPromotion::ManageBishopButton()
 {
     SpawnNewPiece(Class[2]);
-    GMode->MutexForDelegate.Lock();
     OnPromotionCompleted.Broadcast();
-    GMode->MutexForDelegate.Unlock();
 }
 
 void UPawnPromotion::ManagePawnButton()
 {
     SpawnNewPiece(Class[3]);
-    GMode->MutexForDelegate.Lock();
     OnPromotionCompleted.Broadcast();
-    GMode->MutexForDelegate.Unlock();
 }
 
 void UPawnPromotion::SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass)
@@ -148,6 +142,6 @@ void UPawnPromotion::SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass)
     GMode->ArrayOfPlays.Add(Obj);
 
     WidgetGraph->RemoveFromParent();
-          
-    //WidgetGraph->RemoveFromParent();
+    WidgetGraph = nullptr;
+    Class.Empty();
 }
