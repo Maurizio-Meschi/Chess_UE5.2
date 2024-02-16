@@ -28,8 +28,6 @@ void AChess_GameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	IsGameOver = false;
-
 	//MoveCounter = 0;
 
 	AChess_HumanPlayer* HumanPlayer = Cast<AChess_HumanPlayer>(*TActorIterator<AChess_HumanPlayer>(GetWorld()));
@@ -92,4 +90,17 @@ void AChess_GameMode::TurnNextPlayer()
 	//MoveCounter += 1;
 	CurrentPlayer = GetNextPlayer(CurrentPlayer);
 	Players[CurrentPlayer]->OnTurn();
+}
+
+AChess_GameMode* FGameModeRef::CachedGameMode = nullptr;
+
+AChess_GameMode* FGameModeRef::GetGameMode(UObject* WorldContextObject)
+{
+	if (!CachedGameMode)
+	{
+		UWorld* World = GEngine->GetWorldFromContextObjectChecked(WorldContextObject);
+		CachedGameMode = World->GetAuthGameMode<AChess_GameMode>();
+	}
+
+	return CachedGameMode;
 }

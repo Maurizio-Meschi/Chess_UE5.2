@@ -25,7 +25,7 @@ AChessPieces::AChessPieces()
 void AChessPieces::BeginPlay()
 {
 	Super::BeginPlay();
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	//GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	//GameMode->GField->OnResetEvent.AddDynamic(this, &ABaseSign::SelfDestroy);
 }
 
@@ -47,6 +47,7 @@ void AChessPieces::SetColor(EPieceColor color)
 
 void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked)
 {
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* Field = GMode->GField;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
@@ -88,6 +89,7 @@ void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer
 
 void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked)
 {	
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* Field = GMode->GField;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
@@ -124,6 +126,7 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 
 void AChessPieces::ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlayer, bool& Marked, ATile* SelectedTile)
 {
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* Field = GMode->GField;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
@@ -173,6 +176,7 @@ void AChessPieces::ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlay
 
 void AChessPieces::ManageCheckSituationKing(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, ATile* SelectedTile)
 {
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* Field = GMode->GField;
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
@@ -200,6 +204,7 @@ void AChessPieces::ManageCheckSituationKing(int32 x, int32 y, int32 PlayerNumber
 
 void AChessPieces::ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, ATile* SelectedTile, bool& Marked)
 {
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* Field = GMode->GField;
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
@@ -227,6 +232,7 @@ void AChessPieces::ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNum
 
 void AChessPieces::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2, int32 PlayerNumber)
 {
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* Field = GMode->GField;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();

@@ -22,7 +22,7 @@ AChess_RandomPlayer::AChess_RandomPlayer()
 void AChess_RandomPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	//GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	//PieceManager = NewObject<AManagePiece>();
 }
 
@@ -51,6 +51,7 @@ void AChess_RandomPlayer::OnTurn()
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 		{
+			auto GMode = FGameModeRef::GetGameMode(this);
 			AGameField* Field = GMode->GField;
 
 			TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();

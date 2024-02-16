@@ -21,7 +21,7 @@ public:
 
 	UChess_GameInstance* GameInstance;
 
-	AChess_GameMode* GMode;
+	//AChess_GameMode* GMode;
 
 protected:
 	// Called when the game starts or when spawned

@@ -21,7 +21,8 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	int32 YMove = 0;
 
 	bool MarkedForward = false;
-	GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
+
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* Field = GMode->GField;
 
 	// check if the next first vertical tile is empty and if true, mark the tile
@@ -72,6 +73,8 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer)
 {
 	ATile* SelectedTile = nullptr;
+
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* Field = GMode->GField;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
@@ -117,6 +120,7 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 
 void AChessPawn::ManagerCheckMateSituationPawn(ATile* SelectedTile, int32 PlayerNumber)
 {
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* Field = GMode->GField;
 
 	if (!CaptureSituation && 
@@ -137,6 +141,8 @@ void AChessPawn::ManagerCheckMateSituationPawn(ATile* SelectedTile, int32 Player
 void AChessPawn::MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer)
 {
 	ATile* SelectedTile = nullptr;
+
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* Field = GMode->GField;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
@@ -172,6 +178,8 @@ void AChessPawn::MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHuma
 void AChessPawn::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool &Marked)
 {
 	ATile* SelectedTile = nullptr;
+
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* Field = GMode->GField;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();

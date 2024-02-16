@@ -21,16 +21,17 @@ class CHESS_API UPawnPromotion : public UObject
     GENERATED_BODY()
 
 public:
+
     FPromotionCompletedEvent OnPromotionCompleted;
 
     UPawnPromotion() { }
 
     void SetpieceToPromote(AChessPieces* Piece);
 
-    //void SetGameMode(AChess_GameMode* GameMode) { GMode = GameMode; }
     void PawnPromotion();
 
     bool IsHumanPlayer = false;
+
 private:
     void PawnPromotionHuman();
     
@@ -51,6 +52,4 @@ private:
     UUserWidget* WidgetGraph;
 
     TArray<TSubclassOf<AChessPieces>> Class;
-
-    AChess_GameMode* GMode;
 };

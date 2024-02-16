@@ -14,8 +14,8 @@
 void AChess_HumanPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
-	Field = GMode->GField;
+	//GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
+	//Field = GMode->GField;
 	//PieceManager = NewObject<AManagePiece>();
 }
 
@@ -48,8 +48,8 @@ AChess_HumanPlayer::AChess_HumanPlayer()
 	GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GameInstance == nullptr) UE_LOG(LogTemp, Warning, TEXT("Nullll!"));
 
-	GMode = nullptr;
-	Field = nullptr;
+	//GMode = nullptr;
+	//Field = nullptr;
 
 	//default value
 	PlayerNumber = -1;
@@ -88,6 +88,9 @@ void AChess_HumanPlayer::OnClick()
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor)
 		{
+			auto GMode = FGameModeRef::GetGameMode(this);
+			AGameField* Field = GMode->GField;
+
 			FString ClassName = HitActor->GetClass()->GetName();
 			Field->TileMarkedDestroy();
 			// look for the piece to move
@@ -109,6 +112,8 @@ void AChess_HumanPlayer::OnClick()
 
 void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 {
+	auto GMode = FGameModeRef::GetGameMode(this);
+	AGameField* Field = GMode->GField;
 	// every time the player clicks on a piece, the reachable tiles are reset
 	Field->ResetTileMarked();
 
@@ -150,6 +155,9 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 
 void AChess_HumanPlayer::ManageClickTile(AActor* HitActor, FString ClassName)
 {
+	auto GMode = FGameModeRef::GetGameMode(this);
+	AGameField* Field = GMode->GField;
+
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 
 	PieceChoose = false;
@@ -182,6 +190,9 @@ void AChess_HumanPlayer::ManageClickTile(AActor* HitActor, FString ClassName)
 
 void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 {
+	auto GMode = FGameModeRef::GetGameMode(this);
+	AGameField* Field = GMode->GField;
+
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 
 	// Set the tile status to OCCUPIED where the piece will be placed
@@ -204,6 +215,9 @@ void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 
 void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 {
+	auto GMode = FGameModeRef::GetGameMode(this);
+	AGameField* Field = GMode->GField;
+
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 

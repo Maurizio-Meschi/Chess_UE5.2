@@ -16,8 +16,9 @@ AManagePiece::AManagePiece()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+	IsGameOver = false;
 	PromotionInstance = CreateDefaultSubobject<UPawnPromotion>(TEXT("PromotionInstance"));
-	//PromotionInstance = NewObject<UPawnPromotion>();
+	//PromotionInstance = MakeShared<UPawnPromotion>()
 }
 
 // Called when the game starts or when spawned
@@ -28,23 +29,24 @@ void AManagePiece::BeginPlay()
 
 void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord)
 {
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* GField = GMode->GField;
-	if (GMode->IsGameOver || PlayerNumber != GMode->CurrentPlayer)
+	if (IsGameOver || PlayerNumber != GMode->CurrentPlayer)
 	{
 		return;
 	}
+
 	FVector NewLocation = GField->GetActorLocation() + SpawnPosition;
 
 	GMode->CriticalSection.Lock();
-
 	GField->PiecesMapRemove(Piece->GetGridPosition());
-	Piece->SetGridPosition(Coord.X, Coord.Y);
-
-	GField->AddPiecesMap(Coord, Piece);
-	Piece->SetActorLocation(NewLocation);
-
 	GMode->CriticalSection.Unlock();
+
+	Piece->SetGridPosition(Coord.X, Coord.Y);
+	GMode->CriticalSection.Lock();
+	GField->AddPiecesMap(Coord, Piece);
+	GMode->CriticalSection.Unlock();
+	Piece->SetActorLocation(NewLocation);
 
 	if (Piece->GetClass()->GetName() == "BP_w_Pawn_C" && static_cast<int32>(Piece->GetGridPosition().X) == 7)
 	{
@@ -56,14 +58,16 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 				{
 					PromotionInstance->PawnPromotion();
 				}, TStatId(), nullptr, ENamedThreads::GameThread);
-			UE_LOG(LogTemp, Error, TEXT("prima del controllo del delegato"));
+			//UE_LOG(LogTemp, Error, TEXT("prima del controllo del delegato"));
 
-			
-			PromotionInstance->OnPromotionCompleted.RemoveAll(this);
-			
-			UE_LOG(LogTemp, Error, TEXT("nella addobject"));
-			if (!PromotionInstance->OnPromotionCompleted.IsBound())
-				PromotionInstance->OnPromotionCompleted.AddUObject(this, &AManagePiece::HandlePromotionCompleted);
+			//PromotionInstance->OnPromotionCompleted.RemoveAll(this);
+
+			UE_LOG(LogTemp, Error, TEXT("Addobject"));
+			if (!PromotionDelegate.IsBound())
+			{
+				PromotionDelegate.BindUObject(this, &AManagePiece::HandlePromotionCompleted);
+				PromotionInstance->OnPromotionCompleted.Add(PromotionDelegate);
+			}
 		}
 		else
 			UE_LOG(LogTemp, Error, TEXT("PromInstance null"))
@@ -82,23 +86,23 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 
 void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 {
-	GMode->CriticalSection.Lock();
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* GField = GMode->GField;
+	GMode->CriticalSection.Lock();
 	GField->PiecesMapRemove(Coord);
-
+	
 	if (PieceToCapture->Color == EPieceColor::BLACK)
 		GField->BotPiecesRemove(PieceToCapture);
 	else
 		GField->HumanPlayerPiecesRemove(PieceToCapture);
-
 	GMode->CriticalSection.Unlock();
-
 	PieceToCapture->SetActorHiddenInGame(true);
 	PieceToCapture->SetActorEnableCollision(false);;
 }
 
 void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 {
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* GField = GMode->GField;
 	GField->IsCheckmateSituation = false;
 	GField->ResetTileMarked();
@@ -125,7 +129,7 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 
 		if (GField->GetTileMarked().Num() == 0)
 		{
-			GMode->IsGameOver = true;
+			IsGameOver = true;
 			GMode->Players[GMode->CurrentPlayer]->OnWin();
 
 			for (int32 i = 0; i < GMode->Players.Num(); i++)
@@ -147,7 +151,9 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 
 void AManagePiece::HandlePromotionCompleted()
 {
-	
+	auto GMode = FGameModeRef::GetGameMode(this);
+	UE_LOG(LogTemp, Error, TEXT("prima del controllo del delegato"));
+	//PromotionInstance->OnPromotionCompleted.RemoveAll(this);
 	int32 CurrPlayer = GMode->CurrentPlayer;
 	CheckWinAndGoNextPlayer(CurrPlayer);
 }

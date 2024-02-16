@@ -15,9 +15,10 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	int32 YMove = 0;
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
-	GMode = Cast<AChess_GameMode>(GetWorld()->GetAuthGameMode());
-	if (GMode == nullptr) UE_LOG(LogTemp, Error, TEXT("GameMode nulla nella king"));
+
+	auto GMode = FGameModeRef::GetGameMode(this);
 	AGameField* Field = GMode->GField;
+
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
 
@@ -101,10 +102,7 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 
 bool AKing::CheckKingSituation(int32 x, int32 y, bool IsHumanPlayer)
 {
-	if (GameModeClass != nullptr)
-		GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
-	else
-		UE_LOG(LogTemp, Error, TEXT("Game Mode is null"));
+	auto GMode = FGameModeRef::GetGameMode(this);
 
 	AGameField* Field = GMode->GField;
 

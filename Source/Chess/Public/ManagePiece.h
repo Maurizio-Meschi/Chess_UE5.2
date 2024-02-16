@@ -25,10 +25,15 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	//TODO:Provare questo approccio
+	//TSharedPtr<UPawnPromotion> PromotionInstance;
 	UPawnPromotion* PromotionInstance;
 
-	AChess_GameMode* GMode;
+	FCriticalSection CriticalSec;
 
+	FFunctionDelegate PromotionDelegate;
+
+	bool IsGameOver;
 public:	
 
 	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord);

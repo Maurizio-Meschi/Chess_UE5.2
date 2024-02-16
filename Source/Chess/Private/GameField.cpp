@@ -34,7 +34,6 @@ void AGameField::OnConstruction(const FTransform& Transform)
 void AGameField::BeginPlay()
 {
 	Super::BeginPlay();
-	GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
 	GenerateField();
 }
 
@@ -184,7 +183,7 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 	}
 	if (!KingUnderAttack)
 		return false;
-
+	auto GMode = FGameModeRef::GetGameMode(this);
 	GMode->CriticalSection.Lock();
 	for (int32 i = 0; i < Pieces.Num(); i++)
 	{

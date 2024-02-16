@@ -29,9 +29,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* ClickAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player, HUD and UI")
 	TSubclassOf<UUserWidget> InventoryWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player, HUD and UI")
 	UUserWidget* InventoryWidget;
 
 	UUserWidget* GetInvetoryWidget() { return InventoryWidget; }

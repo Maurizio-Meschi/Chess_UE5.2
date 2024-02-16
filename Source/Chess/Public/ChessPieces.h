@@ -35,8 +35,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AChess_GameMode> GameModeClass;
 
-	UPROPERTY(VisibleAnywhere)
-	AChess_GameMode* GMode;
+	//UPROPERTY(VisibleAnywhere)
+	//AChess_GameMode* GMode;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector2D PieceGridPosition;

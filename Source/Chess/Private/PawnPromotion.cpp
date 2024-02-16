@@ -35,7 +35,7 @@ void UPawnPromotion::PawnPromotion()
 
 void UPawnPromotion::PawnPromotionHuman()
 {
-    GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+    auto GMode = FGameModeRef::GetGameMode(this);
     if (GMode == nullptr) UE_LOG(LogTemp, Error, TEXT("GMode nullptr nuu!"));
     AChess_PlayerController* ChessPlayerController = GMode->PlayerController;
 
@@ -60,29 +60,30 @@ void UPawnPromotion::PawnPromotionHuman()
             UE_LOG(LogTemp, Error, TEXT("controllo a caso->sara la viewport?"));
 
         UE_LOG(LogTemp, Error, TEXT("Prima del bottone"));
-        UButton* QueenButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("QueenButton")));
-        if (QueenButton && !QueenButton->OnClicked.IsBound())
+        TWeakObjectPtr<UButton> QueenButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("QueenButton")));
+        if (QueenButton.IsValid() && !QueenButton->OnClicked.IsBound())
         {
             QueenButton->OnClicked.AddDynamic(this, &UPawnPromotion::ManageQueenButton);
         }
         UE_LOG(LogTemp, Error, TEXT("Prima del secondo bottone"));
-        UButton* RookButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("RookButton")));
-        if (RookButton && !RookButton->OnClicked.IsBound())
+        TWeakObjectPtr<UButton> RookButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("RookButton")));
+        if (RookButton.IsValid() && !RookButton->OnClicked.IsBound())
         {
             RookButton->OnClicked.AddDynamic(this, &UPawnPromotion::ManageRookButton);
         }
 
-        UButton* BishopButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("BishopButton")));
-        if (BishopButton && !BishopButton->OnClicked.IsBound())
+        TWeakObjectPtr<UButton> BishopButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("BishopButton")));
+        if (BishopButton.IsValid() && !BishopButton->OnClicked.IsBound())
         {
             BishopButton->OnClicked.AddDynamic(this, &UPawnPromotion::ManageBishopButton);
         }
         UE_LOG(LogTemp, Error, TEXT("Prima ultimo bottone"));
-        UButton* PawnButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("PawnButton")));
-        if (PawnButton && !PawnButton->OnClicked.IsBound())
+        TWeakObjectPtr<UButton> PawnButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("PawnButton")));
+        if (PawnButton.IsValid() && !PawnButton->OnClicked.IsBound())
         {
             PawnButton->OnClicked.AddDynamic(this, &UPawnPromotion::ManagePawnButton);
         }
+        UE_LOG(LogTemp, Error, TEXT("Bottoni done"));
     }
     else UE_LOG(LogTemp, Error, TEXT("sono nullo coco"));
 }
@@ -117,7 +118,7 @@ void UPawnPromotion::ManagePawnButton()
 
 void UPawnPromotion::SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass)
 {
-    //auto GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
+    auto GMode = FGameModeRef::GetGameMode(this);
     AGameField* Field = GMode->GField;
 
     TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();

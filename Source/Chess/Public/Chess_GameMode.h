@@ -37,11 +37,11 @@ private:
 	// tracks the number of moves in order to signal a drawn game
 	int32 MoveCounter;
 
+	AChess_GameMode();
+
 public:
 
 	FCriticalSection CriticalSection;
-
-	bool IsGameOver;
 
 	int32 CurrentPlayer;
 
@@ -66,7 +66,8 @@ public:
 
 	AChess_PlayerController* PlayerController;
 
-	AChess_GameMode();
+	//AChess_GameMode();
+	static AChess_GameMode* GetInstance();
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -79,4 +80,15 @@ public:
 
 	// called at the end of the game turn
 	void TurnNextPlayer();
+};
+
+
+class FGameModeRef
+{
+private:
+	static AChess_GameMode* CachedGameMode;
+
+public:
+	//FGameModeRef() { FGameModeRef::CachedGameMode = nullptr; }
+	static AChess_GameMode* GetGameMode(UObject* WorldContextObject);
 };
