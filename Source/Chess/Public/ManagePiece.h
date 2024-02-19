@@ -27,6 +27,7 @@ protected:
 
 	//TODO:Provare questo approccio
 	//TSharedPtr<UPawnPromotion> PromotionInstance;
+	UPROPERTY(EditDefaultsOnly)
 	UPawnPromotion* PromotionInstance;
 
 	FCriticalSection CriticalSec;

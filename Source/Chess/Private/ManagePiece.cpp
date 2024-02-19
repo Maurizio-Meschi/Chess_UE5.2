@@ -18,7 +18,7 @@ AManagePiece::AManagePiece()
 	PrimaryActorTick.bCanEverTick = false;
 	IsGameOver = false;
 	PromotionInstance = CreateDefaultSubobject<UPawnPromotion>(TEXT("PromotionInstance"));
-	//PromotionInstance = MakeShared<UPawnPromotion>()
+	//PromotionInstance = MakeShared<UPawnPromotion>();
 }
 
 // Called when the game starts or when spawned
@@ -65,9 +65,12 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 			UE_LOG(LogTemp, Error, TEXT("Addobject"));
 			if (!PromotionDelegate.IsBound())
 			{
+				UE_LOG(LogTemp, Error, TEXT("dentro if"));
 				PromotionDelegate.BindUObject(this, &AManagePiece::HandlePromotionCompleted);
 				PromotionInstance->OnPromotionCompleted.Add(PromotionDelegate);
 			}
+			else
+				UE_LOG(LogTemp, Error, TEXT("sono ok!"));
 		}
 		else
 			UE_LOG(LogTemp, Error, TEXT("PromInstance null"))
