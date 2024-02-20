@@ -8,7 +8,7 @@
 #include "GameFramework/Actor.h"
 #include "ManagePiece.generated.h"
 
-DECLARE_DELEGATE(FFunctionDelegate);
+//DECLARE_DELEGATE(FFunctionDelegate);
 
 class AChess_GameMode;
 
@@ -32,7 +32,7 @@ protected:
 
 	FCriticalSection CriticalSec;
 
-	FFunctionDelegate PromotionDelegate;
+	
 
 	bool IsGameOver;
 public:	
@@ -43,6 +43,7 @@ public:
 
 	void CheckWinAndGoNextPlayer(const int32 PlayerNumber);
 
+	UFUNCTION()
 	void HandlePromotionCompleted();
 
 };

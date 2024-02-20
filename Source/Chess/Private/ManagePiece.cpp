@@ -63,11 +63,11 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 			//PromotionInstance->OnPromotionCompleted.RemoveAll(this);
 
 			UE_LOG(LogTemp, Error, TEXT("Addobject"));
-			if (!PromotionDelegate.IsBound())
+			if (!PromotionInstance->OnPromotionCompleted.IsBound())
 			{
 				UE_LOG(LogTemp, Error, TEXT("dentro if"));
-				PromotionDelegate.BindUObject(this, &AManagePiece::HandlePromotionCompleted);
-				PromotionInstance->OnPromotionCompleted.Add(PromotionDelegate);
+				//PromotionDelegate.Add(this, &AManagePiece::HandlePromotionCompleted);
+				PromotionInstance->OnPromotionCompleted.AddDynamic(this, &AManagePiece::HandlePromotionCompleted);
 			}
 			else
 				UE_LOG(LogTemp, Error, TEXT("sono ok!"));

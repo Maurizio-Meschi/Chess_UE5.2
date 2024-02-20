@@ -120,7 +120,7 @@ void AChess_RandomPlayer::OnTurn()
 
 			} while (!PieceIsPossibleToMove);
 
-		}, 0.5, false);
+		}, 2, false);
 }
 
 void AChess_RandomPlayer::OnWin()

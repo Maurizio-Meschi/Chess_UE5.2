@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CoreUObject.h"
 #include "UObject/SoftObjectPtr.h"
 #include "UMG.h"
 #include "Blueprint/UserWidget.h"
@@ -13,7 +14,8 @@
 class AChessPieces;
 class AChess_GameMode;
 
-DECLARE_EVENT(UPawnPromotion, FPromotionCompletedEvent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFunctionDelegate);
+//DECLARE_DYNAMIC_DELEGATE(FFunctionDelegate);
 
 UCLASS()
 class CHESS_API UPawnPromotion : public UObject
@@ -22,7 +24,8 @@ class CHESS_API UPawnPromotion : public UObject
 
 public:
 
-    FPromotionCompletedEvent OnPromotionCompleted;
+    UPROPERTY(BlueprintAssignable)
+    FFunctionDelegate OnPromotionCompleted;
 
     UPawnPromotion() { }
 
