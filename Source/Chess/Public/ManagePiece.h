@@ -27,12 +27,12 @@ protected:
 
 	//TODO:Provare questo approccio
 	//TSharedPtr<UPawnPromotion> PromotionInstance;
-	UPROPERTY(EditDefaultsOnly)
+
+	//UPROPERTY(EditDefaultsOnly)
 	UPawnPromotion* PromotionInstance;
+	//TWeakObjectPtr<UPawnPromotion> PromotionInstance;
 
-	FCriticalSection CriticalSec;
-
-	
+	//FCriticalSection CriticalSec;
 
 	bool IsGameOver;
 public:	

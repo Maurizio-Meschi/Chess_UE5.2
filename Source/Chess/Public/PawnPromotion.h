@@ -24,7 +24,7 @@ class CHESS_API UPawnPromotion : public UObject
 
 public:
 
-    UPROPERTY(BlueprintAssignable)
+    UPROPERTY()
     FFunctionDelegate OnPromotionCompleted;
 
     UPawnPromotion() { }

@@ -10,6 +10,7 @@
 #include "Pieces/Queen.h"
 #include "Pieces/Rook.h"
 #include "ChessPieces.h"
+#include "ManagePiece.h"
 #include "Chess_PlayerController.h"
 #include "HAL/PlatformProcess.h"
 #include "Containers/UnrealString.h"
@@ -41,10 +42,10 @@ void UPawnPromotion::PawnPromotionHuman()
 
     AGameField* Field = GMode->GField;
     //if (Class.Num() < 4) Class.SetNum(4);
-    Class.Add(IsHumanPlayer ? Field->GameFieldSubClass.ChessQueen[0] : Field->GameFieldSubClass.ChessQueen[1]);
-    Class.Add(IsHumanPlayer ? Field->GameFieldSubClass.ChessRook[0] : Field->GameFieldSubClass.ChessRook[1]);
-    Class.Add(IsHumanPlayer ? Field->GameFieldSubClass.ChessBishop[0] : Field->GameFieldSubClass.ChessBishop[1]);
-    Class.Add(IsHumanPlayer ? Field->GameFieldSubClass.ChessPawn[0] : Field->GameFieldSubClass.ChessPawn[1]);
+    Class.Add(Field->GameFieldSubClass.ChessQueen[0]);
+    Class.Add(Field->GameFieldSubClass.ChessRook[0]);
+    Class.Add(Field->GameFieldSubClass.ChessBishop[0]);
+    Class.Add(Field->GameFieldSubClass.ChessPawn[0]);
 
     if (ChessPlayerController)
         WidgetGraph = ChessPlayerController->GetInvetoryWidget();
@@ -90,6 +91,15 @@ void UPawnPromotion::PawnPromotionHuman()
 
 void UPawnPromotion::PawnPromotionBot()
 {
+    auto GMode = FGameModeRef::GetGameMode(this);
+    auto Field = GMode->GField;
+    Class.Add(Field->GameFieldSubClass.ChessQueen[1]);
+    Class.Add(Field->GameFieldSubClass.ChessRook[1]);
+    Class.Add(Field->GameFieldSubClass.ChessBishop[1]);
+    Class.Add(Field->GameFieldSubClass.ChessPawn[1]);
+    Class.Add(Field->GameFieldSubClass.ChessKnight[1]);
+    int32 RIndex = FMath::Rand() % Class.Num();
+    SpawnNewPiece(Class[RIndex]);
 }
 
 void UPawnPromotion::ManageQueenButton()
