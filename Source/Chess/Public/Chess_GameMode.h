@@ -40,6 +40,8 @@ private:
 	AChess_GameMode();
 
 public:
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Promotion")
+	//UPawnPromotion* PromotionInstance;
 
 	FCriticalSection CriticalSection;
 
@@ -65,9 +67,6 @@ public:
 	AGameField* GField;
 
 	AChess_PlayerController* PlayerController;
-
-	//AChess_GameMode();
-	static AChess_GameMode* GetInstance();
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -34,6 +34,28 @@ void UPawnPromotion::PawnPromotion()
         PawnPromotionBot();
 }
 
+UPawnPromotion* UPawnPromotion::Instance = nullptr;
+
+UPawnPromotion* UPawnPromotion::GetInstance()
+{
+    if (!Instance)
+    {
+        // Create the singleton instance if it doesn't exist
+        Instance = NewObject<UPawnPromotion>();
+    }
+    return Instance;
+}
+
+void UPawnPromotion::DestroyInstance()
+{
+    if (Instance)
+    {
+        Instance->ConditionalBeginDestroy();
+        Instance = nullptr;
+    }
+
+}
+
 void UPawnPromotion::PawnPromotionHuman()
 {
     auto GMode = FGameModeRef::GetGameMode(this);
@@ -42,6 +64,7 @@ void UPawnPromotion::PawnPromotionHuman()
 
     AGameField* Field = GMode->GField;
     //if (Class.Num() < 4) Class.SetNum(4);
+    UE_LOG(LogTemp, Error, TEXT("Array"));
     Class.Add(Field->GameFieldSubClass.ChessQueen[0]);
     Class.Add(Field->GameFieldSubClass.ChessRook[0]);
     Class.Add(Field->GameFieldSubClass.ChessBishop[0]);
@@ -105,25 +128,25 @@ void UPawnPromotion::PawnPromotionBot()
 void UPawnPromotion::ManageQueenButton()
 {
     SpawnNewPiece(Class[0]);
-    OnPromotionCompleted.Broadcast();
+    Manager->HandlePromotionCompleted();
 }
 
 void UPawnPromotion::ManageRookButton()
 {
     SpawnNewPiece(Class[1]);
-    OnPromotionCompleted.Broadcast();
+    Manager->HandlePromotionCompleted();
 }
 
 void UPawnPromotion::ManageBishopButton()
 {
     SpawnNewPiece(Class[2]);
-    OnPromotionCompleted.Broadcast();
+    Manager->HandlePromotionCompleted();
 }
 
 void UPawnPromotion::ManagePawnButton()
 {
     SpawnNewPiece(Class[3]);
-    OnPromotionCompleted.Broadcast();
+    Manager->HandlePromotionCompleted();
 }
 
 void UPawnPromotion::SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass)
@@ -132,7 +155,6 @@ void UPawnPromotion::SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass)
     AGameField* Field = GMode->GField;
 
     TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-    //TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
     auto Position = PieceToPromote->GetGridPosition();
     PieceToPromote->SetActorHiddenInGame(true);
@@ -145,14 +167,15 @@ void UPawnPromotion::SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass)
         Field->HumanPlayerPiecesRemove(PieceToPromote);
     GMode->CriticalSection.Unlock();
     Field->GenerateChessPieceInXYPosition(Position.X, Position.Y, PieceClass, IsHumanPlayer ? EPieceColor::WHITE : EPieceColor::BLACK);
-    //WidgetGraph->SetVisibility(ESlateVisibility::Hidden);
     
     FRewind Obj;
     Obj.PieceToRewind = PieceToPromote;
     Obj.Position = PieceToPromote->GetGridPosition();
     GMode->ArrayOfPlays.Add(Obj);
-
-    WidgetGraph->RemoveFromParent();
-    WidgetGraph = nullptr;
+    if (WidgetGraph && WidgetGraph->IsInViewport())
+    {
+        WidgetGraph->RemoveFromParent();
+        WidgetGraph = nullptr;
+    }
     Class.Empty();
 }

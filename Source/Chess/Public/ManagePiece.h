@@ -25,15 +25,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	//TODO:Provare questo approccio
-	//TSharedPtr<UPawnPromotion> PromotionInstance;
-
-	//UPROPERTY(EditDefaultsOnly)
-	UPawnPromotion* PromotionInstance;
-	//TWeakObjectPtr<UPawnPromotion> PromotionInstance;
-
-	//FCriticalSection CriticalSec;
-
 	bool IsGameOver;
 public:	
 

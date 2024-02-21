@@ -19,6 +19,7 @@ void AChess_HumanPlayer::BeginPlay()
 	//PieceManager = NewObject<AManagePiece>();
 }
 
+
 // Called every frame
 void AChess_HumanPlayer::Tick(float DeltaTime)
 {

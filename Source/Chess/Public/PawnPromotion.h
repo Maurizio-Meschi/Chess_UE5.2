@@ -13,9 +13,7 @@
 
 class AChessPieces;
 class AChess_GameMode;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FFunctionDelegate);
-//DECLARE_DYNAMIC_DELEGATE(FFunctionDelegate);
+class AManagePiece;
 
 UCLASS()
 class CHESS_API UPawnPromotion : public UObject
@@ -24,18 +22,25 @@ class CHESS_API UPawnPromotion : public UObject
 
 public:
 
-    UPROPERTY()
-    FFunctionDelegate OnPromotionCompleted;
-
     UPawnPromotion() { }
 
     void SetpieceToPromote(AChessPieces* Piece);
 
     void PawnPromotion();
 
+    void SetManager(AManagePiece* ManagerPiece) { Manager = ManagerPiece; }
+
+    static UPawnPromotion* GetInstance();
+
     bool IsHumanPlayer = false;
 
+    static void DestroyInstance();
+
 private:
+    static UPawnPromotion* Instance;
+
+    AManagePiece* Manager;
+
     void PawnPromotionHuman();
     
     void PawnPromotionBot();

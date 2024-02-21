@@ -17,7 +17,6 @@ AManagePiece::AManagePiece()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	IsGameOver = false;
-	PromotionInstance = CreateDefaultSubobject<UPawnPromotion>(TEXT("PromotionInstance"));
 }
 
 // Called when the game starts or when spawned
@@ -47,32 +46,21 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 	GField->AddPiecesMap(Coord, Piece);
 	GMode->CriticalSection.Unlock();
 	Piece->SetActorLocation(NewLocation);
-	bool IsHumanPlayer = static_cast<bool>(GMode->CurrentPlayer);
+	bool IsHumanPlayer = !static_cast<bool>(GMode->CurrentPlayer);
 	UE_LOG(LogTemp, Error, TEXT("IsHumanPlayer = %s"), IsHumanPlayer ? TEXT("True") : TEXT("False"));
 	if ((Piece->GetClass()->GetName() == "BP_w_Pawn_C" && static_cast<int32>(Piece->GetGridPosition().X) == 7) ||
 		Piece->GetClass()->GetName() == "BP_b_Pawn_C" && static_cast<int32>(Piece->GetGridPosition().X) == 0)
 	{
+		UPawnPromotion* PromotionInstance = UPawnPromotion::GetInstance();
 		if (PromotionInstance)
 		{
 			PromotionInstance->SetpieceToPromote(Piece);
+			PromotionInstance->SetManager(this);
 			PromotionInstance->IsHumanPlayer = IsHumanPlayer;
 			FGraphEventRef GameThreadTask = FFunctionGraphTask::CreateAndDispatchWhenReady([=]()
 				{
 					PromotionInstance->PawnPromotion();
 				}, TStatId(), nullptr, ENamedThreads::GameThread);
-			//UE_LOG(LogTemp, Error, TEXT("prima del controllo del delegato"));
-
-			PromotionInstance->OnPromotionCompleted.RemoveAll(this);
-			
-			UE_LOG(LogTemp, Error, TEXT("Addobject"));
-			//if (!PromotionInstance->OnPromotionCompleted.IsBound())
-			//{
-				UE_LOG(LogTemp, Error, TEXT("dentro if"));
-				//PromotionDelegate.Add(this, &AManagePiece::HandlePromotionCompleted);
-				PromotionInstance->OnPromotionCompleted.AddDynamic(this, &AManagePiece::HandlePromotionCompleted);
-			//}
-			//else
-				//UE_LOG(LogTemp, Error, TEXT("sono ok!"));
 		}
 		else
 			UE_LOG(LogTemp, Error, TEXT("PromInstance null"))
@@ -157,8 +145,6 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 void AManagePiece::HandlePromotionCompleted()
 {
 	auto GMode = FGameModeRef::GetGameMode(this);
-	UE_LOG(LogTemp, Error, TEXT("prima del controllo del delegato"));
-	//PromotionInstance->OnPromotionCompleted.RemoveAll(this);
 	int32 CurrPlayer = GMode->CurrentPlayer;
 	CheckWinAndGoNextPlayer(CurrPlayer);
 }

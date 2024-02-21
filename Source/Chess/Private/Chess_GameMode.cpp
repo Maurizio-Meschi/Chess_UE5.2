@@ -22,6 +22,9 @@ AChess_GameMode::AChess_GameMode()
 	FieldSize = 8;
 
 	MoveCounter = 0;
+
+	//PromotionInstance = MakeShared<UPawnPromotion>();
+	//PromotionInstance = CreateDefaultSubobject<UPawnPromotion>(TEXT("PromotionInstance"));
 }
 
 void AChess_GameMode::BeginPlay()
