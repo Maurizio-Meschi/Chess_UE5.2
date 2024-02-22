@@ -23,6 +23,20 @@ AGameField::AGameField()
 	CheckSituation = false;
 }
 
+void AGameField::ResetField()
+{
+	UE_LOG(LogTemp, Error, TEXT("resetto"));
+	ResetAll();
+	GenerateField();
+	OnResetEvent.Broadcast();
+	
+	auto GMode = FGameModeRef::GetGameMode(this);
+	if (GMode)
+		GMode->ChoosePlayerAndStartGame();
+	else
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in GameField"));
+}
+
 void AGameField::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
@@ -111,11 +125,14 @@ void AGameField::GenerateField()
 // generate the tile 
 void AGameField::GenerateTileInXYPosition(int32 x, int32 y, TSubclassOf<ATile> Class)
 {
+	TArray<FString> IntToChar = { "a", "b", "c", "d", "e", "f", "g", "h" };
+
 	FVector Location = AGameField::GetRelativeLocationByXYPosition(x, y);
 	ATile* Obj = GetWorld()->SpawnActor<ATile>(Class, Location, FRotator(0.0f, 0.0f, 0.0f));
 	const float TileScale = TileSize / 100;
 	Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
 	Obj->SetGridPosition(x, y);
+	Obj->Name = IntToChar[y] + FString::FromInt(x+1);
 	TileArray.Add(Obj);
 	TileMap.Add(FVector2D(x, y), Obj);
 }
@@ -129,8 +146,13 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
 	Obj->SetGridPosition(x, y);
 	Obj->SetColor(color);
-	ATile* CurrTile = TileMap[FVector2D(x, y)];
-	color == EPieceColor::BLACK ? CurrTile->SetTileStatus(0, ETileStatus::OCCUPIED) : CurrTile->SetTileStatus(1, ETileStatus::OCCUPIED);
+
+	ATile* CurrTile = nullptr;
+	if (TileMap.Contains(FVector2D(x, y)))
+		CurrTile = TileMap[FVector2D(x, y)];
+	if (CurrTile)
+		color == EPieceColor::BLACK ? CurrTile->SetTileStatus(0, ETileStatus::OCCUPIED) : CurrTile->SetTileStatus(1, ETileStatus::OCCUPIED);
+
 	PiecesMap.Add(FVector2D(x, y), Obj);
 	if (color == EPieceColor::BLACK)
 		BotPieces.Add(Obj);
@@ -148,8 +170,6 @@ FVector2D AGameField::GetPosition(const FHitResult& Hit)
 	return Cast<ATile>(Hit.GetActor())->GetGridPosition();
 }
 
-
-// get the space position
 FVector AGameField::GetRelativeLocationByXYPosition(const int32 InX, const int32 InY) const
 {
 	return TileSize * NormalizedCellPadding * FVector(InX, InY, 0);
@@ -169,11 +189,13 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 	AKing* King = (IsHumanPlayer ? KingArray[0] : KingArray[1]);
 
 	CheckSituation = true;
-	UE_LOG(LogTemp, Error, TEXT("Nella check prima dell'esplosione con IsHumanPlayer = %s"), IsHumanPlayer ? TEXT("True") : TEXT("False"));
 	// mark the tile (status MARK_BY_KING)
-	King->IsKing = true;
-	King->LegalMove(PlayerNumber, IsHumanPlayer);
-	King->IsKing = false;
+	if (King)
+	{
+		King->IsKing = true;
+		King->LegalMove(PlayerNumber, IsHumanPlayer);
+		King->IsKing = false;
+	}
 
 	// Check if the enemy can attack the king
 	TArray<AChessPieces*> Pieces = (IsHumanPlayer ? BotPieces : HumanPlayerPieces);
@@ -183,14 +205,26 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 	}
 	if (!KingUnderAttack)
 		return false;
+
 	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in GameField"));
+		return false;
+	}
+
 	GMode->CriticalSection.Lock();
 	for (int32 i = 0; i < Pieces.Num(); i++)
 	{
 		FVector2D Position = Pieces[i]->GetGridPosition();
 
-		if (TileMap[Position]->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
-			TileMap[Position]->SetStatusCheckmate(!PlayerNumber, EStatusCheckmate::CAPTURE_BY_KING);
+		if (TileMap.Contains(Position))
+		{
+			if (TileMap[Position]->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
+			{
+				TileMap[Position]->SetStatusCheckmate(!PlayerNumber, EStatusCheckmate::CAPTURE_BY_KING);
+			}
+		}
 	}
 	GMode->CriticalSection.Unlock();
 

@@ -22,37 +22,41 @@ AChess_RandomPlayer::AChess_RandomPlayer()
 void AChess_RandomPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	//GMode = Cast<AChess_GameMode>(GWorld->GetAuthGameMode());
-	//PieceManager = NewObject<AManagePiece>();
 }
 
 // Called every frame
 void AChess_RandomPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
 void AChess_RandomPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 void AChess_RandomPlayer::OnTurn()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Turno bot!"));
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AI (Random) Turn"));
 	GameInstance->SetTurnMessage(TEXT("AI (Random) Turn"));
-	GameInstance->IncrementNumPlayed();
 	
 	FTimerHandle TimerHandle;
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 		{
 			auto GMode = FGameModeRef::GetGameMode(this);
+			if (!GMode)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Game mode null RandomPlayer"));
+				return;
+			}
+
 			AGameField* Field = GMode->GField;
+			if (!Field)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Field null RandomPlayer"));
+				return;
+			}
 
 			TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 			TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
@@ -62,8 +66,6 @@ void AChess_RandomPlayer::OnTurn()
 			bool PieceIsPossibleToMove = false;
 			int32 RIndex;
 			Field->ResetTileMarked();
-
-			UE_LOG(LogTemp, Error, TEXT("Sono un bott!!"));
 
 			do{
 				// select random piece
@@ -88,8 +90,6 @@ void AChess_RandomPlayer::OnTurn()
 
 				FVector2D Coord = TileActor->GetGridPosition();
 
-				UE_LOG(LogTemp, Error, TEXT("E il momento di giocare!!"));
-
 				// check if possible to capture an enemy piece
 				if (TileActor->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
 				{
@@ -97,7 +97,9 @@ void AChess_RandomPlayer::OnTurn()
 
 					GMode->CriticalSection.Lock();
 
-					AChessPieces* PieceToCapture = PiecesMap[(Coord)];
+					AChessPieces* PieceToCapture = nullptr;
+					if (PiecesMap.Contains(Coord))
+						PieceToCapture = PiecesMap[(Coord)];
 
 					GMode->CriticalSection.Unlock();
 
@@ -107,13 +109,12 @@ void AChess_RandomPlayer::OnTurn()
 
 				int32 x = CurrPiece->GetGridPosition().X;
 				int32 y = CurrPiece->GetGridPosition().Y;
-				UE_LOG(LogTemp, Error, TEXT("Prima di accedere alla map - Bot"));
+				//UE_LOG(LogTemp, Error, TEXT("Prima di accedere alla map - Bot"));
 
 				GMode->CriticalSection.Lock();
-
 				// Before moving the piece, set the current tile to be empty
-				TileMap[FVector2D(x, y)]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
-
+				if (TileMap.Contains(FVector2D(x, y)))
+					TileMap[FVector2D(x, y)]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 				GMode->CriticalSection.Unlock();
 				
 				PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
@@ -126,11 +127,11 @@ void AChess_RandomPlayer::OnTurn()
 void AChess_RandomPlayer::OnWin()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AI (Random) Wins!"));
-	//GameInstance->SetTurnMessage(TEXT("AI Wins!"));
+	GameInstance->SetTurnMessage(TEXT("AI Wins!"));
 }
 
 void AChess_RandomPlayer::OnLose()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AI (Random) Loses!"));
-	//GameInstance->SetTurnMessage(TEXT("AI Loses!"));
+	GameInstance->SetTurnMessage(TEXT("AI Loses!"));
 }

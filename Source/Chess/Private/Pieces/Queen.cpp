@@ -20,7 +20,18 @@ void AQueen::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	bool MarkedBackwards = false;
 
 	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null Queen"));
+		return;
+	}
+
 	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null Queen"));
+		return;
+	}
 
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;

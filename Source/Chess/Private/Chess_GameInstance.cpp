@@ -5,14 +5,15 @@
 
 #include "Chess_GameInstance.h"
 
-void UChess_GameInstance::IncrementNumPlayed()
+
+void UChess_GameInstance::SetInfo(FString Message)
 {
-	NumPlayed += 1;
+	Info = Message;
 }
 
-int32 UChess_GameInstance::GetNumPlayed()
+FString UChess_GameInstance::GetInfo()
 {
-	return NumPlayed;
+	return Info;
 }
 
 FString UChess_GameInstance::GetTurnMessage()
@@ -23,4 +24,16 @@ FString UChess_GameInstance::GetTurnMessage()
 void UChess_GameInstance::SetTurnMessage(FString Message)
 {
 	CurrentTurnMessage = Message;
+}
+
+UChess_GameInstance* FGameInstanceRef::CachedGameInstance = nullptr;
+
+UChess_GameInstance* FGameInstanceRef::GetGameInstance(UObject* WorldContextObject)
+{
+	if (!CachedGameInstance)
+	{
+		UWorld* World = GEngine->GetWorldFromContextObjectChecked(WorldContextObject);
+		CachedGameInstance = World->GetGameInstance<UChess_GameInstance>();
+	}
+	return CachedGameInstance;
 }

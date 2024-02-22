@@ -2,6 +2,33 @@
 
 #include "../../Public/GFieldElement/ManageField.h"
 
+void AElementsToManageField::ResetTileArray()
+{
+	for (int32 i = 0; i < TileArray.Num(); i++)
+	{
+		TileArray[i]->Destroy();
+	}
+	TileArray.Empty();
+}
+
+void AElementsToManageField::ResetBotPieces()
+{
+	for (int32 i = 0; i < BotPieces.Num(); i++)
+	{
+		BotPieces[i]->Destroy();
+	}
+	BotPieces.Empty();
+}
+
+void AElementsToManageField::ResetHumanPlayerPieces()
+{
+	for (int32 i = 0; i < HumanPlayerPieces.Num(); i++)
+	{
+		HumanPlayerPieces[i]->Destroy();
+	}
+	HumanPlayerPieces.Empty();
+}
+
 void AElementsToManageField::ResetTileMarked()
 {
 	for (int32 i = 0; i < TileMarked.Num(); i++)
@@ -37,4 +64,21 @@ void AElementsToManageField::ResetCheckArrayTile()
 		CheckArrayTile[i]->SetStatusCheckmate(-1, EStatusCheckmate::NEUTRAL);
 	}
 	CheckArrayTile.Empty();
+}
+
+void AElementsToManageField::ResetMap()
+{
+	TileMap.Empty();
+	PiecesMap.Empty();
+}
+
+void AElementsToManageField::ResetAll()
+{
+	ResetCheckArrayTile();
+	ResetTileMarked();
+	ResetCheckArray();
+	ResetBotPieces();
+	ResetHumanPlayerPieces();
+	TileMarkedDestroy();
+	ResetMap();
 }

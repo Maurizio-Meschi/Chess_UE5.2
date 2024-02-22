@@ -23,7 +23,18 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	bool MarkedForward = false;
 
 	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null Pawn"));
+		return;
+	}
+
 	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null Pawn"));
+		return;
+	}
 
 	// check if the next first vertical tile is empty and if true, mark the tile
 	XMove = IsHumanPlayer ? 1 : -1;
@@ -75,35 +86,51 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 	ATile* SelectedTile = nullptr;
 
 	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null Pawn"));
+		return;
+	}
+
 	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null Pawn"));
+		return;
+	}
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
 	GMode->CriticalSection.Lock();
-	SelectedTile = TileMap[FVector2D(x, y)];
+	if (TileMap.Contains(FVector2D(x, y)))
+		SelectedTile = TileMap[FVector2D(x, y)];
 	GMode->CriticalSection.Unlock();
 
-	if (Field->IsCheckmateSituation)
+	if (Field->IsCheckmateSituation && SelectedTile)
 	{
 		ManagerCheckMateSituationPawn(SelectedTile, PlayerNumber);
 	}
 	else
 	{
-		if (CaptureSituation && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+		if (CaptureSituation && SelectedTile && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 		{
+			AChessPieces* SelectedPiece = nullptr;
+
 			GMode->CriticalSection.Lock();
-			AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
+			if (PiecesMap.Contains(FVector2D(x, y)))
+				SelectedPiece = PiecesMap[FVector2D(x, y)];
 			GMode->CriticalSection.Unlock();
 
-			if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
+			if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 			{
 				if (SelectedPiece->GetClass()->GetName() == (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
 				{
 					Field->KingUnderAttack = true;
 					FVector2d PiecePosition = this->GetGridPosition();
 					GMode->CriticalSection.Lock();
-					TileMap[PiecePosition]->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
+					if (TileMap.Contains(PiecePosition))
+						TileMap[PiecePosition]->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
 					GMode->CriticalSection.Unlock();
 					// Marca le tile per arrivare al re
 					FindTileBetweenP1P2(PiecePosition, FVector2D(x, y), PlayerNumber);
@@ -121,7 +148,24 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 void AChessPawn::ManagerCheckMateSituationPawn(ATile* SelectedTile, int32 PlayerNumber)
 {
 	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null Pawn"));
+		return;
+	}
+
 	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null Pawn"));
+		return;
+	}
+
+	if (!SelectedTile)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SelectedTile null Pawn"));
+		return;
+	}
 
 	if (!CaptureSituation && 
 		(SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE ||
@@ -143,28 +187,37 @@ void AChessPawn::MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHuma
 	ATile* SelectedTile = nullptr;
 
 	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null Pawn"));
+		return;
+	}
+
 	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null Pawn"));
+		return;
+	}
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
 	GMode->CriticalSection.Lock();
-	SelectedTile = TileMap[FVector2D(x, y)];
+	if (TileMap.Contains(FVector2D(x, y)))
+		SelectedTile = TileMap[FVector2D(x, y)];
 	GMode->CriticalSection.Unlock();
 
-	if (SelectedTile == nullptr)
-		UE_LOG(LogTemp, Error, TEXT("No tile found"));
-
-	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+	if (SelectedTile && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 	{
+		AChessPieces* SelectedPiece = nullptr;
+
 		GMode->CriticalSection.Lock();
-		AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
+		if (PiecesMap.Contains(FVector2D(x, y)))
+			SelectedPiece = PiecesMap[FVector2D(x, y)];
 		GMode->CriticalSection.Unlock();
-		if (SelectedPiece == nullptr)
-			UE_LOG(LogTemp, Error, TEXT("No piece found"));
-
-
-		if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
+		
+		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 		{
 			if (SelectedPiece->GetClass()->GetName() != (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
 			{
@@ -180,25 +233,33 @@ void AChessPawn::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool &Marked)
 	ATile* SelectedTile = nullptr;
 
 	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null Pawn"));
+		return;
+	}
+
 	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null Pawn"));
+		return;
+	}
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
 	GMode->CriticalSection.Lock();
-
-	SelectedTile = TileMap[FVector2D(x, y)];
-
+	if (TileMap.Contains(FVector2D(x, y)))
+		SelectedTile = TileMap[FVector2D(x, y)];
 	GMode->CriticalSection.Unlock();
 
-	if (SelectedTile == nullptr)
-		UE_LOG(LogTemp, Error, TEXT("No tile found"));
-	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+	if (SelectedTile && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 	{
 		Marked = true;
 	}
 
-	if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
+	if (SelectedTile && SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
 	{
 		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
 		Field->AddTileMarked(SelectedTile);

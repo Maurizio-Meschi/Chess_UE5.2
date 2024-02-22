@@ -8,12 +8,6 @@ ATile::ATile()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	// template function that creates a components
-
-	// CreateDefaultSubobject<USceneComponent>(TEXT("Scene")) is creating a new USceneComponent 
-	// subobject within a class instance, and it's being named "Scene".
-	// Same thing for StaticMesch
-
 	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 

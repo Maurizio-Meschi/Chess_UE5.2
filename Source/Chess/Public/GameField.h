@@ -10,6 +10,7 @@
 #include "Containers/Map.h"
 #include "GameField.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReset);
 
 UCLASS()
 class CHESS_API AGameField : public AElementsToManageField
@@ -24,6 +25,9 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float NormalizedCellPadding;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnReset OnResetEvent;
 
 	// size of field
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -49,6 +53,9 @@ public:
 
 	// Sets default values for this actor's properties
 	AGameField();
+
+	UFUNCTION(BlueprintCallable)
+	void ResetField();
 
 	// Called when an instance of this class is placed (in editor) or spawned
 	virtual void OnConstruction(const FTransform& Transform) override;

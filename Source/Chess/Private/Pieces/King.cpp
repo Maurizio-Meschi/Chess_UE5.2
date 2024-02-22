@@ -17,7 +17,18 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	bool MarkedBackwards = false;
 
 	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null King"));
+		return;
+	}
+
 	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null King"));
+		return;
+	}
 
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
@@ -103,8 +114,18 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 bool AKing::CheckKingSituation(int32 x, int32 y, bool IsHumanPlayer)
 {
 	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null King"));
+		return false;
+	}
 
 	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null King"));
+		return false;
+	}
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
@@ -112,20 +133,19 @@ bool AKing::CheckKingSituation(int32 x, int32 y, bool IsHumanPlayer)
 	ATile* SelectedTile = nullptr;
 
 	GMode->CriticalSection.Lock();
-
-	SelectedTile = TileMap[FVector2D(x, y)];
-
+	if (TileMap.Contains(FVector2D(x, y)))
+		SelectedTile = TileMap[FVector2D(x, y)];
 	GMode->CriticalSection.Unlock();
 
-	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+	if (SelectedTile && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 	{
+		AChessPieces* SelectedPiece = nullptr;
 		GMode->CriticalSection.Lock();
-
-		AChessPieces* SelectedPiece = PiecesMap[FVector2D(x, y)];
-
+		if (PiecesMap.Contains(FVector2D(x, y)))
+			SelectedPiece = PiecesMap[FVector2D(x, y)];
 		GMode->CriticalSection.Unlock();
 
-		if (SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
+		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 		{
 			return true;
 		}

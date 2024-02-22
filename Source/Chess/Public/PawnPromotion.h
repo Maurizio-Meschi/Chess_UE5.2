@@ -30,11 +30,23 @@ public:
 
     void SetManager(AManagePiece* ManagerPiece) { Manager = ManagerPiece; }
 
-    static UPawnPromotion* GetInstance();
+    //static UPawnPromotion* GetInstance();
 
     bool IsHumanPlayer = false;
 
     static void DestroyInstance();
+
+    void SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass);
+    UFUNCTION(BlueprintCallable, Category = "Button Category")
+    void ManageQueenButton();
+    UFUNCTION(BlueprintCallable, Category = "Button Category")
+    void ManageRookButton();
+    UFUNCTION(BlueprintCallable, Category = "Button Category")
+    void ManageBishopButton();
+    UFUNCTION(BlueprintCallable, Category = "Button Category")
+    void ManagePawnButton();
+    UFUNCTION(BlueprintCallable, Category = "Button Category")
+    static UPawnPromotion* GetInstance();
 
 private:
     static UPawnPromotion* Instance;
@@ -44,16 +56,6 @@ private:
     void PawnPromotionHuman();
     
     void PawnPromotionBot();
-
-    void SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass);
-    UFUNCTION()
-    void ManageQueenButton();
-    UFUNCTION()
-    void ManageRookButton();
-    UFUNCTION()
-    void ManageBishopButton();
-    UFUNCTION()
-    void ManagePawnButton();
 
     AChessPieces* PieceToPromote;
 

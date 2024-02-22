@@ -59,113 +59,130 @@ void UPawnPromotion::DestroyInstance()
 void UPawnPromotion::PawnPromotionHuman()
 {
     auto GMode = FGameModeRef::GetGameMode(this);
-    if (GMode == nullptr) UE_LOG(LogTemp, Error, TEXT("GMode nullptr nuu!"));
-    AChess_PlayerController* ChessPlayerController = GMode->PlayerController;
+    if (!GMode)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Game mode null in PawnPromotion"));
+        return;
+    }
 
     AGameField* Field = GMode->GField;
-    //if (Class.Num() < 4) Class.SetNum(4);
+    if (!Field)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Field null in PawnPromotion"));
+        return;
+    }
+
+    AChess_PlayerController* ChessPlayerController = GMode->PlayerController;
+    if (!ChessPlayerController)
+    {
+        UE_LOG(LogTemp, Error, TEXT("PlayerController null in PawnPromotion"));
+        return;
+    }
+
+    WidgetGraph = ChessPlayerController->GetInvetoryWidget();
+
     UE_LOG(LogTemp, Error, TEXT("Array"));
     Class.Add(Field->GameFieldSubClass.ChessQueen[0]);
     Class.Add(Field->GameFieldSubClass.ChessRook[0]);
     Class.Add(Field->GameFieldSubClass.ChessBishop[0]);
     Class.Add(Field->GameFieldSubClass.ChessPawn[0]);
 
-    if (ChessPlayerController)
-        WidgetGraph = ChessPlayerController->GetInvetoryWidget();
-    else 
-        UE_LOG(LogTemp, Error, TEXT("PlayerControll Nulla"));
     UE_LOG(LogTemp, Error, TEXT("Human"));
     if (WidgetGraph)
     {
         UE_LOG(LogTemp, Error, TEXT("Prima del viewport"));
         if (!WidgetGraph->IsInViewport())
             WidgetGraph->AddToViewport();
-        if(GMode->GField == nullptr)
-            UE_LOG(LogTemp, Error, TEXT("controllo a caso->sara la viewport?"));
-
-        UE_LOG(LogTemp, Error, TEXT("Prima del bottone"));
-        TWeakObjectPtr<UButton> QueenButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("QueenButton")));
-        if (QueenButton.IsValid() && !QueenButton->OnClicked.IsBound())
-        {
-            QueenButton->OnClicked.AddDynamic(this, &UPawnPromotion::ManageQueenButton);
-        }
-        UE_LOG(LogTemp, Error, TEXT("Prima del secondo bottone"));
-        TWeakObjectPtr<UButton> RookButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("RookButton")));
-        if (RookButton.IsValid() && !RookButton->OnClicked.IsBound())
-        {
-            RookButton->OnClicked.AddDynamic(this, &UPawnPromotion::ManageRookButton);
-        }
-
-        TWeakObjectPtr<UButton> BishopButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("BishopButton")));
-        if (BishopButton.IsValid() && !BishopButton->OnClicked.IsBound())
-        {
-            BishopButton->OnClicked.AddDynamic(this, &UPawnPromotion::ManageBishopButton);
-        }
-        UE_LOG(LogTemp, Error, TEXT("Prima ultimo bottone"));
-        TWeakObjectPtr<UButton> PawnButton = Cast<UButton>(WidgetGraph->GetWidgetFromName(TEXT("PawnButton")));
-        if (PawnButton.IsValid() && !PawnButton->OnClicked.IsBound())
-        {
-            PawnButton->OnClicked.AddDynamic(this, &UPawnPromotion::ManagePawnButton);
-        }
-        UE_LOG(LogTemp, Error, TEXT("Bottoni done"));
     }
-    else UE_LOG(LogTemp, Error, TEXT("sono nullo coco"));
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Widget null in PawnPromotion"));
+        return;
+    }
 }
 
 void UPawnPromotion::PawnPromotionBot()
 {
     auto GMode = FGameModeRef::GetGameMode(this);
-    auto Field = GMode->GField;
+    if (!GMode)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Game mode null in PawnPromotion"));
+        return;
+    }
+
+    AGameField* Field = GMode->GField;
+    if (!Field)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Field null in PawnPromotion"));
+        return;
+    }
+
     Class.Add(Field->GameFieldSubClass.ChessQueen[1]);
     Class.Add(Field->GameFieldSubClass.ChessRook[1]);
     Class.Add(Field->GameFieldSubClass.ChessBishop[1]);
     Class.Add(Field->GameFieldSubClass.ChessPawn[1]);
     Class.Add(Field->GameFieldSubClass.ChessKnight[1]);
+
     int32 RIndex = FMath::Rand() % Class.Num();
-    SpawnNewPiece(Class[RIndex]);
+    if (Class.Num() > RIndex)
+        SpawnNewPiece(Class[RIndex]);
 }
 
 void UPawnPromotion::ManageQueenButton()
 {
-    SpawnNewPiece(Class[0]);
-    Manager->HandlePromotionCompleted();
+    if (Class.Num() > 0)
+        SpawnNewPiece(Class[0]);
 }
 
 void UPawnPromotion::ManageRookButton()
 {
-    SpawnNewPiece(Class[1]);
-    Manager->HandlePromotionCompleted();
+    if (Class.Num() > 1)
+        SpawnNewPiece(Class[1]);
 }
 
 void UPawnPromotion::ManageBishopButton()
 {
-    SpawnNewPiece(Class[2]);
-    Manager->HandlePromotionCompleted();
+    if (Class.Num() > 2)
+        SpawnNewPiece(Class[2]);
 }
 
 void UPawnPromotion::ManagePawnButton()
 {
-    SpawnNewPiece(Class[3]);
-    Manager->HandlePromotionCompleted();
+    if (Class.Num() > 3)
+        SpawnNewPiece(Class[3]);
 }
 
 void UPawnPromotion::SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass)
 {
     auto GMode = FGameModeRef::GetGameMode(this);
+    if (!GMode)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Game mode null in PawnPromotion"));
+        return;
+    }
+
     AGameField* Field = GMode->GField;
+    if (!Field)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Field null in PawnPromotion"));
+        return;
+    }
 
     TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 
     auto Position = PieceToPromote->GetGridPosition();
     PieceToPromote->SetActorHiddenInGame(true);
     PieceToPromote->SetActorEnableCollision(false);
+
     GMode->CriticalSection.Lock();
     Field->PiecesMapRemove(Position);
+
     if (PieceToPromote->Color == EPieceColor::BLACK)
         Field->BotPiecesRemove(PieceToPromote);
     else
         Field->HumanPlayerPiecesRemove(PieceToPromote);
     GMode->CriticalSection.Unlock();
+
     Field->GenerateChessPieceInXYPosition(Position.X, Position.Y, PieceClass, IsHumanPlayer ? EPieceColor::WHITE : EPieceColor::BLACK);
     
     FRewind Obj;
@@ -178,4 +195,5 @@ void UPawnPromotion::SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass)
         WidgetGraph = nullptr;
     }
     Class.Empty();
+    Manager->HandlePromotionCompleted();
 }

@@ -16,6 +16,7 @@ AManagePiece::AManagePiece()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
 	IsGameOver = false;
 }
 
@@ -28,8 +29,19 @@ void AManagePiece::BeginPlay()
 void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord)
 {
 	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
+		return;
+	}
 
-	AGameField* GField = GMode->GField;
+	auto GField = GMode->GField;
+	if (!GField)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null in ManagePiece"));
+		return;
+	}
+
 	if (IsGameOver || PlayerNumber != GMode->CurrentPlayer)
 	{
 		return;
@@ -46,8 +58,18 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 	GField->AddPiecesMap(Coord, Piece);
 	GMode->CriticalSection.Unlock();
 	Piece->SetActorLocation(NewLocation);
+
+	//Gestire la grafica che dice lo spostamento della pedina
+	UChess_GameInstance* GameInstance = FGameInstanceRef::GetGameInstance(this);
+	if (GameInstance)
+	{
+		GMode->CriticalSection.Lock();
+		GameInstance->SetInfo(GField->GetTileMap()[Coord]->Name);
+		GMode->CriticalSection.Unlock();
+	}
+
 	bool IsHumanPlayer = !static_cast<bool>(GMode->CurrentPlayer);
-	UE_LOG(LogTemp, Error, TEXT("IsHumanPlayer = %s"), IsHumanPlayer ? TEXT("True") : TEXT("False"));
+	
 	if ((Piece->GetClass()->GetName() == "BP_w_Pawn_C" && static_cast<int32>(Piece->GetGridPosition().X) == 7) ||
 		Piece->GetClass()->GetName() == "BP_b_Pawn_C" && static_cast<int32>(Piece->GetGridPosition().X) == 0)
 	{
@@ -63,7 +85,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 				}, TStatId(), nullptr, ENamedThreads::GameThread);
 		}
 		else
-			UE_LOG(LogTemp, Error, TEXT("PromInstance null"))
+			UE_LOG(LogTemp, Error, TEXT("PromotionInstance null in ManagePiece"));
 	}
 	else
 	{
@@ -80,7 +102,19 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 {
 	auto GMode = FGameModeRef::GetGameMode(this);
-	AGameField* GField = GMode->GField;
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
+		return;
+	}
+
+	auto GField = GMode->GField;
+	if (!GField)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null in ManagePiece"));
+		return;
+	}
+
 	GMode->CriticalSection.Lock();
 	GField->PiecesMapRemove(Coord);
 	
@@ -89,6 +123,7 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 	else
 		GField->HumanPlayerPiecesRemove(PieceToCapture);
 	GMode->CriticalSection.Unlock();
+
 	PieceToCapture->SetActorHiddenInGame(true);
 	PieceToCapture->SetActorEnableCollision(false);;
 }
@@ -96,7 +131,19 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 {
 	auto GMode = FGameModeRef::GetGameMode(this);
-	AGameField* GField = GMode->GField;
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
+		return;
+	}
+
+	auto GField = GMode->GField;
+	if (!GField)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null in ManagePiece"));
+		return;
+	}
+
 	GField->IsCheckmateSituation = false;
 	GField->ResetTileMarked();
 
@@ -145,6 +192,12 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 void AManagePiece::HandlePromotionCompleted()
 {
 	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
+		return;
+	}
+
 	int32 CurrPlayer = GMode->CurrentPlayer;
 	CheckWinAndGoNextPlayer(CurrPlayer);
 }

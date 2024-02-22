@@ -75,6 +75,12 @@ public:
 	void BotPiecesRemove(AChessPieces* Piece) { BotPieces.Remove(Piece); BotPieces.Shrink(); }
 	void HumanPlayerPiecesRemove(AChessPieces* Piece) { HumanPlayerPieces.Remove(Piece); HumanPlayerPieces.Shrink(); }
 
+	void ResetTileArray();
+
+	void ResetBotPieces();
+
+	void ResetHumanPlayerPieces();
+
 	void ResetTileMarked();
 
 	void TileMarkedDestroy();
@@ -82,4 +88,8 @@ public:
 	void ResetCheckArray();
 
 	void ResetCheckArrayTile();
+
+	void ResetMap();
+
+	void ResetAll();
 };

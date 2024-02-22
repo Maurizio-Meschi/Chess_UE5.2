@@ -17,7 +17,7 @@ class CHESS_API UChess_GameInstance : public UGameInstance
 protected:
 	// score value for human player
 	UPROPERTY(EditAnywhere)
-	int32 NumPlayed = 0;
+	FString Info;
 
 	// message to show every turn
 	UPROPERTY(EditAnywhere)
@@ -26,11 +26,11 @@ protected:
 public:
 	
 	// increment the score for human player
-	void IncrementNumPlayed();
+	void SetInfo(FString Message);
 
 	// get the score for human player
 	UFUNCTION(BlueprintCallable)
-	int32 GetNumPlayed();
+	FString GetInfo();
 
 	// get the current turn message
 	UFUNCTION(BlueprintCallable)
@@ -39,4 +39,14 @@ public:
 	// set the turn message
 	UFUNCTION(BlueprintCallable)
 	void SetTurnMessage(FString Message);
+};
+
+class FGameInstanceRef
+{
+private:
+	static UChess_GameInstance* CachedGameInstance;
+
+public:
+	//FGameModeRef() { FGameModeRef::CachedGameMode = nullptr; }
+	static UChess_GameInstance* GetGameInstance(UObject* WorldContextObject);
 };

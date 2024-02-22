@@ -55,6 +55,9 @@ public:
 	// get the (x, y) position
 	FVector2D GetGridPosition();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FString Name;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

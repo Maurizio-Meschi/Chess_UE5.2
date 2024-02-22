@@ -37,13 +37,9 @@ void AChess_PlayerController::BeginPlay()
 	{
 		if (InventoryWidgetClass)
 		{
-			if (!InventoryWidget) // If the widget is not created and == NULL
+			if (!InventoryWidget)
 			{
-				InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass); // Create Widget
-				if (!InventoryWidget)
-					return;
-				//InventoryWidget->AddToViewport(); // Add it to the viewport so the Construct() method in the UUserWidget:: is run.
-				//InventoryWidget->SetVisibility(ESlateVisibility::Hidden); // Set it to hidden so its not open on spawn.
+				InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
 			}
 		}
 	}
