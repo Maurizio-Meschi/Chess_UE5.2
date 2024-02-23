@@ -68,7 +68,13 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 	//Gestire la grafica che dice lo spostamento della pedina
 	if ((Piece->GetClass()->GetName() == "BP_w_Pawn_C" && static_cast<int32>(Piece->GetGridPosition().X) == 7))
 	{
-		//CheckWinAndGoNextPlayer(PlayerNumber);
+		auto Controller = FControllerRef::GetController(this);
+		if (Controller)
+		{
+			Controller->AddInventoryWidgetToViewport();
+		}
+		else
+			UE_LOG(LogTemp, Error, TEXT("PlayerController null in ManagePiece"));
 	}
 	else
 	{

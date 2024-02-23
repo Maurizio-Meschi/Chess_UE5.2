@@ -29,9 +29,27 @@ public:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* ClickAction;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player, HUD and UI")
+	TSubclassOf<UUserWidget> InventoryWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player, HUD and UI")
+	UUserWidget* InventoryWidget;
+
+	void AddInventoryWidgetToViewport();
+
 	void ClickOnGrid();
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+};
+
+class FControllerRef
+{
+private:
+	static AChess_PlayerController* CachedController;
+
+public:
+	//FGameModeRef() { FGameModeRef::CachedGameMode = nullptr; }
+	static AChess_PlayerController* GetController(UObject* WorldContextObject);
 };
