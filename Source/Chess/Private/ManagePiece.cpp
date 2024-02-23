@@ -66,37 +66,12 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 	Piece->SetActorLocation(NewLocation);
 
 	//Gestire la grafica che dice lo spostamento della pedina
-	/*
-	UChess_GameInstance* GameInstance = FGameInstanceRef::GetGameInstance(this);
-	if (GameInstance)
+	if ((Piece->GetClass()->GetName() == "BP_w_Pawn_C" && static_cast<int32>(Piece->GetGridPosition().X) == 7))
 	{
-		
-		GameInstance->SetInfo(GField->GetTileMap()[Coord]->Name);
-		
+		//CheckWinAndGoNextPlayer(PlayerNumber);
 	}
-
-	bool IsHumanPlayer = !static_cast<bool>(GMode->CurrentPlayer);
-	
-	if ((Piece->GetClass()->GetName() == "BP_w_Pawn_C" && static_cast<int32>(Piece->GetGridPosition().X) == 7) ||
-		Piece->GetClass()->GetName() == "BP_b_Pawn_C" && static_cast<int32>(Piece->GetGridPosition().X) == 0)
+	else
 	{
-		UPawnPromotion* PromotionInstance = UPawnPromotion::GetInstance();
-		if (PromotionInstance)
-		{
-			PromotionInstance->SetpieceToPromote(Piece);
-			PromotionInstance->SetManager(this);
-			PromotionInstance->IsHumanPlayer = IsHumanPlayer;
-			FGraphEventRef GameThreadTask = FFunctionGraphTask::CreateAndDispatchWhenReady([=]()
-				{
-					PromotionInstance->PawnPromotion();
-				}, TStatId(), nullptr, ENamedThreads::GameThread);
-		}
-		else
-			UE_LOG(LogTemp, Error, TEXT("PromotionInstance null in ManagePiece"));
-	}
-	*/
-	//else
-	//{
 		// Add the piece reference in the current played 
 		FRewind Obj;
 		Obj.PieceToRewind = Piece;
@@ -104,7 +79,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 		GMode->ArrayOfPlays.Add(Obj);
 
 		CheckWinAndGoNextPlayer(PlayerNumber);
-	//}
+	}
 }
 
 void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
@@ -232,6 +207,7 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	auto Position = PieceToPromote->GetGridPosition();
 	PieceToPromote->SetActorHiddenInGame(true);
 	PieceToPromote->SetActorEnableCollision(false);
+	PieceToPromote->SetActorLocation(FVector(0, 0, 0));
 
 
 	Field->PiecesMapRemove(Position);
@@ -254,5 +230,6 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	GMode->ArrayOfPlays.Add(Obj);
 
 	HandlePromotionCompleted();
+	//OnPromotionEvent.Broadcast();
 }
 

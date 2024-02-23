@@ -8,6 +8,7 @@
 #include "ManagePiece.generated.h"
 
 //DECLARE_DELEGATE(FFunctionDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPromotion);
 
 class AChess_GameMode;
 
@@ -29,13 +30,16 @@ protected:
 	bool IsGameOver;
 public:	
 
+	//UPROPERTY(BlueprintAssignable)
+	FOnPromotion OnPromotionEvent;
+
 	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord);
 
 	void CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord);
 
 	void CheckWinAndGoNextPlayer(const int32 PlayerNumber);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void HandlePromotionCompleted();
 
 	UFUNCTION(BlueprintCallable, Category = "Button Category")

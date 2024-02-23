@@ -213,16 +213,16 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 		return false;
 	}
 
-	
 	for (int32 i = 0; i < Pieces.Num(); i++)
 	{
 		FVector2D Position = Pieces[i]->GetGridPosition();
 
 		if (TileMap.Contains(Position))
 		{
-			if (TileMap[Position]->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
+			ATile* Tile = TileMap[Position];
+			if (Tile && Tile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
 			{
-				TileMap[Position]->SetStatusCheckmate(!PlayerNumber, EStatusCheckmate::CAPTURE_BY_KING);
+				Tile->SetStatusCheckmate(!PlayerNumber, EStatusCheckmate::CAPTURE_BY_KING);
 			}
 		}
 	}
