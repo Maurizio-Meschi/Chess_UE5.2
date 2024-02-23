@@ -132,18 +132,18 @@ bool AKing::CheckKingSituation(int32 x, int32 y, bool IsHumanPlayer)
 
 	ATile* SelectedTile = nullptr;
 
-	GMode->CriticalSection.Lock();
+	
 	if (TileMap.Contains(FVector2D(x, y)))
 		SelectedTile = TileMap[FVector2D(x, y)];
-	GMode->CriticalSection.Unlock();
+	
 
 	if (SelectedTile && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 	{
 		AChessPieces* SelectedPiece = nullptr;
-		GMode->CriticalSection.Lock();
+		
 		if (PiecesMap.Contains(FVector2D(x, y)))
 			SelectedPiece = PiecesMap[FVector2D(x, y)];
-		GMode->CriticalSection.Unlock();
+		
 
 		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 		{

@@ -4,28 +4,28 @@
 
 void AElementsToManageField::ResetTileArray()
 {
-	for (int32 i = 0; i < TileArray.Num(); i++)
-	{
-		TileArray[i]->Destroy();
-	}
+	//for (int32 i = 0; i < TileArray.Num(); i++)
+	//{
+		//TileArray[i]->Destroy();
+	//}
 	TileArray.Empty();
 }
 
 void AElementsToManageField::ResetBotPieces()
 {
-	for (int32 i = 0; i < BotPieces.Num(); i++)
-	{
-		BotPieces[i]->Destroy();
-	}
+	//for (int32 i = 0; i < BotPieces.Num(); i++)
+	//{
+		//BotPieces[i]->Destroy();
+	//}
 	BotPieces.Empty();
 }
 
 void AElementsToManageField::ResetHumanPlayerPieces()
 {
-	for (int32 i = 0; i < HumanPlayerPieces.Num(); i++)
-	{
-		HumanPlayerPieces[i]->Destroy();
-	}
+	//for (int32 i = 0; i < HumanPlayerPieces.Num(); i++)
+	//{
+		//HumanPlayerPieces[i]->Destroy();
+	//}
 	HumanPlayerPieces.Empty();
 }
 
@@ -68,7 +68,17 @@ void AElementsToManageField::ResetCheckArrayTile()
 
 void AElementsToManageField::ResetMap()
 {
+	for (auto Element : TileMap)
+	{
+		ATile* Tile = Element.Value;
+		Tile->Destroy();
+	}
 	TileMap.Empty();
+	for (auto Element : PiecesMap)
+	{
+		AChessPieces* Piece = Element.Value;
+		Piece->Destroy();
+	}
 	PiecesMap.Empty();
 }
 

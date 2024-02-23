@@ -213,7 +213,7 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 		return false;
 	}
 
-	GMode->CriticalSection.Lock();
+	
 	for (int32 i = 0; i < Pieces.Num(); i++)
 	{
 		FVector2D Position = Pieces[i]->GetGridPosition();
@@ -226,7 +226,7 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 			}
 		}
 	}
-	GMode->CriticalSection.Unlock();
+	
 
 	KingUnderAttack = false;
 	return true;

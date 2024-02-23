@@ -51,7 +51,7 @@ void UPawnPromotion::DestroyInstance()
     if (Instance)
     {
         Instance->ConditionalBeginDestroy();
-        Instance = nullptr;
+        //Instance = nullptr;
     }
 
 }
@@ -82,10 +82,14 @@ void UPawnPromotion::PawnPromotionHuman()
     WidgetGraph = ChessPlayerController->GetInvetoryWidget();
 
     UE_LOG(LogTemp, Error, TEXT("Array"));
-    Class.Add(Field->GameFieldSubClass.ChessQueen[0]);
-    Class.Add(Field->GameFieldSubClass.ChessRook[0]);
-    Class.Add(Field->GameFieldSubClass.ChessBishop[0]);
-    Class.Add(Field->GameFieldSubClass.ChessPawn[0]);
+    if (Field->GameFieldSubClass.ChessQueen.Num() >= 1)
+        Class.Add(Field->GameFieldSubClass.ChessQueen[0]);
+    if (Field->GameFieldSubClass.ChessRook.Num() >= 1)
+        Class.Add(Field->GameFieldSubClass.ChessRook[0]);
+    if (Field->GameFieldSubClass.ChessBishop.Num() >= 1)
+        Class.Add(Field->GameFieldSubClass.ChessBishop[0]);
+    if (Field->GameFieldSubClass.ChessPawn.Num() >= 1)
+        Class.Add(Field->GameFieldSubClass.ChessPawn[0]);
 
     UE_LOG(LogTemp, Error, TEXT("Human"));
     if (WidgetGraph)
@@ -117,15 +121,21 @@ void UPawnPromotion::PawnPromotionBot()
         return;
     }
 
-    Class.Add(Field->GameFieldSubClass.ChessQueen[1]);
-    Class.Add(Field->GameFieldSubClass.ChessRook[1]);
-    Class.Add(Field->GameFieldSubClass.ChessBishop[1]);
-    Class.Add(Field->GameFieldSubClass.ChessPawn[1]);
-    Class.Add(Field->GameFieldSubClass.ChessKnight[1]);
+    if (Field->GameFieldSubClass.ChessQueen.Num() == 2)
+        Class.Add(Field->GameFieldSubClass.ChessQueen[1]);
+    if (Field->GameFieldSubClass.ChessRook.Num() == 2)
+        Class.Add(Field->GameFieldSubClass.ChessRook[1]);
+    if (Field->GameFieldSubClass.ChessBishop.Num() == 2)
+        Class.Add(Field->GameFieldSubClass.ChessBishop[1]);
+    if (Field->GameFieldSubClass.ChessPawn.Num() == 2)
+        Class.Add(Field->GameFieldSubClass.ChessPawn[1]);
 
-    int32 RIndex = FMath::Rand() % Class.Num();
-    if (Class.Num() > RIndex)
-        SpawnNewPiece(Class[RIndex]);
+    if (Class.Num() > 0)
+    {
+        int32 RIndex = FMath::Rand() % Class.Num();
+        if (Class.Num() > RIndex)
+            SpawnNewPiece(Class[RIndex]);
+    }
 }
 
 void UPawnPromotion::ManageQueenButton()
@@ -174,14 +184,14 @@ void UPawnPromotion::SpawnNewPiece(TSubclassOf<AChessPieces> PieceClass)
     PieceToPromote->SetActorHiddenInGame(true);
     PieceToPromote->SetActorEnableCollision(false);
 
-    GMode->CriticalSection.Lock();
+    
     Field->PiecesMapRemove(Position);
 
     if (PieceToPromote->Color == EPieceColor::BLACK)
         Field->BotPiecesRemove(PieceToPromote);
     else
         Field->HumanPlayerPiecesRemove(PieceToPromote);
-    GMode->CriticalSection.Unlock();
+    
 
     Field->GenerateChessPieceInXYPosition(Position.X, Position.Y, PieceClass, IsHumanPlayer ? EPieceColor::WHITE : EPieceColor::BLACK);
     

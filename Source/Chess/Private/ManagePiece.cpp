@@ -26,6 +26,13 @@ void AManagePiece::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AManagePiece::BeginDestroy()
+{
+	Super::BeginDestroy();
+	UE_LOG(LogTemp, Error, TEXT("Nella begin destroy!"));
+	UPawnPromotion::DestroyInstance();
+}
+
 void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord)
 {
 	auto GMode = FGameModeRef::GetGameMode(this);
@@ -49,23 +56,23 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 
 	FVector NewLocation = GField->GetActorLocation() + SpawnPosition;
 
-	GMode->CriticalSection.Lock();
+	
 	GField->PiecesMapRemove(Piece->GetGridPosition());
-	GMode->CriticalSection.Unlock();
+	
 
 	Piece->SetGridPosition(Coord.X, Coord.Y);
-	GMode->CriticalSection.Lock();
+	
 	GField->AddPiecesMap(Coord, Piece);
-	GMode->CriticalSection.Unlock();
+	
 	Piece->SetActorLocation(NewLocation);
 
 	//Gestire la grafica che dice lo spostamento della pedina
 	UChess_GameInstance* GameInstance = FGameInstanceRef::GetGameInstance(this);
 	if (GameInstance)
 	{
-		GMode->CriticalSection.Lock();
+		
 		GameInstance->SetInfo(GField->GetTileMap()[Coord]->Name);
-		GMode->CriticalSection.Unlock();
+		
 	}
 
 	bool IsHumanPlayer = !static_cast<bool>(GMode->CurrentPlayer);
@@ -115,14 +122,14 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 		return;
 	}
 
-	GMode->CriticalSection.Lock();
+	
 	GField->PiecesMapRemove(Coord);
 	
 	if (PieceToCapture->Color == EPieceColor::BLACK)
 		GField->BotPiecesRemove(PieceToCapture);
 	else
 		GField->HumanPlayerPiecesRemove(PieceToCapture);
-	GMode->CriticalSection.Unlock();
+	
 
 	PieceToCapture->SetActorHiddenInGame(true);
 	PieceToCapture->SetActorEnableCollision(false);;

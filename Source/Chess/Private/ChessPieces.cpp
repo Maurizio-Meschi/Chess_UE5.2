@@ -66,10 +66,10 @@ void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer
 
 	ATile* SelectedTile = nullptr;
 
-	GMode->CriticalSection.Lock();
+	
 	if (TileMap.Contains(FVector2D(x, y)))
 		SelectedTile = TileMap[FVector2D(x, y)];
-	GMode->CriticalSection.Unlock();
+	
 
 	if (!SelectedTile)
 	{
@@ -90,10 +90,10 @@ void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer
 	else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 	{
 		AChessPieces* SelectedPiece = nullptr;
-		GMode->CriticalSection.Lock();
+		
 		if (PiecesMap.Contains(FVector2D(x, y)))
 			SelectedPiece = PiecesMap[FVector2D(x, y)];
-		GMode->CriticalSection.Unlock();
+		
 
 		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 		{
@@ -128,10 +128,10 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 
 	ATile* SelectedTile = nullptr;
 
-	GMode->CriticalSection.Lock();
+	
 	if (TileMap.Contains(FVector2D(x, y)))
 		SelectedTile = TileMap[FVector2D(x, y)];
-	GMode->CriticalSection.Unlock();
+	
 
 	if (!SelectedTile)
 	{
@@ -256,10 +256,10 @@ void AChessPieces::ManageCheckSituationKing(int32 x, int32 y, int32 PlayerNumber
 	{
 		AChessPieces* SelectedPiece = nullptr;
 
-		GMode->CriticalSection.Lock();
+		
 		if (PiecesMap.Contains(FVector2D(x, y)))
 			SelectedPiece = PiecesMap[FVector2D(x, y)];
-		GMode->CriticalSection.Unlock();
+		
 
 		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 		{
@@ -298,10 +298,10 @@ void AChessPieces::ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNum
 
 	AChessPieces* SelectedPiece = nullptr;
 
-	GMode->CriticalSection.Lock();
+	
 	if (PiecesMap.Contains(FVector2D(x, y)))
 		SelectedPiece = PiecesMap[FVector2D(x, y)];
-	GMode->CriticalSection.Unlock();
+	
 
 	if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE) &&
 		SelectedPiece->GetClass()->GetName() == (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
@@ -309,10 +309,10 @@ void AChessPieces::ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNum
 		Field->KingUnderAttack = true;
 		FVector2d PiecePosition = this->GetGridPosition();
 
-		GMode->CriticalSection.Lock();
+		
 		if (TileMap.Contains(PiecePosition))
 			TileMap[PiecePosition]->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
-		GMode->CriticalSection.Unlock();
+		
 
 		// non devo marcare le tile intermedie perchè il cavallo va diretto dal re
 		if (this->GetClass()->GetName() != (IsHumanPlayer ? "BP_w_Knight_C" : "BP_b_Knight_C"))
@@ -356,7 +356,7 @@ void AChessPieces::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2,
 	while (x != P2.X || y != P2.Y)
 	{
 		if (CheckCoord(x, y) && FVector2D(x, y) != P1 && FVector2D(x, y) != P1) {
-			GMode->CriticalSection.Lock();
+			
 			UE_LOG(LogTemp, Error, TEXT("x: %d, y: %d"), x, y);
 			if (TileMap.Contains(FVector2D(x, y)))
 				SelectedTile = TileMap[FVector2D(x, y)];
@@ -372,7 +372,7 @@ void AChessPieces::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2,
 					SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_TO_AVOID_CHECKMATE);
 			}
 
-			GMode->CriticalSection.Unlock();
+			
 		}
 		int32 offsetX = FMath::Abs(x - P1.X);
 		int32 offsetY = FMath::Abs(y - P1.Y);

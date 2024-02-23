@@ -102,10 +102,10 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
-	GMode->CriticalSection.Lock();
+	
 	if (TileMap.Contains(FVector2D(x, y)))
 		SelectedTile = TileMap[FVector2D(x, y)];
-	GMode->CriticalSection.Unlock();
+	
 
 	if (Field->IsCheckmateSituation && SelectedTile)
 	{
@@ -117,10 +117,10 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 		{
 			AChessPieces* SelectedPiece = nullptr;
 
-			GMode->CriticalSection.Lock();
+			
 			if (PiecesMap.Contains(FVector2D(x, y)))
 				SelectedPiece = PiecesMap[FVector2D(x, y)];
-			GMode->CriticalSection.Unlock();
+			
 
 			if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 			{
@@ -128,10 +128,10 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 				{
 					Field->KingUnderAttack = true;
 					FVector2d PiecePosition = this->GetGridPosition();
-					GMode->CriticalSection.Lock();
+					
 					if (TileMap.Contains(PiecePosition))
 						TileMap[PiecePosition]->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
-					GMode->CriticalSection.Unlock();
+					
 					// Marca le tile per arrivare al re
 					FindTileBetweenP1P2(PiecePosition, FVector2D(x, y), PlayerNumber);
 				}
@@ -203,19 +203,19 @@ void AChessPawn::MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHuma
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
-	GMode->CriticalSection.Lock();
+	
 	if (TileMap.Contains(FVector2D(x, y)))
 		SelectedTile = TileMap[FVector2D(x, y)];
-	GMode->CriticalSection.Unlock();
+	
 
 	if (SelectedTile && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 	{
 		AChessPieces* SelectedPiece = nullptr;
 
-		GMode->CriticalSection.Lock();
+		
 		if (PiecesMap.Contains(FVector2D(x, y)))
 			SelectedPiece = PiecesMap[FVector2D(x, y)];
-		GMode->CriticalSection.Unlock();
+		
 		
 		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 		{
@@ -249,10 +249,10 @@ void AChessPawn::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool &Marked)
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
-	GMode->CriticalSection.Lock();
+	
 	if (TileMap.Contains(FVector2D(x, y)))
 		SelectedTile = TileMap[FVector2D(x, y)];
-	GMode->CriticalSection.Unlock();
+	
 
 	if (SelectedTile && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 	{

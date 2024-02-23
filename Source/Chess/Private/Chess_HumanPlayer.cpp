@@ -204,10 +204,10 @@ void AChess_HumanPlayer::ManageClickTile(AActor* HitActor, FString ClassName)
 		AChessPieces* EnemyPiece = Cast<AChessPieces>(HitActor);
 
 		ATile* EnemyTile = nullptr;
-		GMode->CriticalSection.Lock();
+		
 		if (TileMap.Contains(EnemyPiece->GetGridPosition()))
 			EnemyTile = TileMap[(EnemyPiece->GetGridPosition())];
-		GMode->CriticalSection.Unlock();
+		
 
 		if (EnemyTile && EnemyTile->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
 			ManageCaptureInEnemyTile(EnemyTile);
@@ -238,11 +238,11 @@ void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 	FVector SpawnPosition = TileActor->GetActorLocation();
 	FVector2D Coord = TileActor->GetGridPosition();
 
-	GMode->CriticalSection.Lock();
+	
 	// Before moving the piece, set the current tile status to EMPTY
 	if (TileMap.Contains(CurrPiece->GetGridPosition()))
 		TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
-	GMode->CriticalSection.Unlock();
+	
 
 	// move the piece
 	if (PieceManager)
@@ -278,11 +278,11 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 	FVector2D Coord = EnemyTile->GetGridPosition();
 
 	AChessPieces* PieceToCapture = nullptr;
-	GMode->CriticalSection.Lock();
+	
 	// reference to the piece to be captured
 	if (PiecesMap.Contains(Coord))
 		PieceToCapture = PiecesMap[(Coord)];
-	GMode->CriticalSection.Unlock();
+	
 
 	// capture the piece
 	if (PieceManager)
@@ -290,11 +290,11 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 	else
 		UE_LOG(LogTemp, Error, TEXT("PieceManager null HumanPlayer"));
 
-	GMode->CriticalSection.Lock();
+	
 	// Before moving the piece, set the current tile to be empty
 	if (TileMap.Contains(CurrPiece->GetGridPosition()))
 		TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
-	GMode->CriticalSection.Unlock();
+	
 
 	// move the piece
 	if (PieceManager)

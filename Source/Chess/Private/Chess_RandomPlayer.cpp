@@ -69,6 +69,11 @@ void AChess_RandomPlayer::OnTurn()
 
 			do{
 				// select random piece
+				if (PiecesArray.Num() == 0)
+				{
+					UE_LOG(LogTemp, Error, TEXT("No piece RandomPlayer"));
+					return;
+				}
 				RIndex = FMath::Rand() % PiecesArray.Num();
 				AChessPieces* CurrPiece = PiecesArray[RIndex];
 				// check the possible move
@@ -81,6 +86,11 @@ void AChess_RandomPlayer::OnTurn()
 
 				PieceIsPossibleToMove = true;
 
+				if (TileMarked.Num() == 0)
+				{
+					UE_LOG(LogTemp, Error, TEXT("No tile marked RandomPlayer"));
+					return;
+				}
 				// select the marked tile to move
 				int32 RIndexToMovePiece = FMath::Rand() % TileMarked.Num();
 
@@ -95,13 +105,13 @@ void AChess_RandomPlayer::OnTurn()
 				{
 					TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
-					GMode->CriticalSection.Lock();
+					
 
 					AChessPieces* PieceToCapture = nullptr;
 					if (PiecesMap.Contains(Coord))
 						PieceToCapture = PiecesMap[(Coord)];
 
-					GMode->CriticalSection.Unlock();
+					
 
 					PieceManager->CapturePiece(PieceToCapture, Coord);
 				}
@@ -111,11 +121,11 @@ void AChess_RandomPlayer::OnTurn()
 				int32 y = CurrPiece->GetGridPosition().Y;
 				//UE_LOG(LogTemp, Error, TEXT("Prima di accedere alla map - Bot"));
 
-				GMode->CriticalSection.Lock();
+				
 				// Before moving the piece, set the current tile to be empty
 				if (TileMap.Contains(FVector2D(x, y)))
 					TileMap[FVector2D(x, y)]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
-				GMode->CriticalSection.Unlock();
+				
 				
 				PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
 
