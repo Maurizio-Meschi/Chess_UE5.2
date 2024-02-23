@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "ChessPieces.h"
-#include "PawnPromotion.h"
 #include "GameFramework/Actor.h"
 #include "ManagePiece.generated.h"
 
@@ -39,4 +38,6 @@ public:
 	UFUNCTION()
 	void HandlePromotionCompleted();
 
+	UFUNCTION(BlueprintCallable, Category = "Button Category")
+	void SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece);
 };

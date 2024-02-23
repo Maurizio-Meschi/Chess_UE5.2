@@ -7,7 +7,6 @@
 #include "Chess_HumanPlayer.h"
 #include "Chess_RandomPlayer.h"
 #include "Chess_GameInstance.h"
-#include "PawnPromotion.h"
 #include "Async/TaskGraphInterfaces.h"
 #include "Async/TaskGraphInterfaces.h"
 #include "EngineUtils.h"
@@ -22,9 +21,6 @@ AChess_GameMode::AChess_GameMode()
 	FieldSize = 8;
 
 	MoveCounter = 0;
-
-	//PromotionInstance = MakeShared<UPawnPromotion>();
-	//PromotionInstance = CreateDefaultSubobject<UPawnPromotion>(TEXT("PromotionInstance"));
 }
 
 void AChess_GameMode::BeginPlay()

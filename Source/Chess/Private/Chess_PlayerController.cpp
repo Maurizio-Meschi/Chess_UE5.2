@@ -8,19 +8,12 @@
 #include "Engine/World.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
-#include "PawnPromotion.h"
+
 
 AChess_PlayerController::AChess_PlayerController()
 {
 	bShowMouseCursor = true;
 	bEnableClickEvents = true;
-
-	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetBPClass(TEXT("/Game/Blueprints/HUD_PawnPromotion"));
-
-	if (InventoryWidgetBPClass.Succeeded())
-	{
-		InventoryWidgetClass = InventoryWidgetBPClass.Class; 
-	}
 }
 
 void AChess_PlayerController::BeginPlay()
@@ -30,18 +23,6 @@ void AChess_PlayerController::BeginPlay()
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(ChessContext, 0);
-	}
-
-	// Only create the UI on the local machine (dose not excist on the server.)
-	if (IsLocalPlayerController())
-	{
-		if (InventoryWidgetClass)
-		{
-			if (!InventoryWidget)
-			{
-				InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
-			}
-		}
 	}
 }
 

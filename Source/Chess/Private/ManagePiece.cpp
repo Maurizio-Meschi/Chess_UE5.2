@@ -5,7 +5,6 @@
 #include "Chess_GameMode.h"
 #include "Chess_PlayerController.h"
 #include "ChessPieces.h"
-#include "PawnPromotion.h"
 #include "Async/TaskGraphInterfaces.h"
 #include "Async/TaskGraphInterfaces.h"
 #include "EngineUtils.h"
@@ -30,7 +29,7 @@ void AManagePiece::BeginDestroy()
 {
 	Super::BeginDestroy();
 	UE_LOG(LogTemp, Error, TEXT("Nella begin destroy!"));
-	UPawnPromotion::DestroyInstance();
+	//UPawnPromotion::DestroyInstance();
 }
 
 void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord)
@@ -67,6 +66,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 	Piece->SetActorLocation(NewLocation);
 
 	//Gestire la grafica che dice lo spostamento della pedina
+	/*
 	UChess_GameInstance* GameInstance = FGameInstanceRef::GetGameInstance(this);
 	if (GameInstance)
 	{
@@ -94,8 +94,9 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 		else
 			UE_LOG(LogTemp, Error, TEXT("PromotionInstance null in ManagePiece"));
 	}
-	else
-	{
+	*/
+	//else
+	//{
 		// Add the piece reference in the current played 
 		FRewind Obj;
 		Obj.PieceToRewind = Piece;
@@ -103,7 +104,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 		GMode->ArrayOfPlays.Add(Obj);
 
 		CheckWinAndGoNextPlayer(PlayerNumber);
-	}
+	//}
 }
 
 void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
@@ -207,5 +208,51 @@ void AManagePiece::HandlePromotionCompleted()
 
 	int32 CurrPlayer = GMode->CurrentPlayer;
 	CheckWinAndGoNextPlayer(CurrPlayer);
+}
+
+void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
+{
+	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in PawnPromotion"));
+		return;
+	}
+
+	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null in PawnPromotion"));
+		return;
+	}
+
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	TSubclassOf<AChessPieces> PieceClass;
+
+	auto Position = PieceToPromote->GetGridPosition();
+	PieceToPromote->SetActorHiddenInGame(true);
+	PieceToPromote->SetActorEnableCollision(false);
+
+
+	Field->PiecesMapRemove(Position);
+
+	if (PieceToPromote->Color == EPieceColor::BLACK)
+		Field->BotPiecesRemove(PieceToPromote);
+	else
+		Field->HumanPlayerPiecesRemove(PieceToPromote);
+
+	if (NewPiece == "Queen")
+	{
+		PieceClass = Field->GameFieldSubClass.ChessQueen[0];
+	}
+
+	Field->GenerateChessPieceInXYPosition(Position.X, Position.Y, PieceClass, EPieceColor::WHITE);
+
+	FRewind Obj;
+	Obj.PieceToRewind = PieceToPromote;
+	Obj.Position = PieceToPromote->GetGridPosition();
+	GMode->ArrayOfPlays.Add(Obj);
+
+	HandlePromotionCompleted();
 }
 

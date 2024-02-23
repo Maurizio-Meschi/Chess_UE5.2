@@ -29,14 +29,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* ClickAction;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player, HUD and UI")
-	TSubclassOf<UUserWidget> InventoryWidgetClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player, HUD and UI")
-	UUserWidget* InventoryWidget;
-
-	UUserWidget* GetInvetoryWidget() { return InventoryWidget; }
-
 	void ClickOnGrid();
 
 protected:
