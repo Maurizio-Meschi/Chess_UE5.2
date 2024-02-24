@@ -138,7 +138,8 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 			}
 		}
 		if (CaptureSituation && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING || 
-			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING)
+			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING ||
+			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
 		{
 			SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::BLOCK_KING);;
 		}

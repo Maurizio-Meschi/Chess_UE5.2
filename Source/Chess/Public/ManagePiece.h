@@ -23,12 +23,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void BeginDestroy() override;
+	AChessPieces* PawnToPromote;
+public:	
 
 	bool IsGameOver;
 
-	AChessPieces* PawnToPromote;
-public:	
+	TArray<AChessPieces*> CapturedPieces;
 
 	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord);
 

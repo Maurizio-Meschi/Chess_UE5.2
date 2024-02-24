@@ -25,13 +25,6 @@ void AManagePiece::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AManagePiece::BeginDestroy()
-{
-	Super::BeginDestroy();
-
-	PawnToPromote = nullptr;
-}
-
 void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord)
 {
 	auto GMode = FGameModeRef::GetGameMode(this);
@@ -103,6 +96,7 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 
 	
 	GField->PiecesMapRemove(Coord);
+	CapturedPieces.Add(PieceToCapture);
 	
 	if (PieceToCapture->Color == EPieceColor::BLACK)
 		GField->BotPiecesRemove(PieceToCapture);
@@ -214,6 +208,7 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	int32 Player = GMode->CurrentPlayer;
 	
 	Field->PiecesMapRemove(Position);
+	CapturedPieces.Add(PieceToPromote);
 
 	if (PieceToPromote->Color == EPieceColor::BLACK)
 		Field->BotPiecesRemove(PieceToPromote);

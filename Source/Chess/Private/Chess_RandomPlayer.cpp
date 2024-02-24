@@ -23,13 +23,6 @@ void AChess_RandomPlayer::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AChess_RandomPlayer::BeginDestroy()
-{
-	Super::BeginDestroy();
-
-	GameInstance = nullptr;
-}
-
 // Called every frame
 void AChess_RandomPlayer::Tick(float DeltaTime)
 {

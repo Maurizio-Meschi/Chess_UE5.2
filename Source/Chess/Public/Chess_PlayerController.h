@@ -43,15 +43,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void BeginDestroy() override;
 	virtual void SetupInputComponent() override;
-};
-
-class FControllerRef
-{
-private:
-	static AChess_PlayerController* CachedController;
-
-public:
-	//FGameModeRef() { FGameModeRef::CachedGameMode = nullptr; }
-	static AChess_PlayerController* GetController(UObject* WorldContextObject);
 };

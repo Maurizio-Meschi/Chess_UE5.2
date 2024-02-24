@@ -25,16 +25,33 @@ AGameField::AGameField()
 
 void AGameField::ResetField()
 {
-	UE_LOG(LogTemp, Error, TEXT("resetto"));
+	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in GameField"));
+	}
+	auto ManagerPiece = GMode->Manager;
+	if (ManagerPiece)
+	{
+		for (int32 i = 0; i < ManagerPiece->CapturedPieces.Num(); i++)
+		{
+			ManagerPiece->CapturedPieces[i]->Destroy();
+		}
+		ManagerPiece->CapturedPieces.Empty();
+	}
+
 	ResetAll();
+
+	KingUnderAttack = false;
+	IsCheckmateSituation = false;
+	CheckSituation = false;
+
 	GenerateField();
 	OnResetEvent.Broadcast();
 	
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (GMode)
-		GMode->ChoosePlayerAndStartGame();
-	else
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in GameField"));
+	GMode->ChoosePlayerAndStartGame();
+	
+		
 }
 
 void AGameField::OnConstruction(const FTransform& Transform)
@@ -54,24 +71,6 @@ void AGameField::BeginPlay()
 void AGameField::BeginDestroy()
 {
 	Super::BeginDestroy();
-
-	TileArray.Empty();
-
-	BotPieces.Empty();
-
-	HumanPlayerPieces.Empty();
-
-	TileMarked.Empty();
-
-	TileMarkedSpawn.Empty();
-
-	KingArray.Empty();
-
-	CheckArray.Empty();
-
-	CheckArrayTile.Empty();
-
-	TileMap.Empty();
 }
 
 void AGameField::GenerateField()
@@ -208,6 +207,7 @@ FVector2D AGameField::GetXYPositionByRelativeLocation(const FVector& Location) c
 
 bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 {
+	UE_LOG(LogTemp, Error, TEXT("Check GameField"));
 	ResetCheckArray();
 	AKing* King = (IsHumanPlayer ? KingArray[0] : KingArray[1]);
 
@@ -235,7 +235,7 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 		UE_LOG(LogTemp, Error, TEXT("Game mode null in GameField"));
 		return false;
 	}
-
+	UE_LOG(LogTemp, Error, TEXT("avanzo!!"));
 	for (int32 i = 0; i < Pieces.Num(); i++)
 	{
 		FVector2D Position = Pieces[i]->GetGridPosition();

@@ -45,6 +45,18 @@ void AChess_PlayerController::BeginPlay()
 	}
 }
 
+void AChess_PlayerController::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	if (InventoryWidget && InventoryWidget->IsInViewport())
+	{
+		InventoryWidget->RemoveFromParent();
+	}
+
+	InventoryWidget = nullptr;
+}
+
 void AChess_PlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -86,21 +98,4 @@ void AChess_PlayerController::ClickOnGrid()
 	{
 		HumanPlayer->OnClick();
 	}
-}
-
-AChess_PlayerController* FControllerRef::CachedController = nullptr;
-
-AChess_PlayerController* FControllerRef::GetController(UObject* WorldContextObject)
-{
-	if (!CachedController)
-	{
-		UWorld* World = GEngine->GetWorldFromContextObjectChecked(WorldContextObject);
-		if (World)
-		{
-			AChess_PlayerController* PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(World, 0));;
-			CachedController = Cast<AChess_PlayerController>(PlayerController);
-		}
-	}
-
-	return CachedController;
 }

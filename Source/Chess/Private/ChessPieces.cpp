@@ -155,7 +155,8 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 			ManageCheckSituationOccpied(x, y, PlayerNumber, IsHumanPlayer, SelectedTile, Marked);
 		}
 		// controllo se una pedina può andare in una cella in cui si potrebbe spostare il re
-		if (!IsKing && (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING || SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING))
+		if (!IsKing && (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING || SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING || 
+			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE))
 		{
 			SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::BLOCK_KING);
 		}

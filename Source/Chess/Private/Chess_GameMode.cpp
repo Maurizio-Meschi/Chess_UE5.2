@@ -67,14 +67,14 @@ void AChess_GameMode::BeginDestroy()
 {
 	Super::BeginDestroy();
 	
-	//Players.Empty();
-	//GField = nullptr;
+	FGameModeRef::ResetCachedGameMode();
 }
 
 void AChess_GameMode::ChoosePlayerAndStartGame()
 {
 	
 	//CurrentPlayer = FMath::RandRange(0, Players.Num() - 1);
+	Manager->IsGameOver = false;
 
 	CurrentPlayer = 0;
 

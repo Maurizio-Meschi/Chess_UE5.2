@@ -16,16 +16,6 @@ void AChess_HumanPlayer::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AChess_HumanPlayer::BeginDestroy()
-{
-	Super::BeginDestroy();
-
-	CurrPiece = nullptr;
-	
-	GameInstance = nullptr;
-}
-
-
 // Called every frame
 void AChess_HumanPlayer::Tick(float DeltaTime)
 {

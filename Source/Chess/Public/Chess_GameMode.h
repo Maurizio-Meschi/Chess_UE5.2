@@ -91,6 +91,6 @@ private:
 	static AChess_GameMode* CachedGameMode;
 
 public:
-	//FGameModeRef() { FGameModeRef::CachedGameMode = nullptr; }
+	static void ResetCachedGameMode() { CachedGameMode = nullptr; }
 	static AChess_GameMode* GetGameMode(UObject* WorldContextObject);
 };

@@ -31,17 +31,9 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	UChess_GameInstance* GameInstance;
 
-	//UPROPERTY(VisibleAnywhere)
-	//AGameField* Field;
-
-	//UPROPERTY(VisibleAnywhere)
-	//AChess_GameMode* GMode;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	virtual void BeginDestroy() override;
 
 	bool MyTurn = false;
 
