@@ -28,8 +28,8 @@ void AManagePiece::BeginPlay()
 void AManagePiece::BeginDestroy()
 {
 	Super::BeginDestroy();
-	UE_LOG(LogTemp, Error, TEXT("Nella begin destroy!"));
-	//UPawnPromotion::DestroyInstance();
+
+	PawnToPromote = nullptr;
 }
 
 void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord)
@@ -55,28 +55,25 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 
 	FVector NewLocation = GField->GetActorLocation() + SpawnPosition;
 
-	
 	GField->PiecesMapRemove(Piece->GetGridPosition());
-	
-
 	Piece->SetGridPosition(Coord.X, Coord.Y);
 	
 	GField->AddPiecesMap(Coord, Piece);
-	
 	Piece->SetActorLocation(NewLocation);
 
 	//Gestire la grafica che dice lo spostamento della pedina
-	if ((Piece->GetClass()->GetName() == "BP_w_Pawn_C" && static_cast<int32>(Piece->GetGridPosition().X) == 7))
+	if ((Piece->GetClass()->GetName() == "BP_w_Pawn_C") && (Piece->GetGridPosition().X == 7.0))
 	{
-		auto Controller = FControllerRef::GetController(this);
-		if (Controller)
-		{
-			Controller->AddInventoryWidgetToViewport();
-		}
-		else
-			UE_LOG(LogTemp, Error, TEXT("PlayerController null in ManagePiece"));
+		PawnToPromote = Piece;
+		AChess_PlayerController::AddInventoryWidgetToViewport();
 	}
-	else
+	else if ((Piece->GetClass()->GetName() == "BP_b_Pawn_C") && (Piece->GetGridPosition().X == 0.0))
+	{
+		TArray<FString> Class = { "Queen", "Rook", "Bishop", "Knight" };
+		int32 RIndex = FMath::Rand() % Class.Num();
+		SpawnNewPiece(Piece, Class[RIndex]);
+	}
+	else 
 	{
 		// Add the piece reference in the current played 
 		FRewind Obj;
@@ -213,9 +210,9 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	auto Position = PieceToPromote->GetGridPosition();
 	PieceToPromote->SetActorHiddenInGame(true);
 	PieceToPromote->SetActorEnableCollision(false);
-	PieceToPromote->SetActorLocation(FVector(0, 0, 0));
-
-
+	//PieceToPromote->SetActorLocation(FVector(0, 0, 0));
+	int32 Player = GMode->CurrentPlayer;
+	
 	Field->PiecesMapRemove(Position);
 
 	if (PieceToPromote->Color == EPieceColor::BLACK)
@@ -225,17 +222,36 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 
 	if (NewPiece == "Queen")
 	{
-		PieceClass = Field->GameFieldSubClass.ChessQueen[0];
+		PieceClass = Field->GameFieldSubClass.ChessQueen[Player];
+	}
+	else if (NewPiece == "Rook")
+	{
+		PieceClass = Field->GameFieldSubClass.ChessRook[Player];
+	}
+	else if (NewPiece == "Bishop")
+	{
+		PieceClass = Field->GameFieldSubClass.ChessBishop[Player];
+	}
+	else if (NewPiece == "Knight")
+	{
+		PieceClass = Field->GameFieldSubClass.ChessKnight[Player];
 	}
 
-	Field->GenerateChessPieceInXYPosition(Position.X, Position.Y, PieceClass, EPieceColor::WHITE);
+	EPieceColor Color = EPieceColor::WHITE;
+	if (Player == 1)
+		Color = EPieceColor::BLACK;
+	
+	Field->GenerateChessPieceInXYPosition(Position.X, Position.Y, PieceClass, Color);
 
 	FRewind Obj;
 	Obj.PieceToRewind = PieceToPromote;
 	Obj.Position = PieceToPromote->GetGridPosition();
 	GMode->ArrayOfPlays.Add(Obj);
 
+	if (Player == 0)
+		AChess_PlayerController::RemoveInventoryWidgetToViewport();
+	PieceToPromote = nullptr;
+
 	HandlePromotionCompleted();
-	//OnPromotionEvent.Broadcast();
 }
 

@@ -13,15 +13,10 @@
 AChess_PlayerController::AChess_PlayerController()
 {
 	bShowMouseCursor = true;
-	bEnableClickEvents = true;
-
-	static ConstructorHelpers::FClassFinder<UUserWidget> InventoryWidgetBPClass(TEXT("/Game/Blueprints/HUD_PawnPromotion"));
-
-	if (InventoryWidgetBPClass.Succeeded())
-	{
-		InventoryWidgetClass = InventoryWidgetBPClass.Class;
-	}
+	bEnableClickEvents = true; 
 }
+
+UUserWidget* AChess_PlayerController::InventoryWidget = nullptr;
 
 void AChess_PlayerController::BeginPlay()
 {
@@ -32,6 +27,7 @@ void AChess_PlayerController::BeginPlay()
 		Subsystem->AddMappingContext(ChessContext, 0);
 	}
 
+	
 	if (IsLocalPlayerController())
 	{
 		if (InventoryWidgetClass)
@@ -39,8 +35,13 @@ void AChess_PlayerController::BeginPlay()
 			if (!InventoryWidget)
 			{
 				InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
+				InventoryWidget->AddToViewport();
+				InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+				InventoryWidget->SetIsEnabled(false);
 			}
 		}
+		else
+			UE_LOG(LogTemp, Error, TEXT("No BP found in controller"));
 	}
 }
 
@@ -57,16 +58,29 @@ void AChess_PlayerController::SetupInputComponent()
 
 void AChess_PlayerController::AddInventoryWidgetToViewport()
 {
-	if (!InventoryWidget && InventoryWidgetClass)
+	if (InventoryWidget && InventoryWidget->IsInViewport())
 	{
-		InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
+		InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+		InventoryWidget->SetIsEnabled(true);
 	}
-	InventoryWidget->AddToViewport();
+	else
+		UE_LOG(LogTemp, Error, TEXT("Widget null in controller"));
+}
+
+void AChess_PlayerController::RemoveInventoryWidgetToViewport()
+{
+	if (InventoryWidget && InventoryWidget->IsInViewport())
+	{
+		InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+		InventoryWidget->SetIsEnabled(false);
+	}
+	else
+		UE_LOG(LogTemp, Error, TEXT("Widget null in controller"));
 }
 
 void AChess_PlayerController::ClickOnGrid()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Click in controller!"));
+	//UE_LOG(LogTemp, Warning, TEXT("Click in controller!"));
 	const auto HumanPlayer = Cast<AChess_HumanPlayer>(GetPawn());
 	if (IsValid(HumanPlayer))
 	{
@@ -83,7 +97,7 @@ AChess_PlayerController* FControllerRef::GetController(UObject* WorldContextObje
 		UWorld* World = GEngine->GetWorldFromContextObjectChecked(WorldContextObject);
 		if (World)
 		{
-			AChess_PlayerController* PlayerController = Cast<AChess_PlayerController>(World->GetFirstPlayerController());
+			AChess_PlayerController* PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(World, 0));;
 			CachedController = Cast<AChess_PlayerController>(PlayerController);
 		}
 	}

@@ -40,9 +40,6 @@ private:
 	AChess_GameMode();
 
 public:
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Promotion")
-	//UPawnPromotion* PromotionInstance;
-
 	FCriticalSection CriticalSection;
 
 	int32 CurrentPlayer;
@@ -53,6 +50,9 @@ public:
 	// TSubclassOf is a template class that provides UClass type safety.
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AGameField> GameFieldClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AManagePiece> ManagerClass;
 
 	// Give the number of play, get the pieces
 	UPROPERTY(Transient)
@@ -66,10 +66,13 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	AGameField* GField;
 
-	AChess_PlayerController* PlayerController;
+	UPROPERTY(VisibleAnywhere)
+	AManagePiece* Manager;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void BeginDestroy() override;
 
 	// called at the start of the game
 	void ChoosePlayerAndStartGame();

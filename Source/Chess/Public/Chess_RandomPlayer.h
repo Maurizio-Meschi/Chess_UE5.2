@@ -27,7 +27,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	AManagePiece* PieceManager;
+	virtual void BeginDestroy() override;
 
 public:	
 	// Called every frame

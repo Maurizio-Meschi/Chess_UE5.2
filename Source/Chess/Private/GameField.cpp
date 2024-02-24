@@ -51,6 +51,29 @@ void AGameField::BeginPlay()
 	GenerateField();
 }
 
+void AGameField::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	TileArray.Empty();
+
+	BotPieces.Empty();
+
+	HumanPlayerPieces.Empty();
+
+	TileMarked.Empty();
+
+	TileMarkedSpawn.Empty();
+
+	KingArray.Empty();
+
+	CheckArray.Empty();
+
+	CheckArrayTile.Empty();
+
+	TileMap.Empty();
+}
+
 void AGameField::GenerateField()
 {
 	int32 i = 0;
@@ -201,7 +224,7 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 	TArray<AChessPieces*> Pieces = (IsHumanPlayer ? BotPieces : HumanPlayerPieces);
 	for (int32 i = 0; i < Pieces.Num(); i++)
 	{
-		Pieces[i]->LegalMove(!PlayerNumber, !IsHumanPlayer);
+		Pieces[i]->LegalMove(~PlayerNumber, !IsHumanPlayer);
 	}
 	if (!KingUnderAttack)
 		return false;
@@ -222,7 +245,7 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 			ATile* Tile = TileMap[Position];
 			if (Tile && Tile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
 			{
-				Tile->SetStatusCheckmate(!PlayerNumber, EStatusCheckmate::CAPTURE_BY_KING);
+				Tile->SetStatusCheckmate(~PlayerNumber, EStatusCheckmate::CAPTURE_BY_KING);
 			}
 		}
 	}

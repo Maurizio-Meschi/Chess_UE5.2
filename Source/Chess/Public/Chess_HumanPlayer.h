@@ -41,6 +41,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void BeginDestroy() override;
+
 	bool MyTurn = false;
 
 	UPROPERTY(VisibleAnywhere)
@@ -48,8 +50,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	AChessPieces* CurrPiece;
-
-	AManagePiece* PieceManager;
 
 public:	
 	// Called every frame

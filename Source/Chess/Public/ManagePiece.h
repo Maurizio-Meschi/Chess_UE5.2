@@ -7,8 +7,6 @@
 #include "GameFramework/Actor.h"
 #include "ManagePiece.generated.h"
 
-//DECLARE_DELEGATE(FFunctionDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPromotion);
 
 class AChess_GameMode;
 
@@ -28,16 +26,18 @@ protected:
 	virtual void BeginDestroy() override;
 
 	bool IsGameOver;
-public:	
 
-	//UPROPERTY(BlueprintAssignable)
-	FOnPromotion OnPromotionEvent;
+	AChessPieces* PawnToPromote;
+public:	
 
 	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord);
 
 	void CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord);
 
 	void CheckWinAndGoNextPlayer(const int32 PlayerNumber);
+
+	UFUNCTION(BlueprintCallable)
+	AChessPieces* GetPieceToPromote() { return PawnToPromote; }
 
 	UFUNCTION(BlueprintCallable)
 	void HandlePromotionCompleted();

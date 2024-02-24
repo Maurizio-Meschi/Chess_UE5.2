@@ -16,6 +16,15 @@ void AChess_HumanPlayer::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AChess_HumanPlayer::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	CurrPiece = nullptr;
+	
+	GameInstance = nullptr;
+}
+
 
 // Called every frame
 void AChess_HumanPlayer::Tick(float DeltaTime)
@@ -39,7 +48,6 @@ AChess_HumanPlayer::AChess_HumanPlayer()
 	// create a camera component
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
-	PieceManager = CreateDefaultSubobject<AManagePiece>(TEXT("PieceManager"));
 	//set the camera as RootComponent
 	SetRootComponent(Camera);
 
@@ -230,6 +238,13 @@ void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 		return;
 	}
 
+	auto PieceManager = GMode->Manager;
+	if (!PieceManager)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PieceManager null RandomPlayer"));
+		return;
+	}
+
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 
 	// Set the tile status to OCCUPIED where the piece will be placed
@@ -265,6 +280,13 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 	if (!Field)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Field null HumanPlayer"));
+		return;
+	}
+
+	auto PieceManager = GMode->Manager;
+	if (!PieceManager)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PieceManager null RandomPlayer"));
 		return;
 	}
 

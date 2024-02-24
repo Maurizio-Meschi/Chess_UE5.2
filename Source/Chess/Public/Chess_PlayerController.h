@@ -32,10 +32,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player, HUD and UI")
 	TSubclassOf<UUserWidget> InventoryWidgetClass;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player, HUD and UI")
-	UUserWidget* InventoryWidget;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player, HUD and UI")
+	static UUserWidget* InventoryWidget;
 
-	void AddInventoryWidgetToViewport();
+	static void AddInventoryWidgetToViewport();
+
+	static void RemoveInventoryWidgetToViewport();
 
 	void ClickOnGrid();
 

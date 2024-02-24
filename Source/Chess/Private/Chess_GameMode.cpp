@@ -14,8 +14,6 @@
 
 AChess_GameMode::AChess_GameMode()
 {
-	PlayerControllerClass = AChess_PlayerController::StaticClass();
-
 	DefaultPawnClass = AChess_HumanPlayer::StaticClass();
 
 	FieldSize = 8;
@@ -41,6 +39,13 @@ void AChess_GameMode::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("Game Field is null"));
 	}
 
+	if (ManagerClass)
+	{
+		Manager = GetWorld()->SpawnActor<AManagePiece>(ManagerClass);
+	}
+	else
+		UE_LOG(LogTemp, Error, TEXT("Manager is null"));
+
 	float CameraPosX = ((GField->TileSize * (FieldSize + ((FieldSize - 1) * GField->NormalizedCellPadding) - (FieldSize - 1))) / 2) - (GField->TileSize / 2);
 	FVector CameraPos(CameraPosX, CameraPosX, 1000.0f);
 	HumanPlayer->SetActorLocationAndRotation(CameraPos, FRotationMatrix::MakeFromX(FVector(0, 0, -1)).Rotator());
@@ -55,9 +60,15 @@ void AChess_GameMode::BeginPlay()
 	// AI player = 1
 	Players.Add(AI);
 
-	PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-
 	this->ChoosePlayerAndStartGame();
+}
+
+void AChess_GameMode::BeginDestroy()
+{
+	Super::BeginDestroy();
+	
+	//Players.Empty();
+	//GField = nullptr;
 }
 
 void AChess_GameMode::ChoosePlayerAndStartGame()
@@ -66,6 +77,7 @@ void AChess_GameMode::ChoosePlayerAndStartGame()
 	//CurrentPlayer = FMath::RandRange(0, Players.Num() - 1);
 
 	CurrentPlayer = 0;
+
 	for (int32 i = 0; i < Players.Num(); i++)
 	{
 		Players[i]->PlayerNumber = i;

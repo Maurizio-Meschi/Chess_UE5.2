@@ -14,7 +14,6 @@ AChess_RandomPlayer::AChess_RandomPlayer()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	PieceManager = CreateDefaultSubobject<AManagePiece>(TEXT("PieceManager"));
 	PieceColor = EPieceColor::BLACK;
 }
 
@@ -22,6 +21,13 @@ AChess_RandomPlayer::AChess_RandomPlayer()
 void AChess_RandomPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AChess_RandomPlayer::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	GameInstance = nullptr;
 }
 
 // Called every frame
@@ -55,6 +61,13 @@ void AChess_RandomPlayer::OnTurn()
 			if (!Field)
 			{
 				UE_LOG(LogTemp, Error, TEXT("Field null RandomPlayer"));
+				return;
+			}
+
+			auto PieceManager = GMode->Manager;
+			if (!PieceManager)
+			{
+				UE_LOG(LogTemp, Error, TEXT("PieceManager null RandomPlayer"));
 				return;
 			}
 
