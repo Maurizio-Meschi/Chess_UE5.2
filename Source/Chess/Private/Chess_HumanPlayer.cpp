@@ -318,10 +318,14 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 
 bool AChess_HumanPlayer::FindPiece(FString ClassName)
 {
+	UE_LOG(LogTemp, Error, TEXT("Ho catturato: %s"), *ClassName);
 	for (int32 i = 0; i < 6; i++)
 	{
 		if (ClassName == ACTOR[i])
+		{
+			UE_LOG(LogTemp, Error, TEXT("Ho trovato: %s"), *ACTOR[i]);
 			return true;
+		}
 	}
 	return false;
 }

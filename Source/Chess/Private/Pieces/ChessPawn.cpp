@@ -124,16 +124,9 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 
 			if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 			{
-				if (SelectedPiece->GetClass()->GetName() == (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
+				if (SelectedPiece->IsA<AKing>())
 				{
 					Field->KingUnderAttack = true;
-					FVector2d PiecePosition = this->GetGridPosition();
-					
-					if (TileMap.Contains(PiecePosition))
-						TileMap[PiecePosition]->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
-					
-					// Marca le tile per arrivare al re
-					FindTileBetweenP1P2(PiecePosition, FVector2D(x, y), PlayerNumber);
 				}
 			}
 		}
@@ -220,7 +213,7 @@ void AChessPawn::MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHuma
 		
 		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 		{
-			if (SelectedPiece->GetClass()->GetName() != (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
+			if (!SelectedPiece->IsA<AKing>())
 			{
 				SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
 				Field->AddTileMarked(SelectedTile);

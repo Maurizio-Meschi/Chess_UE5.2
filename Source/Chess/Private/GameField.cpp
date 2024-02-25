@@ -36,11 +36,14 @@ void AGameField::ResetField()
 		for (int32 i = 0; i < ManagerPiece->CapturedPieces.Num(); i++)
 		{
 			ManagerPiece->CapturedPieces[i]->Destroy();
+			ManagerPiece->CapturedPieces[i] = nullptr;
 		}
 		ManagerPiece->CapturedPieces.Empty();
 	}
 
 	ResetAll();
+
+	UE_LOG(LogTemp, Error, TEXT("Bot Piece: %d, HumanPiece: %d"), BotPieces.Num(), HumanPlayerPieces.Num());
 
 	KingUnderAttack = false;
 	IsCheckmateSituation = false;

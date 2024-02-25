@@ -55,12 +55,12 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 	Piece->SetActorLocation(NewLocation);
 
 	//Gestire la grafica che dice lo spostamento della pedina
-	if ((Piece->GetClass()->GetName() == "BP_w_Pawn_C") && (Piece->GetGridPosition().X == 7.0))
+	if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::WHITE && (Piece->GetGridPosition().X == 7.0))
 	{
 		PawnToPromote = Piece;
 		AChess_PlayerController::AddInventoryWidgetToViewport();
 	}
-	else if ((Piece->GetClass()->GetName() == "BP_b_Pawn_C") && (Piece->GetGridPosition().X == 0.0))
+	else if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::BLACK && (Piece->GetGridPosition().X == 0.0))
 	{
 		TArray<FString> Class = { "Queen", "Rook", "Bishop", "Knight" };
 		int32 RIndex = FMath::Rand() % Class.Num();
@@ -73,7 +73,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 		Obj.PieceToRewind = Piece;
 		Obj.Position = Piece->GetGridPosition();
 		GMode->ArrayOfPlays.Add(Obj);
-
+		
 		CheckWinAndGoNextPlayer(PlayerNumber);
 	}
 }

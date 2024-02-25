@@ -77,7 +77,7 @@ void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer
 		return;
 	}
 
-	if (this->GetClass()->GetName() == (IsHumanPlayer ? "BP_w_King_C" : "BP_b_King_C") &&
+	if (this->IsA<AKing>() &&
 		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::BLOCK_KING)
 	{
 		return;
@@ -97,7 +97,7 @@ void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer
 
 		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 		{
-			if (SelectedPiece->GetClass()->GetName() != (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
+			if (!SelectedPiece->IsA<AKing>())
 			{
 				SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
 				Field->AddTileMarked(SelectedTile);
@@ -155,7 +155,8 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 			ManageCheckSituationOccpied(x, y, PlayerNumber, IsHumanPlayer, SelectedTile, Marked);
 		}
 		// controllo se una pedina può andare in una cella in cui si potrebbe spostare il re
-		if (!IsKing && (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING || SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING || 
+		if (!IsKing && (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING || 
+			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING || 
 			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE))
 		{
 			SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::BLOCK_KING);
@@ -195,7 +196,7 @@ void AChessPieces::ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlay
 	}
 
 	if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_AND_BLOCK_KING &&
-		this->GetClass()->GetName() != (IsHumanPlayer ? "BP_w_King_C" : "BP_b_King_C"))
+		!this->IsA<AKing>())
 	{
 		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
 		Field->AddTileMarked(SelectedTile);
@@ -215,8 +216,7 @@ void AChessPieces::ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlay
 		Marked = true;
 	}
 
-	if (this->GetClass()->GetName() == (IsHumanPlayer ? "BP_w_King_C" : "BP_b_King_C")
-		&& SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
+	if (this->IsA<AKing>() && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
 	{
 		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
 		Field->AddTileMarked(SelectedTile);
@@ -250,21 +250,18 @@ void AChessPieces::ManageCheckSituationKing(int32 x, int32 y, int32 PlayerNumber
 	if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
 	{
 		SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
-
 	}
 	// Evito che catturando una pedina mi vada ad esporre
 	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 	{
 		AChessPieces* SelectedPiece = nullptr;
 
-		
 		if (PiecesMap.Contains(FVector2D(x, y)))
 			SelectedPiece = PiecesMap[FVector2D(x, y)];
 		
-
 		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
 		{
-			if (SelectedPiece->GetClass()->GetName() != (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
+			if (!SelectedPiece->IsA<AKing>())
 			{
 				SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
 			}
@@ -305,7 +302,7 @@ void AChessPieces::ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNum
 	
 
 	if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE) &&
-		SelectedPiece->GetClass()->GetName() == (IsHumanPlayer ? "BP_b_King_C" : "BP_w_King_C"))
+		SelectedPiece->IsA<AKing>())
 	{
 		Field->KingUnderAttack = true;
 		FVector2d PiecePosition = this->GetGridPosition();
@@ -316,7 +313,7 @@ void AChessPieces::ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNum
 		
 
 		// non devo marcare le tile intermedie perchè il cavallo va diretto dal re
-		if (this->GetClass()->GetName() != (IsHumanPlayer ? "BP_w_Knight_C" : "BP_b_Knight_C"))
+		if (!this->IsA<AKnight>())
 			FindTileBetweenP1P2(PiecePosition, FVector2D(x, y), PlayerNumber);
 	}
 	else
