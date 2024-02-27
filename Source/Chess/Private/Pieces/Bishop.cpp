@@ -6,6 +6,8 @@
 ABishop::ABishop()
 {
 	Value = 3;
+
+	Name = "B";
 }
 
 void ABishop::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)

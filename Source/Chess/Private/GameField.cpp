@@ -40,10 +40,9 @@ void AGameField::ResetField()
 		}
 		ManagerPiece->CapturedPieces.Empty();
 	}
+	ManagerPiece->Count = 1;
 
 	ResetAll();
-
-	UE_LOG(LogTemp, Error, TEXT("Bot Piece: %d, HumanPiece: %d"), BotPieces.Num(), HumanPlayerPieces.Num());
 
 	KingUnderAttack = false;
 	IsCheckmateSituation = false;

@@ -10,7 +10,7 @@
 - [ ] Commentare le funzioni
 - [ ] ChessPieces e ChessPawn verificare se si possono togliere un po di variabili e mettere come attributi della classe
 - [ ] Controllare le variabile MarkedForword etc nelle varie classi -> non sempre utili, ma essendo un riferimento devo passare un bool
-- [ ] Spostare movePiece, capturePiece e win in una calsse "ManagerPieces"
+- [x] Spostare movePiece, capturePiece e win in una calsse "ManagerPieces"
 
 
 ## TODO
@@ -44,12 +44,14 @@
 - [x] Il re non può fare una giocata che lo espone alla minaccia
 - [ ] Se più pedine minacciano il re dovrei verificare che esiste una mossa univoca per scappare da entrambe le minaccie
 - [ ] Una pedina non può muoversi se questa giocata espone il re -> gestire
-- [ ] Il king può mangiare la pedina che la sta minacciando a patto che la mossa non lo esponga a un nuovo scacco -> verificare questa situazione
-- [ ] Se il King si sposta tipo A-B, B-A, A-B e gli altri pezzi non si sono spostati è sconfitta
+- [x] Il king può mangiare la pedina che la sta minacciando a patto che la mossa non lo esponga a un nuovo scacco -> verificare questa situazione
+- [ ] Se il King si sposta tipo A-B, B-A, A-B e gli altri pezzi non si sono spostati è pareggio
+- [ ] Problema nella gestione dello scacco con il knight -> principalmente problemi nella possibilià di cattura durante lo scacco 
+                                                            che non dovrebbe esser legit
 
 
 ## PawnPromotion 
-- [ ] Creare una classe che crei il widget prendendo un layout UMG e poi gestisca il click del bottone.
+- [x] Creare una classe che crei il widget prendendo un layout UMG e poi gestisca il click del bottone.
       Potrei distuggere il pawn appena arriva all'ottava riga e far aprire il menu con i bottoni. 
       Il cambio della pedina devo farlo dopo aver mosso il pawn ed esso è arrivato all'8 riga -> quindi nella game mode
 
@@ -58,6 +60,6 @@
 ## PiecesRecap
 
 - [ ] Nell'array ArrayOfPlay mi salvo tutte le pedine che si spostano. Se viene catturata la rendo non visibile, ma non distruggo l'oggetto. 
-    Quando voglio tornare alla posizione i-esima ripercorro la mappa dall'ultimo elemnto a i -> per farlo ottengo la posizione dal pezzo, e sposto
-    la pedina con piece->SetActorLocation(NewLocation); 
-    Come ottengo dall'interfaccia grafica il numero del turno?
+      Quando voglio tornare alla posizione i-esima ripercorro la mappa dall'ultimo elemnto a i -> per farlo ottengo la posizione dal pezzo, e sposto
+      la pedina con piece->SetActorLocation(NewLocation); 
+      Come ottengo dall'interfaccia grafica il numero del turno?

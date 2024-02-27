@@ -4,7 +4,10 @@
 #include "../../Public/Pieces/King.h"
 #include "Chess_GameMode.h"
 
-AKing::AKing() { }
+AKing::AKing()
+{
+	Name = "K";
+}
 
 void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 {

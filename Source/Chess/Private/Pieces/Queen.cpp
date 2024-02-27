@@ -7,6 +7,8 @@
 AQueen::AQueen()
 {
 	Value = 9;
+
+	Name = "Q";
 }
 
 void AQueen::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)

@@ -7,6 +7,8 @@
 AKnight::AKnight()
 {
 	Value = 3;
+
+	Name = "N";
 }
 
 void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)

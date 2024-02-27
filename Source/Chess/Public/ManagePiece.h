@@ -24,9 +24,13 @@ protected:
 	virtual void BeginPlay() override;
 
 	AChessPieces* PawnToPromote;
+
+	FString Capture;
 public:	
 
 	bool IsGameOver;
+
+	int32 Count;
 
 	TArray<AChessPieces*> CapturedPieces;
 

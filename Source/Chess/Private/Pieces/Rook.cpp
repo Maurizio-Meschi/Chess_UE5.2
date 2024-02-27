@@ -7,6 +7,8 @@
 ARook::ARook() 
 {
 	Value = 5;
+
+	Name = "R";
 }
 
 void ARook::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)

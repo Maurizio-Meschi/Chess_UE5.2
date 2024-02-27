@@ -76,20 +76,12 @@ public:
 	void HumanPlayerPiecesRemove(AChessPieces* Piece) { HumanPlayerPieces.Remove(Piece); HumanPlayerPieces.Shrink(); }
 
 	void ResetTileArray();
-
 	void ResetBotPieces();
-
 	void ResetHumanPlayerPieces();
-
 	void ResetTileMarked();
-
 	void TileMarkedDestroy();
-
 	void ResetCheckArray();
-
 	void ResetCheckArrayTile();
-
 	void ResetMap();
-
 	void ResetAll();
 };

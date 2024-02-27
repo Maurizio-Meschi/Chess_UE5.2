@@ -44,6 +44,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EPieceColor Color;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FString Name;
+
 	bool IsKing;
 
 	// set chess piece position

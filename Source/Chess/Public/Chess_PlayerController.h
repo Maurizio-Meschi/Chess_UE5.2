@@ -12,6 +12,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "Chess_PlayerController.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEventDelegate);
 /**
  * 
  */
@@ -34,6 +36,9 @@ public:
 
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player, HUD and UI")
 	static UUserWidget* InventoryWidget;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events for HUD")
+	FEventDelegate Event;
 
 	static void AddInventoryWidgetToViewport();
 

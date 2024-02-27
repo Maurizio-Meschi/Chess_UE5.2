@@ -17,6 +17,10 @@ AManagePiece::AManagePiece()
 	PrimaryActorTick.bCanEverTick = false;
 
 	IsGameOver = false;
+
+	Count = 1;
+
+	Capture = "";
 }
 
 // Called when the game starts or when spawned
@@ -53,6 +57,25 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 	
 	GField->AddPiecesMap(Coord, Piece);
 	Piece->SetActorLocation(NewLocation);
+
+	auto TileMap = GField->GetTileMap();
+
+	ATile* Tile = nullptr;
+	if (TileMap.Contains(Coord))
+		Tile = TileMap[Coord];
+	
+	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (GameInstance && Tile)
+	{
+		GameInstance->SetInfo(FString::FromInt(Count) + TEXT(". ") + Piece->Name + Capture + Tile->Name);
+		Count++;
+		Capture = "";
+		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+		if (PlayerController)
+			PlayerController->Event.Broadcast();
+		else
+			UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
+	}
 
 	//Gestire la grafica che dice lo spostamento della pedina
 	if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::WHITE && (Piece->GetGridPosition().X == 7.0))
@@ -105,7 +128,9 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 	
 
 	PieceToCapture->SetActorHiddenInGame(true);
-	PieceToCapture->SetActorEnableCollision(false);;
+	PieceToCapture->SetActorEnableCollision(false);
+
+	Capture = "x";
 }
 
 void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
