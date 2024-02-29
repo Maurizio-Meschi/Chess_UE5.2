@@ -287,7 +287,6 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	}
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	auto PiecesMap = Field->GetPiecesMap();
 	TSubclassOf<AChessPieces> PieceClass;
 
 	auto Position = PieceToPromote->GetGridPosition();
@@ -333,6 +332,8 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 		Color = EPieceColor::BLACK;
 	
 	Field->GenerateChessPieceInXYPosition(Position.X, Position.Y, PieceClass, Color);
+
+	auto PiecesMap = Field->GetPiecesMap();
 	if (PiecesMap.Contains(Position))
 		PromotePieces.Add(PiecesMap[Position]);
 
