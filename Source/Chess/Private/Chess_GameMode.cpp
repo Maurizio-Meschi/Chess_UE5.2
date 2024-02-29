@@ -29,6 +29,13 @@ void AChess_GameMode::BeginPlay()
 
 	AChess_HumanPlayer* HumanPlayer = Cast<AChess_HumanPlayer>(*TActorIterator<AChess_HumanPlayer>(GetWorld()));
 
+	if (ManagerClass)
+	{
+		Manager = GetWorld()->SpawnActor<AManagePiece>(ManagerClass);
+	}
+	else
+		UE_LOG(LogTemp, Error, TEXT("Manager is null"));
+
 	if (GameFieldClass != nullptr)
 	{
 		GField = GetWorld()->SpawnActor<AGameField>(GameFieldClass);
@@ -38,13 +45,6 @@ void AChess_GameMode::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("Game Field is null"));
 	}
-
-	if (ManagerClass)
-	{
-		Manager = GetWorld()->SpawnActor<AManagePiece>(ManagerClass);
-	}
-	else
-		UE_LOG(LogTemp, Error, TEXT("Manager is null"));
 
 	float CameraPosX = ((GField->TileSize * (FieldSize + ((FieldSize - 1) * GField->NormalizedCellPadding) - (FieldSize - 1))) / 2) - (GField->TileSize / 2);
 	FVector CameraPos(CameraPosX, CameraPosX, 1000.0f);

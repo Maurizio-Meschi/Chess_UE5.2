@@ -36,11 +36,25 @@ void AGameField::ResetField()
 		for (int32 i = 0; i < ManagerPiece->CapturedPieces.Num(); i++)
 		{
 			ManagerPiece->CapturedPieces[i]->Destroy();
-			ManagerPiece->CapturedPieces[i] = nullptr;
+			//ManagerPiece->CapturedPieces[i] = nullptr;
 		}
 		ManagerPiece->CapturedPieces.Empty();
+
+		for (int32 i = 0; i < ManagerPiece->PromotePieces.Num(); i++)
+		{
+			ManagerPiece->PromotePieces[i]->Destroy();
+		}
+		ManagerPiece->PromotePieces.Empty();
+
+		for (int32 i = 0; i < ManagerPiece->ArrayOfPlays.Num(); i++)
+		{
+			ManagerPiece->ArrayOfPlays[i].PieceToRewind->Destroy();
+			//ManagerPiece->ArrayOfPlays = nullptr;
+		}
+		ManagerPiece->ArrayOfPlays.Empty();
+
+		ManagerPiece->Count = 1;
 	}
-	ManagerPiece->Count = 1;
 
 	ResetAll();
 
@@ -187,6 +201,22 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 		KingArray.Add(Cast<AKing>(Obj));
 	if (Class == GameFieldSubClass.ChessKing[1])
 		KingArray.Add(Cast<AKing>(Obj));
+
+	FRewind NewObj;
+	NewObj.PieceToRewind = Obj;
+	NewObj.Position = Obj->GetGridPosition();
+	NewObj.Capture = false;
+
+	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in GameField"));
+	}
+	auto ManagerPiece = GMode->Manager;
+	if (ManagerPiece)
+		ManagerPiece->ArrayOfPlays.Add(NewObj);
+	else
+		UE_LOG(LogTemp, Error, TEXT("Manager Piece null in GameField"));
 }
 
 FVector2D AGameField::GetPosition(const FHitResult& Hit)

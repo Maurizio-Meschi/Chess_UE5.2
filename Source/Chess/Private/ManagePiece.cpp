@@ -81,7 +81,11 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 	if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::WHITE && (Piece->GetGridPosition().X == 7.0))
 	{
 		PawnToPromote = Piece;
-		AChess_PlayerController::AddInventoryWidgetToViewport();
+		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+		if (PlayerController)
+			PlayerController->AddInventoryWidgetToViewport();
+		else
+			UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
 	}
 	else if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::BLACK && (Piece->GetGridPosition().X == 0.0))
 	{
@@ -95,7 +99,8 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 		FRewind Obj;
 		Obj.PieceToRewind = Piece;
 		Obj.Position = Piece->GetGridPosition();
-		GMode->ArrayOfPlays.Add(Obj);
+		Obj.Capture = false;
+		ArrayOfPlays.Add(Obj);
 		
 		CheckWinAndGoNextPlayer(PlayerNumber);
 	}
@@ -129,6 +134,11 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 
 	PieceToCapture->SetActorHiddenInGame(true);
 	PieceToCapture->SetActorEnableCollision(false);
+	FRewind Obj;
+	Obj.PieceToRewind = PieceToCapture;
+	Obj.Position = PieceToCapture->GetGridPosition();
+	Obj.Capture = true;
+	ArrayOfPlays.Add(Obj);
 
 	Capture = "x";
 }
@@ -194,6 +204,59 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 	GMode->TurnNextPlayer();
 }
 
+void AManagePiece::Replay()
+{
+	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in PawnPromotion"));
+		return;
+	}
+
+	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null in PawnPromotion"));
+		return;
+	}
+
+	for (auto Piece : CapturedPieces)
+	{
+		Piece->SetActorHiddenInGame(true);
+	}
+
+	for (auto Piece : PromotePieces)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Promote piece: %s"), *Piece->GetClass()->GetName());
+		Piece->SetActorHiddenInGame(true);
+	}
+
+	int32 ArrivalIndex = ButtonValue;
+	if (ArrivalIndex > ArrayOfPlays.Num())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid Index: ArrivalIndex: %d. ArrayOfPlay Num: %d"), ArrivalIndex, ArrayOfPlays.Num() - 1);
+		return;
+	}
+	
+	for (int32 i = 0; i < ArrivalIndex + 1; i++)
+	{
+		auto Position = ArrayOfPlays[i].Position;
+		auto Piece = ArrayOfPlays[i].PieceToRewind;
+		if (ArrayOfPlays[i].Capture)
+		{
+			Piece->SetActorHiddenInGame(true);
+			ArrivalIndex++;
+		}
+		else
+			Piece->SetActorHiddenInGame(false);
+		FVector NewLocation = Field->GetActorLocation() + FVector(Position.X, Position.Y, 0.0f);
+		NewLocation = Field->GetRelativeLocationByXYPosition(NewLocation.X, NewLocation.Y);
+		//UE_LOG(LogTemp, Error, TEXT("Position in 2D: %f %f. Position 3D: %f %f %f"), Position.X, Position.Y, FVector(Position, 0).X, FVector(Position, 0).Y, FVector(Position, 0).Z);
+		//UE_LOG(LogTemp, Error, TEXT("Position Field: %f %f %f. Position Actor: %f %f %f."), Field->GetActorLocation().X, Field->GetActorLocation().Y, Field->GetActorLocation().Z, NewLocation.X, NewLocation.Y, NewLocation.Z);
+		Piece->SetActorLocation(NewLocation);
+	}
+}
+
 void AManagePiece::HandlePromotionCompleted()
 {
 	auto GMode = FGameModeRef::GetGameMode(this);
@@ -224,11 +287,19 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	}
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	auto PiecesMap = Field->GetPiecesMap();
 	TSubclassOf<AChessPieces> PieceClass;
 
 	auto Position = PieceToPromote->GetGridPosition();
 	PieceToPromote->SetActorHiddenInGame(true);
 	PieceToPromote->SetActorEnableCollision(false);
+
+	FRewind Obj;
+	Obj.PieceToRewind = PieceToPromote;
+	Obj.Position = PieceToPromote->GetGridPosition();
+	Obj.Capture = true;
+	ArrayOfPlays.Add(Obj);
+
 	//PieceToPromote->SetActorLocation(FVector(0, 0, 0));
 	int32 Player = GMode->CurrentPlayer;
 	
@@ -262,14 +333,17 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 		Color = EPieceColor::BLACK;
 	
 	Field->GenerateChessPieceInXYPosition(Position.X, Position.Y, PieceClass, Color);
-
-	FRewind Obj;
-	Obj.PieceToRewind = PieceToPromote;
-	Obj.Position = PieceToPromote->GetGridPosition();
-	GMode->ArrayOfPlays.Add(Obj);
+	if (PiecesMap.Contains(Position))
+		PromotePieces.Add(PiecesMap[Position]);
 
 	if (Player == 0)
-		AChess_PlayerController::RemoveInventoryWidgetToViewport();
+	{
+		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+		if (PlayerController)
+			PlayerController->RemoveInventoryWidgetToViewport();
+		else
+			UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
+	}
 	PieceToPromote = nullptr;
 
 	HandlePromotionCompleted();

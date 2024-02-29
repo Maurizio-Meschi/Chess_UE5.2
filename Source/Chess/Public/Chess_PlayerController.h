@@ -34,15 +34,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player, HUD and UI")
 	TSubclassOf<UUserWidget> InventoryWidgetClass;
 
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player, HUD and UI")
-	static UUserWidget* InventoryWidget;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player, HUD and UI")
+	UUserWidget* InventoryWidget;
 
 	UPROPERTY(BlueprintAssignable, Category = "Events for HUD")
 	FEventDelegate Event;
 
-	static void AddInventoryWidgetToViewport();
+	void AddInventoryWidgetToViewport();
 
-	static void RemoveInventoryWidgetToViewport();
+	void RemoveInventoryWidgetToViewport();
 
 	void ClickOnGrid();
 

@@ -10,18 +10,6 @@
 #include "Chess_PlayerController.h"
 #include "Chess_GameMode.generated.h"
 
-USTRUCT()
-struct FRewind
-{
-	GENERATED_BODY()
-
-public:
-	FRewind() = default;
-
-	AChessPieces* PieceToRewind;
-	FVector2D Position;
-};
-
 UCLASS()
 class CHESS_API AChess_GameMode : public AGameModeBase
 {
@@ -53,10 +41,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AManagePiece> ManagerClass;
-
-	// Give the number of play, get the pieces
-	UPROPERTY(Transient)
-	TArray<FRewind> ArrayOfPlays;
 
 	// field size
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

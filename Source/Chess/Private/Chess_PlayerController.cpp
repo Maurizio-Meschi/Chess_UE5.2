@@ -16,8 +16,6 @@ AChess_PlayerController::AChess_PlayerController()
 	bEnableClickEvents = true; 
 }
 
-UUserWidget* AChess_PlayerController::InventoryWidget = nullptr;
-
 void AChess_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -35,9 +33,6 @@ void AChess_PlayerController::BeginPlay()
 			if (!InventoryWidget)
 			{
 				InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
-				InventoryWidget->AddToViewport();
-				InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
-				InventoryWidget->SetIsEnabled(false);
 			}
 		}
 		else
@@ -54,7 +49,7 @@ void AChess_PlayerController::BeginDestroy()
 		InventoryWidget->RemoveFromParent();
 	}
 
-	InventoryWidget = nullptr;
+	//InventoryWidget = nullptr;
 }
 
 void AChess_PlayerController::SetupInputComponent()
@@ -70,6 +65,18 @@ void AChess_PlayerController::SetupInputComponent()
 
 void AChess_PlayerController::AddInventoryWidgetToViewport()
 {
+	if (!InventoryWidget)
+	{
+		if (InventoryWidgetClass)
+		{
+				InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
+		}
+		else
+			UE_LOG(LogTemp, Error, TEXT("No BP found in controller"));
+	}
+	if (!InventoryWidget->IsInViewport())
+		InventoryWidget->AddToViewport();
+	/*
 	if (InventoryWidget && InventoryWidget->IsInViewport())
 	{
 		InventoryWidget->SetVisibility(ESlateVisibility::Visible);
@@ -77,10 +84,23 @@ void AChess_PlayerController::AddInventoryWidgetToViewport()
 	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("Widget null in controller"));
+		*/
 }
 
 void AChess_PlayerController::RemoveInventoryWidgetToViewport()
 {
+	if (!InventoryWidget)
+	{
+		if (InventoryWidgetClass)
+		{
+			InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
+		}
+		else
+			UE_LOG(LogTemp, Error, TEXT("No BP found in controller"));
+	}
+	if (InventoryWidget && InventoryWidget->IsInViewport())
+		InventoryWidget->RemoveFromParent();
+	/*
 	if (InventoryWidget && InventoryWidget->IsInViewport())
 	{
 		InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -88,6 +108,7 @@ void AChess_PlayerController::RemoveInventoryWidgetToViewport()
 	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("Widget null in controller"));
+		*/
 }
 
 void AChess_PlayerController::ClickOnGrid()
