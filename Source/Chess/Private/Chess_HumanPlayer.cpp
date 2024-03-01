@@ -251,7 +251,7 @@ void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 
 	// move the piece
 	if (PieceManager)
-		PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
+		PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord, CurrPiece->GetGridPosition());
 	else
 		UE_LOG(LogTemp, Error, TEXT("PieceManager null HumanPlayer"));
 	MyTurn = false;
@@ -288,6 +288,7 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 
 	FVector SpawnPosition = EnemyTile->GetActorLocation();
 	FVector2D Coord = EnemyTile->GetGridPosition();
+	auto CurrPosition = CurrPiece->GetGridPosition();
 
 	AChessPieces* PieceToCapture = nullptr;
 	
@@ -310,7 +311,7 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 
 	// move the piece
 	if (PieceManager)
-		PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
+		PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord, CurrPosition);
 	else
 		UE_LOG(LogTemp, Error, TEXT("PieceManager null HumanPlayer"));
 	MyTurn = false;

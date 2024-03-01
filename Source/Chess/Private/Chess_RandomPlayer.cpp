@@ -82,6 +82,7 @@ void AChess_RandomPlayer::OnTurn()
 				}
 				RIndex = FMath::Rand() % PiecesArray.Num();
 				AChessPieces* CurrPiece = PiecesArray[RIndex];
+				auto CurrPosition = CurrPiece->GetGridPosition();
 				// check the possible move
 				CurrPiece->LegalMove(PlayerNumber, false);
 
@@ -111,13 +112,9 @@ void AChess_RandomPlayer::OnTurn()
 				{
 					TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
-					
-
 					AChessPieces* PieceToCapture = nullptr;
 					if (PiecesMap.Contains(Coord))
 						PieceToCapture = PiecesMap[(Coord)];
-
-					
 
 					PieceManager->CapturePiece(PieceToCapture, Coord);
 				}
@@ -133,7 +130,7 @@ void AChess_RandomPlayer::OnTurn()
 					TileMap[FVector2D(x, y)]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 				
 				
-				PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord);
+				PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord, CurrPosition);
 
 			} while (!PieceIsPossibleToMove);
 

@@ -55,7 +55,7 @@ public:
 
 	TArray<AChessPieces*> PromotePieces;
 
-	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord);
+	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition);
 
 	void CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord);
 
@@ -63,6 +63,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Replay();
+
+	UFUNCTION(BlueprintCallable, Category = "Replay Category")
+	void BackToPlay();
 
 	UFUNCTION(BlueprintCallable)
 	AChessPieces* GetPieceToPromote() { return PawnToPromote; }

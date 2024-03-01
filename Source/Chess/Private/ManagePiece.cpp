@@ -29,7 +29,7 @@ void AManagePiece::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord)
+void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition)
 {
 	auto GMode = FGameModeRef::GetGameMode(this);
 	if (!GMode)
@@ -67,6 +67,12 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GameInstance && Tile)
 	{
+		if (Piece->IsA<AChessPawn>())
+		{
+			if (TileMap.Contains(Coord) && Capture == "x")
+				Capture = TileMap[StartPosition]->Name.Left(1) + "x";
+			UE_LOG(LogTemp, Error, TEXT("Capture: %s"), *Capture);
+		}
 		GameInstance->SetInfo(FString::FromInt(Count) + TEXT(". ") + Piece->Name + Capture + Tile->Name);
 		Count++;
 		Capture = "";
@@ -206,6 +212,10 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 
 void AManagePiece::Replay()
 {
+	auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if (PlayerController)
+		PlayerController->DisableInput(PlayerController);
+
 	auto GMode = FGameModeRef::GetGameMode(this);
 	if (!GMode)
 	{
@@ -255,6 +265,61 @@ void AManagePiece::Replay()
 		//UE_LOG(LogTemp, Error, TEXT("Position Field: %f %f %f. Position Actor: %f %f %f."), Field->GetActorLocation().X, Field->GetActorLocation().Y, Field->GetActorLocation().Z, NewLocation.X, NewLocation.Y, NewLocation.Z);
 		Piece->SetActorLocation(NewLocation);
 	}
+}
+
+void AManagePiece::BackToPlay()
+{
+	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in PawnPromotion"));
+		return;
+	}
+
+	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null in PawnPromotion"));
+		return;
+	}
+
+	for (auto Piece : CapturedPieces)
+	{
+		Piece->SetActorHiddenInGame(true);
+	}
+
+	for (auto Piece : PromotePieces)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Promote piece: %s"), *Piece->GetClass()->GetName());
+		Piece->SetActorHiddenInGame(true);
+	}
+
+	int32 ArrivalIndex = ButtonValue;
+	if (ArrivalIndex > ArrayOfPlays.Num())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid Index: ArrivalIndex: %d. ArrayOfPlay Num: %d"), ArrivalIndex, ArrayOfPlays.Num() - 1);
+		return;
+	}
+
+	for (int32 i = 0; i < ArrayOfPlays.Num(); i++)
+	{
+		auto Position = ArrayOfPlays[i].Position;
+		auto Piece = ArrayOfPlays[i].PieceToRewind;
+		if (ArrayOfPlays[i].Capture)
+		{
+			Piece->SetActorHiddenInGame(true);
+			ArrivalIndex++;
+		}
+		else
+			Piece->SetActorHiddenInGame(false);
+		FVector NewLocation = Field->GetActorLocation() + FVector(Position.X, Position.Y, 0.0f);
+		NewLocation = Field->GetRelativeLocationByXYPosition(NewLocation.X, NewLocation.Y);
+		Piece->SetActorLocation(NewLocation);
+	}
+
+	auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if (PlayerController)
+		PlayerController->EnableInput(PlayerController);
 }
 
 void AManagePiece::HandlePromotionCompleted()
