@@ -55,6 +55,28 @@ void AChess_HumanPlayer::OnTurn()
 	MyTurn = true;
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Your Turn"));
 	GameInstance->SetTurnMessage(TEXT("Human Turn"));
+
+	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null RandomPlayer"));
+		return;
+	}
+
+	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null RandomPlayer"));
+		return;
+	}
+
+	auto PieceManager = GMode->Manager;
+	if (!PieceManager)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PieceManager null RandomPlayer"));
+		return;
+	}
+	//PieceManager->Visible = true;
 }
 void AChess_HumanPlayer::OnWin()
 {

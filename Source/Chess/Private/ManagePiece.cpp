@@ -207,6 +207,11 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 		GField->CheckSituation = false;
 
 	GField->ResetTileMarked();
+	if (GMode->CurrentPlayer == 1)
+		Visible = true;
+	else
+		Visible = false;
+	DisableButtonEvent.Broadcast();
 	GMode->TurnNextPlayer();
 }
 
@@ -229,6 +234,8 @@ void AManagePiece::Replay()
 		UE_LOG(LogTemp, Error, TEXT("Field null in PawnPromotion"));
 		return;
 	}
+	Field->ResetTileMarked();
+	Field->TileMarkedDestroy();
 
 	for (auto Piece : CapturedPieces)
 	{
@@ -237,7 +244,6 @@ void AManagePiece::Replay()
 
 	for (auto Piece : PromotePieces)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Promote piece: %s"), *Piece->GetClass()->GetName());
 		Piece->SetActorHiddenInGame(true);
 	}
 
@@ -261,8 +267,6 @@ void AManagePiece::Replay()
 			Piece->SetActorHiddenInGame(false);
 		FVector NewLocation = Field->GetActorLocation() + FVector(Position.X, Position.Y, 0.0f);
 		NewLocation = Field->GetRelativeLocationByXYPosition(NewLocation.X, NewLocation.Y);
-		//UE_LOG(LogTemp, Error, TEXT("Position in 2D: %f %f. Position 3D: %f %f %f"), Position.X, Position.Y, FVector(Position, 0).X, FVector(Position, 0).Y, FVector(Position, 0).Z);
-		//UE_LOG(LogTemp, Error, TEXT("Position Field: %f %f %f. Position Actor: %f %f %f."), Field->GetActorLocation().X, Field->GetActorLocation().Y, Field->GetActorLocation().Z, NewLocation.X, NewLocation.Y, NewLocation.Z);
 		Piece->SetActorLocation(NewLocation);
 	}
 }

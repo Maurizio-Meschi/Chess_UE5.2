@@ -10,6 +10,9 @@
 
 class AChess_GameMode;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDisableButtonDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEnableButtonDelegate);
+
 USTRUCT()
 struct FRewind
 {
@@ -45,11 +48,19 @@ public:
 	UPROPERTY(Transient)
 	TArray<FRewind> ArrayOfPlays;
 
+	UPROPERTY(BlueprintAssignable, Category = "Events Disable")
+	FDisableButtonDelegate DisableButtonEvent;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events Enable")
+	FEnableButtonDelegate EnableButtonEvent;
+
 	bool IsGameOver;
 
 	int32 Count;
 
 	int32 ButtonValue = 0;
+
+	bool Visible = true;
 
 	TArray<AChessPieces*> CapturedPieces;
 
@@ -78,4 +89,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Button Category")
 	void SetButtonValue(int32 Value) { ButtonValue = Value; }
+
+	UFUNCTION(BlueprintCallable, Category = "Button Category")
+	bool GetVisibleValue() { return Visible; }
 };

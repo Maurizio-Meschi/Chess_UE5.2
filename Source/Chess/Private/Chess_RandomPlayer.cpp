@@ -43,6 +43,7 @@ void AChess_RandomPlayer::OnTurn()
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 		{
+
 			auto GMode = FGameModeRef::GetGameMode(this);
 			if (!GMode)
 			{
@@ -63,6 +64,8 @@ void AChess_RandomPlayer::OnTurn()
 				UE_LOG(LogTemp, Error, TEXT("PieceManager null RandomPlayer"));
 				return;
 			}
+
+			
 
 			TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 			TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
