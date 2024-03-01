@@ -2,7 +2,7 @@
 
 
 #include "../../Public/Pieces/Knight.h"
-#include "../Public/Chess_GameMode.h"
+#include "../Public/Manager/Chess_GameMode.h"
 
 AKnight::AKnight()
 {

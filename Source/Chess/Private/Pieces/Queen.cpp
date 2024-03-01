@@ -2,7 +2,7 @@
 
 
 #include "../../Public/Pieces/Queen.h"
-#include "../Public/Chess_GameMode.h"
+#include "../Public/Manager/Chess_GameMode.h"
 
 AQueen::AQueen()
 {

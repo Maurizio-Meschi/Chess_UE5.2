@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../ChessPieces.h"
+#include "../MainActor/ChessPieces.h"
 #include "Bishop.generated.h"
 
 class AGameField;

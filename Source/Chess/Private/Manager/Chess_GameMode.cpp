@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Chess_GameMode.h"
-#include "Chess_PlayerController.h"
-#include "ChessPieces.h"
-#include "Chess_HumanPlayer.h"
-#include "Chess_RandomPlayer.h"
-#include "Chess_GameInstance.h"
+#include "../Public/Manager/Chess_GameMode.h"
+#include "../Public/Player/Chess_PlayerController.h"
+#include "../Public/MainActor/ChessPieces.h"
+#include "../Public/Player/Chess_HumanPlayer.h"
+#include "../Public/Player/Chess_RandomPlayer.h"
+#include "../Public/Manager/Chess_GameInstance.h"
 #include "Async/TaskGraphInterfaces.h"
 #include "Async/TaskGraphInterfaces.h"
 #include "EngineUtils.h"

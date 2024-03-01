@@ -1,12 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ManagePiece.h"
-#include "Chess_GameMode.h"
-#include "Chess_PlayerController.h"
-#include "ChessPieces.h"
-#include "Async/TaskGraphInterfaces.h"
-#include "Async/TaskGraphInterfaces.h"
+#include "../Public/Manager/ManagePiece.h"
+#include "../Public/Manager/Chess_GameMode.h"
+#include "../Public/Player/Chess_PlayerController.h"
+#include "../Public/MainActor/ChessPieces.h"
 #include "EngineUtils.h"
 #include "Engine/World.h"
 

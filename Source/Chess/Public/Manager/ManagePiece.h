@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ChessPieces.h"
+#include "../MainActor/ChessPieces.h"
 #include "GameFramework/Actor.h"
 #include "ManagePiece.generated.h"
 
@@ -11,7 +11,6 @@
 class AChess_GameMode;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDisableButtonDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEnableButtonDelegate);
 
 USTRUCT()
 struct FRewind
@@ -50,9 +49,6 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Events Disable")
 	FDisableButtonDelegate DisableButtonEvent;
-
-	UPROPERTY(BlueprintAssignable, Category = "Events Enable")
-	FEnableButtonDelegate EnableButtonEvent;
 
 	bool IsGameOver;
 

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Chess_PlayerController.h"
+#include "../Public/Player/Chess_PlayerController.h"
 #include "Components/InputComponent.h"
 #include "UObject/SoftObjectPtr.h"
 #include "UMG.h"

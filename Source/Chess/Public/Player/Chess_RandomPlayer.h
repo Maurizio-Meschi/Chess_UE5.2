@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Chess_PlayerInterface.h"
-#include "Chess_GameInstance.h"
-#include "Chess_GameMode.h"
+#include "../Manager/Chess_GameInstance.h"
+#include "../Manager/Chess_GameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Chess_RandomPlayer.generated.h"
 

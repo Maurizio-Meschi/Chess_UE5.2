@@ -1,9 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Chess_GameInstance.h"
+#include "../Public/Manager/Chess_GameInstance.h"
 
-#include "Chess_GameInstance.h"
 
 
 void UChess_GameInstance::SetInfo(FString Message)

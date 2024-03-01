@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Chess_HumanPlayer.h"
-#include "ChessPieces.h"
-#include "GameField.h"
-#include "Tile.h"
-#include "ManagePiece.h"
-#include "Chess_GameMode.h"
+#include "../Public/Player/Chess_HumanPlayer.h"
+#include "../Public/MainActor/ChessPieces.h"
+#include "../Public/MainActor/GameField.h"
+#include "../Public/MainActor/Tile.h"
+#include "../Public/Manager/ManagePiece.h"
+#include "../Public/Manager/Chess_GameMode.h"
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"

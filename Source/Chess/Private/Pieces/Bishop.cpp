@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "../../Public/Pieces/Bishop.h"
-#include "../Public/Chess_GameMode.h"
+#include "../Public/Manager/Chess_GameMode.h"
 
 ABishop::ABishop()
 {

@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ChessPieces.h"
+#include "../Public/MainActor/ChessPieces.h"
 #include "Pieces/ChessPawn.h"
-#include "GameField.h"
-#include "Tile.h"
-#include "Chess_GameMode.h"
+#include "../Public/MainActor/GameField.h"
+#include "../Public/MainActor/Tile.h"
+#include "../Public/Manager/Chess_GameMode.h"
 
 // Sets default values
 AChessPieces::AChessPieces()

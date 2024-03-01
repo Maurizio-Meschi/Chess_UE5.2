@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Chess_RandomPlayer.h"
-#include "ChessPieces.h"
-#include "GameField.h"
-#include "Tile.h"
-#include "ManagePiece.h"
+#include "../Public/Player/Chess_RandomPlayer.h"
+#include "../Public/MainActor/ChessPieces.h"
+#include "../Public/MainActor/GameField.h"
+#include "../Public/MainActor/Tile.h"
+#include "../Public/Manager/ManagePiece.h"
 
 // Sets default values
 AChess_RandomPlayer::AChess_RandomPlayer()

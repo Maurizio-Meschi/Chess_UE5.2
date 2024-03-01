@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Chess_PlayerInterface.h"
+#include "../Player/Chess_PlayerInterface.h"
 #include "GameFramework/GameModeBase.h"
-#include "GameField.h"
+#include "../MainActor/GameField.h"
 #include "Chess_GameInstance.h"
-#include "Chess_PlayerController.h"
+#include "../Player/Chess_PlayerController.h"
 #include "Chess_GameMode.generated.h"
 
 UCLASS()

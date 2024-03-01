@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "../Tile.h"
-#include "../ChessPieces.h"
+#include "../MainActor/Tile.h"
+#include "../MainActor/ChessPieces.h"
 #include "../Pieces/King.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"

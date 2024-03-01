@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include "../Tile.h"
+#include "../MainActor/Tile.h"
 #include "../Pieces/Bishop.h"
 #include "../Pieces/ChessPawn.h"
 #include "../Pieces/King.h"
 #include "../Pieces/Knight.h"
 #include "../Pieces/Queen.h"
 #include "../Pieces/Rook.h"
-#include "../ChessPieces.h"
+#include "../MainActor/ChessPieces.h"
 #include "CoreMinimal.h"
 #include "GFieldSubClass.generated.h"
 

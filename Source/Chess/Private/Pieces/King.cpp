@@ -2,7 +2,7 @@
 
 
 #include "../../Public/Pieces/King.h"
-#include "Chess_GameMode.h"
+#include "../Public/Manager/Chess_GameMode.h"
 
 AKing::AKing()
 {
