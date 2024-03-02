@@ -310,7 +310,7 @@ void AChessPieces::ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNum
 		
 		if (TileMap.Contains(PiecePosition))
 		{
-			if (TileMap[PiecePosition]->GetStatusCheckmate() != EStatusCheckmate::BLOCK_KING)
+			//if (TileMap[PiecePosition]->GetStatusCheckmate() != EStatusCheckmate::BLOCK_KING)
 				TileMap[PiecePosition]->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
 		}
 		

@@ -58,6 +58,8 @@ public:
 
 	bool Visible = true;
 
+	bool IsBotPlayed = true;
+
 	TArray<AChessPieces*> CapturedPieces;
 
 	TArray<AChessPieces*> PromotePieces;
@@ -88,4 +90,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Button Category")
 	bool GetVisibleValue() { return Visible; }
+
+	UFUNCTION(BlueprintCallable, Category = "Button Category")
+	bool GetIsBotPlayed() { return Visible; }
 };

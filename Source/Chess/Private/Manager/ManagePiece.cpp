@@ -69,10 +69,9 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 		{
 			if (TileMap.Contains(Coord) && Capture == "x")
 				Capture = TileMap[StartPosition]->Name.Left(1) + "x";
-			UE_LOG(LogTemp, Error, TEXT("Capture: %s"), *Capture);
 		}
 		GameInstance->SetInfo(FString::FromInt(Count) + TEXT(". ") + Piece->Name + Capture + Tile->Name);
-		Count++;
+		//Count++;
 		Capture = "";
 		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 		if (PlayerController)
@@ -206,9 +205,16 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 
 	GField->ResetTileMarked();
 	if (GMode->CurrentPlayer == 1)
+	{
 		Visible = true;
+		IsBotPlayed = true;
+		Count++;
+	}
 	else
+	{
 		Visible = false;
+		IsBotPlayed = false;
+	}
 	DisableButtonEvent.Broadcast();
 	GMode->TurnNextPlayer();
 }
