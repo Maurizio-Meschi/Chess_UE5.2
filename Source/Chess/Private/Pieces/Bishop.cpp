@@ -37,52 +37,68 @@ void ABishop::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
 
-	for (int32 k = 0; k < 8; k++)
+	if (Field->Direction == "Positive Oblique" || Field->Direction == "None")
 	{
-		if (CheckCoord(x + XMove, y + YMove) && !MarkedForward)
+		for (int32 k = 0; k < 8; k++)
 		{
-			if (Field->CheckSituation)
-				CheckMateSituation(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
-			else
-				Mark(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
-		}
+			if (CheckCoord(x + XMove, y + YMove) && !MarkedForward)
+			{
+				if (Field->CheckLegalMove)
+					CheckIfAllMoveIsLegal(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+				else if (Field->CheckSituation)
+					CheckMateSituation(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+				else
+					Mark(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			}
 
-		if (CheckCoord(x - XMove, y - YMove) && !MarkedBackwards)
-		{
-			if (Field->CheckSituation)
-				CheckMateSituation(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
-			else
-				Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
-		}
+			if (CheckCoord(x - XMove, y - YMove) && !MarkedBackwards)
+			{
+				if (Field->CheckLegalMove)
+					CheckIfAllMoveIsLegal(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+				else if (Field->CheckSituation)
+					CheckMateSituation(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+				else
+					Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			}
 
-		IsHumanPlayer ? XMove++ : XMove--;
-		IsHumanPlayer ? YMove++ : YMove--;
+			IsHumanPlayer ? XMove++ : XMove--;
+			IsHumanPlayer ? YMove++ : YMove--;
+		}
 	}
+	Field->Support.Empty();
 
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
 	MarkedForward = false;
 	MarkedBackwards = false;
 
-	for (int32 k = 0; k < 8; k++)
+	if (Field->Direction == "Negative Oblique" || Field->Direction == "None")
 	{
-		if (CheckCoord(x + XMove, y - YMove) && !MarkedForward)
+		for (int32 k = 0; k < 8; k++)
 		{
-			if (Field->CheckSituation)
-				CheckMateSituation(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
-			else
-				Mark(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
-		}
+			if (CheckCoord(x + XMove, y - YMove) && !MarkedForward)
+			{
+				if (Field->CheckLegalMove)
+					CheckIfAllMoveIsLegal(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+				else if (Field->CheckSituation)
+					CheckMateSituation(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+				else
+					Mark(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			}
 
-		if (CheckCoord(x - XMove, y + YMove) && !MarkedBackwards)
-		{
-			if (Field->CheckSituation)
-				CheckMateSituation(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
-			else
-				Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
-		}
+			if (CheckCoord(x - XMove, y + YMove) && !MarkedBackwards)
+			{
+				if (Field->CheckLegalMove)
+					CheckIfAllMoveIsLegal(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+				else if (Field->CheckSituation)
+					CheckMateSituation(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+				else
+					Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			}
 
-		IsHumanPlayer ? XMove++ : XMove--;
-		IsHumanPlayer ? YMove++ : YMove--;
+			IsHumanPlayer ? XMove++ : XMove--;
+			IsHumanPlayer ? YMove++ : YMove--;
+		}
 	}
+	Field->Support.Empty();
 }

@@ -36,49 +36,68 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 		return;
 	}
 
-	// check if the next first vertical tile is empty and if true, mark the tile
-	XMove = IsHumanPlayer ? 1 : -1;
-	if (CheckCoord(x + XMove, y) && !MarkedForward)
+	if (Field->Direction == "Vertical" || Field->Direction == "None")
 	{
-		CaptureSituation = false;
-
-		if (Field->CheckSituation)
-			CheckMateSituationPawn(x + XMove, y, PlayerNumber, IsHumanPlayer);
-		else
-			MarkTile(x + XMove, y, PlayerNumber, MarkedForward);
-	}
-
-	// check if it is possible to capture an enemy piece
-	int32 i = 1;
-	for (int32 k = 0; k < 2; k++)
-	{
+		// check if the next first vertical tile is empty and if true, mark the tile
 		XMove = IsHumanPlayer ? 1 : -1;
-		YMove = IsHumanPlayer ? i : -i;
-		if (CheckCoord(x + XMove, y + YMove))
-		{
-			CaptureSituation = true;
-
-			if (Field->CheckSituation)
-				CheckMateSituationPawn(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer);
-			else
-				MarkToCapture(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer);
-		}
-		i = -1;
-	}
-	// check if the next second vertical tile is empty and if true, mark the tile
-	if (x == 1)
-	{
-		XMove = IsHumanPlayer ? 2 : -2;
 		if (CheckCoord(x + XMove, y) && !MarkedForward)
 		{
 			CaptureSituation = false;
 
-			if (Field->CheckSituation)
+			if (Field->CheckLegalMove)
+				CheckIfAllMoveIsLegal(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
+			else if (Field->CheckSituation)
 				CheckMateSituationPawn(x + XMove, y, PlayerNumber, IsHumanPlayer);
 			else
 				MarkTile(x + XMove, y, PlayerNumber, MarkedForward);
 		}
 	}
+	Field->Support.Empty();
+
+	if (Field->Direction == "None")
+	{
+		// check if it is possible to capture an enemy piece
+		int32 i = 1;
+		for (int32 k = 0; k < 2; k++)
+		{
+			XMove = IsHumanPlayer ? 1 : -1;
+			YMove = IsHumanPlayer ? i : -i;
+			if (CheckCoord(x + XMove, y + YMove))
+			{
+				CaptureSituation = true;
+
+				if (Field->CheckLegalMove)
+					CheckIfAllMoveIsLegal(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+				else if (Field->CheckSituation)
+					CheckMateSituationPawn(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer);
+				else
+					MarkToCapture(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer);
+			}
+			i = -1;
+		}
+	}
+	Field->Support.Empty();
+
+	if (Field->Direction == "Horizontal" || Field->Direction == "None")
+	{
+		// check if the next second vertical tile is empty and if true, mark the tile
+		if (x == 1)
+		{
+			XMove = IsHumanPlayer ? 2 : -2;
+			if (CheckCoord(x + XMove, y) && !MarkedForward)
+			{
+				CaptureSituation = false;
+
+				if (Field->CheckLegalMove)
+					CheckIfAllMoveIsLegal(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
+				else if (Field->CheckSituation)
+					CheckMateSituationPawn(x + XMove, y, PlayerNumber, IsHumanPlayer);
+				else
+					MarkTile(x + XMove, y, PlayerNumber, MarkedForward);
+			}
+		}
+	}
+	Field->Support.Empty();
 }
 
 void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer)

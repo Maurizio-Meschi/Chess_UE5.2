@@ -4,11 +4,14 @@
 - [x] Key not found in TMap -> where?
 - [x] Sometimes bot doesn't make any plays -> Find the reason
 - [x] Key non found is back -> where?
+- [ ] Crash if quit game while during bot turn
 
 
 ## Code
 - [ ] Commentare le funzioni
 - [ ] ChessPieces e ChessPawn verificare se si possono togliere un po di variabili e mettere come attributi della classe
+      Togliere la variabile ISHumanPlayer e usare il CurrentPlayer. Rivedere un po di codice (tipo le variabili booleane usate nella gamefield -> 
+      potrei avere una classe/Struttura utility con variabili booleane statiche per non farle dipendere dalla field)
 - [ ] Controllare le variabile MarkedForword etc nelle varie classi -> non sempre utili, ma essendo un riferimento devo passare un bool
 - [x] Spostare movePiece, capturePiece e win in una calsse "ManagerPieces"
 

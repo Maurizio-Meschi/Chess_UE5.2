@@ -37,51 +37,67 @@ void ARook::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 
 	XMove   = IsHumanPlayer ? 1 : -1;
 
-
-	for (int32 k = 0; k < 8; k++)
+	if (Field->Direction == "Vertical" || Field->Direction == "None")
 	{
-		if (CheckCoord(x + XMove, y) && !MarkedForward)
+		for (int32 k = 0; k < 8; k++)
 		{
-			if (Field->CheckSituation)
-				CheckMateSituation(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
-			else
-				Mark(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
-		}
-		if (CheckCoord(x - XMove, y) && !MarkedBackwards)
-		{
-			if (Field->CheckSituation)
-				CheckMateSituation(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
-			else
-				Mark(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
-		}
+			if (CheckCoord(x + XMove, y) && !MarkedForward)
+			{
+				if (Field->CheckLegalMove)
+					CheckIfAllMoveIsLegal(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
+				else if (Field->CheckSituation)
+					CheckMateSituation(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
+				else
+					Mark(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
+			}
+			if (CheckCoord(x - XMove, y) && !MarkedBackwards)
+			{
+				if (Field->CheckLegalMove)
+					CheckIfAllMoveIsLegal(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+				else if (Field->CheckSituation)
+					CheckMateSituation(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+				else
+					Mark(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			}
 
-		IsHumanPlayer ? XMove++ : XMove--;
+			IsHumanPlayer ? XMove++ : XMove--;
+		}
 	}
+	Field->Support.Empty();
 
 	YMove = IsHumanPlayer ? 1 : -1;
 	MarkedForward = false;
 	MarkedBackwards = false;
-	for (int32 k = 0; k < 8; k++)
+
+	if (Field->Direction == "Horizontal" || Field->Direction == "None")
 	{
-		if (CheckCoord(x, y + YMove) && !MarkedForward)
+		for (int32 k = 0; k < 8; k++)
 		{
-			if (Field->CheckSituation)
-				CheckMateSituation(x, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
-			else
-				Mark(x, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			if (CheckCoord(x, y + YMove) && !MarkedForward)
+			{
+				if (Field->CheckLegalMove)
+					CheckIfAllMoveIsLegal(x, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+				else if (Field->CheckSituation)
+					CheckMateSituation(x, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+				else
+					Mark(x, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			}
+
+			if (CheckCoord(x, y - YMove) && !MarkedBackwards)
+			{
+				if (Field->CheckLegalMove)
+					CheckIfAllMoveIsLegal(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+				else if (Field->CheckSituation)
+					CheckMateSituation(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+				else
+					Mark(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			}
+
+			if (MarkedForward && MarkedBackwards) break;
+
+			IsHumanPlayer ? YMove++ : YMove--;
 		}
-
-		if (CheckCoord(x, y - YMove) && !MarkedBackwards)
-		{
-			if (Field->CheckSituation)
-				CheckMateSituation(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
-			else
-				Mark(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
-		}
-
-		if (MarkedForward && MarkedBackwards) break;
-
-		IsHumanPlayer ? YMove++ : YMove--;
 	}
+	Field->Support.Empty();
 }
 

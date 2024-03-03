@@ -42,7 +42,9 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	{
 		if (CheckCoord(x + XMove, y + YMove) && !MarkedForward)
 		{
-			if (Field->CheckSituation)
+			if (Field->CheckLegalMove)
+				CheckIfAllMoveIsLegal(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			else if (Field->CheckSituation)
 				CheckMateSituation(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
 			else
 				Mark(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
@@ -50,7 +52,9 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 
 		if (CheckCoord(x - XMove, y - YMove) && !MarkedBackwards)
 		{
-			if (Field->CheckSituation)
+			if (Field->CheckLegalMove)
+				CheckIfAllMoveIsLegal(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			else if (Field->CheckSituation)
 				CheckMateSituation(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
 			else
 				Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
@@ -61,6 +65,7 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 		MarkedForward = false;
 		MarkedBackwards = false;
 	}
+	Field->Support.Empty();
 
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 2 : -2;
@@ -69,7 +74,9 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	{
 		if (CheckCoord(x + XMove, y - YMove) && !MarkedForward)
 		{
-			if (Field->CheckSituation)
+			if (Field->CheckLegalMove)
+				CheckIfAllMoveIsLegal(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			else if (Field->CheckSituation)
 				CheckMateSituation(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
 			else
 				Mark(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
@@ -77,7 +84,9 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 
 		if (CheckCoord(x - XMove, y + YMove) && !MarkedBackwards)
 		{
-			if (Field->CheckSituation)
+			if (Field->CheckLegalMove)
+				CheckIfAllMoveIsLegal(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			else if (Field->CheckSituation)
 				CheckMateSituation(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
 			else
 				Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
@@ -88,4 +97,5 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 		MarkedForward = false;
 		MarkedBackwards = false;
 	}
+	Field->Support.Empty();
 }

@@ -22,6 +22,10 @@ class CHESS_API AGameField : public AElementsToManageField
 	static constexpr int32 LAST_ROW_FIELD = 8;
 
 public:
+
+	TArray<AChessPieces*> Support;
+
+	TArray<AChessPieces*> StoragePiece;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float NormalizedCellPadding;
@@ -50,6 +54,10 @@ public:
 	bool IsCheckmateSituation;
 
 	bool CheckSituation;
+
+	bool CheckLegalMove = false;
+
+	FString Direction = "";
 
 	// Sets default values for this actor's properties
 	AGameField();

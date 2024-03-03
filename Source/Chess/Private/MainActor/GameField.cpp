@@ -55,7 +55,7 @@ void AGameField::ResetField()
 
 		ManagerPiece->Count = 1;
 	}
-
+	StoragePiece.Empty();
 	ResetAll();
 
 	KingUnderAttack = false;
@@ -258,6 +258,15 @@ bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
 	{
 		Pieces[i]->LegalMove(~PlayerNumber, !IsHumanPlayer);
 	}
+
+	CheckLegalMove = true;
+	for (int32 i = 0; i < Pieces.Num(); i++)
+	{
+		Pieces[i]->LegalMove(~PlayerNumber, !IsHumanPlayer);
+	}
+	CheckLegalMove = false;
+	UE_LOG(LogTemp, Error, TEXT("Dopo della checkLegalMove con StoragePiece: %d"), StoragePiece.Num());
+
 	if (!KingUnderAttack)
 		return false;
 

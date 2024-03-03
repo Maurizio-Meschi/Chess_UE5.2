@@ -159,6 +159,27 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 	if (CurrPiece->Color == EPieceColor::BLACK)
 		return;
 
+	Field->Direction = "None";
+	if (Field->StoragePiece.Contains(CurrPiece))
+	{
+		if (CurrPiece->IsA<AKnight>())
+			return;
+
+		auto PiecePosition = CurrPiece->GetGridPosition();
+		auto KingPosition = Field->GetKingArray()[0]->GetGridPosition();
+		if (PiecePosition.X - KingPosition.X == 0)
+		{
+			Field->Direction = "Horizontal";
+		}
+		else if (PiecePosition.Y - KingPosition.Y == 0)
+		{
+			Field->Direction = "Vertical";
+		}
+		else if (PiecePosition.X - KingPosition.X != 0 && PiecePosition.Y - KingPosition.Y > 0)
+			Field->Direction = "Positive Oblique";
+		else if (PiecePosition.X - KingPosition.X != 0 && PiecePosition.Y - KingPosition.Y < 0)
+			Field->Direction = "Negative Oblique";
+	}
 	// marks the tiles where the player can move his piece
 	CurrPiece->LegalMove(PlayerNumber, true);
 

@@ -373,7 +373,6 @@ void AChessPieces::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2,
 					SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_TO_AVOID_CHECKMATE);
 			}
 
-			
 		}
 		int32 offsetX = FMath::Abs(x - P1.X);
 		int32 offsetY = FMath::Abs(y - P1.Y);
@@ -387,6 +386,61 @@ void AChessPieces::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2,
 			y += stepY;
 		}
 	}
+}
+
+void AChessPieces::CheckIfAllMoveIsLegal(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked)
+{
+	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in ChessPieces"));
+		return;
+	}
+
+	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game field null in ChessPieces"));
+		return;
+	}
+
+	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
+
+	ATile* SelectedTile = nullptr;
+
+	if (TileMap.Contains(FVector2D(x, y)))
+		SelectedTile = TileMap[FVector2D(x, y)];
+
+	if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
+	{
+		return;
+	}
+	else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+	{
+		AChessPieces* SelectedPiece = nullptr;
+
+		if (PiecesMap.Contains(FVector2D(x, y)))
+			SelectedPiece = PiecesMap[FVector2D(x, y)];
+
+		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
+		{
+			if (!SelectedPiece->IsA<AKing>())
+			{
+				Field->Support.Add(SelectedPiece);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Ho trovato il re passando per %d "), Field->Support.Num());
+				//Alla fine qua avro tutti i pezzi che devono muoversi in una dir specifica
+				if (Field->Support.Num() == 1)
+					Field->StoragePiece.Add(Field->Support[0]);
+			}
+		}
+		else
+			Marked = true;
+	}
+
 }
 
 void AChessPieces::PieceDestroy()

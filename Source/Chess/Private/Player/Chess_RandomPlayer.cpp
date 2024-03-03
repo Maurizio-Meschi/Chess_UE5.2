@@ -43,7 +43,6 @@ void AChess_RandomPlayer::OnTurn()
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 		{
-
 			auto GMode = FGameModeRef::GetGameMode(this);
 			if (!GMode)
 			{
@@ -65,8 +64,6 @@ void AChess_RandomPlayer::OnTurn()
 				return;
 			}
 
-			
-
 			TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 			TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
@@ -86,6 +83,28 @@ void AChess_RandomPlayer::OnTurn()
 				RIndex = FMath::Rand() % PiecesArray.Num();
 				AChessPieces* CurrPiece = PiecesArray[RIndex];
 				auto CurrPosition = CurrPiece->GetGridPosition();
+
+				Field->Direction = "None";
+				if (Field->StoragePiece.Contains(CurrPiece))
+				{
+					if (CurrPiece->IsA<AKnight>())
+						return;
+
+					auto PiecePosition = CurrPiece->GetGridPosition();
+					auto KingPosition = Field->GetKingArray()[0]->GetGridPosition();
+					if (PiecePosition.X - KingPosition.X == 0)
+					{
+						Field->Direction = "Horizontal";
+					}
+					else if (PiecePosition.Y - KingPosition.Y == 0)
+					{
+						Field->Direction = "Vertical";
+					}
+					else if (PiecePosition.X - KingPosition.X != 0 && PiecePosition.Y - KingPosition.Y > 0)
+						Field->Direction = "Positive Oblique";
+					else if (PiecePosition.X - KingPosition.X != 0 && PiecePosition.Y - KingPosition.Y < 0)
+						Field->Direction = "Negative Oblique";
+				}
 				// check the possible move
 				CurrPiece->LegalMove(PlayerNumber, false);
 

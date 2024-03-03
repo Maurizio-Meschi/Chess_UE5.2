@@ -171,6 +171,7 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 		TileArray[i]->SetStatusCheckmate(-1, EStatusCheckmate::NEUTRAL);
 	}
 
+	GField->StoragePiece.Empty();
 	bool IsHumanPlayer = static_cast<bool>(GMode->CurrentPlayer);
 
 	if (GField->Check(PlayerNumber, IsHumanPlayer))

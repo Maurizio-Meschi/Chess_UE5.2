@@ -32,6 +32,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AChess_GameMode> GameModeClass;
 
@@ -76,6 +77,8 @@ public:
 	void ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, ATile* SelectedTile, bool& Marked);
 
 	void FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2, int32 PlayerNumber);
+
+	void CheckIfAllMoveIsLegal(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked);
 
 	UFUNCTION()
 	void PieceDestroy();
