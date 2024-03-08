@@ -88,10 +88,10 @@ void AChess_RandomPlayer::OnTurn()
 				if (Field->StoragePiece.Contains(CurrPiece))
 				{
 					if (CurrPiece->IsA<AKnight>())
-						return;
+						continue;
 
 					auto PiecePosition = CurrPiece->GetGridPosition();
-					auto KingPosition = Field->GetKingArray()[0]->GetGridPosition();
+					auto KingPosition = Field->GetKingArray()[1]->GetGridPosition();
 					if (PiecePosition.X - KingPosition.X == 0)
 					{
 						Field->Direction = "Horizontal";
@@ -101,9 +101,10 @@ void AChess_RandomPlayer::OnTurn()
 						Field->Direction = "Vertical";
 					}
 					else if (PiecePosition.X - KingPosition.X != 0 && PiecePosition.Y - KingPosition.Y > 0)
-						Field->Direction = "Positive Oblique";
-					else if (PiecePosition.X - KingPosition.X != 0 && PiecePosition.Y - KingPosition.Y < 0)
 						Field->Direction = "Negative Oblique";
+					else if (PiecePosition.X - KingPosition.X != 0 && PiecePosition.Y - KingPosition.Y < 0)
+						Field->Direction = "Positive Oblique";
+					UE_LOG(LogTemp, Error, TEXT("Piece: %s can move only in %s cause PositionPiece: %f %f KingPosition: %f %f"), *CurrPiece->GetName(), *Field->Direction, PiecePosition.X, PiecePosition.Y, KingPosition.X, KingPosition.Y);
 				}
 				// check the possible move
 				CurrPiece->LegalMove(PlayerNumber, false);

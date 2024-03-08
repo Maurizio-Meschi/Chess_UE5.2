@@ -154,6 +154,11 @@ void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool
 		{
 			ManageCheckSituationOccpied(x, y, PlayerNumber, IsHumanPlayer, SelectedTile, Marked);
 		}
+
+		if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_CHECK_PIECE)
+		{
+			SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_AND_BLOCK_KING);
+		}
 		// controllo se una pedina può andare in una cella in cui si potrebbe spostare il re
 		if (!IsKing && (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING || 
 			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING || 
@@ -202,6 +207,14 @@ void AChessPieces::ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlay
 		Field->AddTileMarked(SelectedTile);
 	}
 
+	if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_AND_BLOCK_KING &&
+		!this->IsA<AKing>())
+	{
+		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
+		Field->AddTileMarked(SelectedTile);
+	}
+
+
 	// impedisco alle pedine di saltare i pezzi illegalmente
 	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 	{
@@ -209,7 +222,8 @@ void AChessPieces::ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlay
 	}
 
 	if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING ||
-		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
+		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE ||
+		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_CHECK_PIECE)
 	{
 		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
 		Field->AddTileMarked(SelectedTile);
@@ -311,7 +325,7 @@ void AChessPieces::ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNum
 		if (TileMap.Contains(PiecePosition))
 		{
 			//if (TileMap[PiecePosition]->GetStatusCheckmate() != EStatusCheckmate::BLOCK_KING)
-				TileMap[PiecePosition]->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE);
+				TileMap[PiecePosition]->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_CHECK_PIECE);
 		}
 		
 

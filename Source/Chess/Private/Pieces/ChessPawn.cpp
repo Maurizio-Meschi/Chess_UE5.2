@@ -146,9 +146,24 @@ void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bo
 				if (SelectedPiece->IsA<AKing>())
 				{
 					Field->KingUnderAttack = true;
+
+					FVector2d PiecePosition = this->GetGridPosition();
+
+
+					if (TileMap.Contains(PiecePosition))
+					{
+						//if (TileMap[PiecePosition]->GetStatusCheckmate() != EStatusCheckmate::BLOCK_KING)
+						TileMap[PiecePosition]->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_CHECK_PIECE);
+					}
 				}
 			}
 		}
+
+		if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_CHECK_PIECE)
+		{
+			SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_AND_BLOCK_KING);
+		}
+
 		if (CaptureSituation && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING || 
 			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING ||
 			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
@@ -188,7 +203,9 @@ void AChessPawn::ManagerCheckMateSituationPawn(ATile* SelectedTile, int32 Player
 		Field->AddTileMarked(SelectedTile);
 	}
 
-	if (CaptureSituation && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
+	if (CaptureSituation && (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE 
+			|| SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_AND_BLOCK_KING ||
+			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_CHECK_PIECE))
 	{
 		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
 		Field->AddTileMarked(SelectedTile);
