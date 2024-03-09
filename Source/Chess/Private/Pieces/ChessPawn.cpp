@@ -77,7 +77,7 @@ bool AChessPawn::LegalMove(int32 PlayerNumber, bool CheckFlag)
 		CaptureSituation = false;
 
 		XMove = IsHumanPlayer ? 2 : -2;
-		if (CheckCoord(x + XMove, y) && !MarkedForward)
+		if (CheckCoord(x + XMove, y))
 		{
 			if (!CheckFlag)
 				MarkTile(x + XMove, y, PlayerNumber, MarkedForward);

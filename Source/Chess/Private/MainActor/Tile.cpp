@@ -41,11 +41,6 @@ void ATile::SetVirtualStatus(const EVirtualOccupied TileStatus)
 	VirtualStatus = TileStatus;
 }
 
-void ATile::SetStatusCheckmate(const int32 TileOwner, const EStatusCheckmate TileStatus)
-{
-	PlayerOwner = TileOwner;
-	CheckmateStatus = TileStatus;
-}
 
 ETileStatus ATile::GetTileStatus()
 {
@@ -57,10 +52,6 @@ EVirtualOccupied ATile::GetVirtaulStatus()
 	return VirtualStatus;
 }
 
-EStatusCheckmate ATile::GetStatusCheckmate()
-{
-	return CheckmateStatus;
-}
 
 int32 ATile::GetOwner()
 {

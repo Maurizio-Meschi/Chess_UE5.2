@@ -95,6 +95,34 @@ void AChess_HumanPlayer::OnLose()
 	GameInstance->SetTurnMessage(TEXT("Human Loses!"));
 }
 
+void AChess_HumanPlayer::ResetMarkStatus()
+{
+	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null HumanPlayer"));
+		return;
+	}
+
+	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null HumanPlayer"));
+		return;
+	}
+
+	auto TileArray = Field->GetTileMap();
+	for (auto Element : TileArray)
+	{
+		ATile* Tile = Element.Value;
+		if (Tile->GetTileStatus() == ETileStatus::MARKED)
+			Tile->SetTileStatus(-1, ETileStatus::EMPTY);
+
+		if (Tile->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
+			Tile->SetTileStatus(1, ETileStatus::OCCUPIED);
+	}
+}
+
 void AChess_HumanPlayer::OnClick()
 {
 	//Structure containing information about one hit of a trace, such as point of impact and surface normal at that point
@@ -126,16 +154,7 @@ void AChess_HumanPlayer::OnClick()
 			// look for the piece to move
 			if (FindPiece(ClassName))
 			{
-				auto TileMap = Field->GetTileMap();
-				for (auto Element : TileMap)
-				{
-					ATile* Tile = Element.Value;
-					if (Tile->GetTileStatus() == ETileStatus::MARKED)
-						Tile->SetTileStatus(-1, ETileStatus::EMPTY);
-
-					if (Tile->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
-						Tile->SetTileStatus(1, ETileStatus::OCCUPIED);
-				}
+				ResetMarkStatus();
 				ManageClickPiece(HitActor, ClassName);
 				return;
 			}
@@ -144,16 +163,7 @@ void AChess_HumanPlayer::OnClick()
 			if (PieceChoose)
 			{
 				ManageClickTile(HitActor, ClassName);
-				auto TileMap = Field->GetTileMap();
-				for (auto Element : TileMap)
-				{
-					ATile* Tile = Element.Value;
-					if (Tile->GetTileStatus() == ETileStatus::MARKED)
-						Tile->SetTileStatus(-1, ETileStatus::EMPTY);
-
-					if (Tile->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
-						Tile->SetTileStatus(1, ETileStatus::OCCUPIED);
-				}
+				ResetMarkStatus();
 			}
 		}
 

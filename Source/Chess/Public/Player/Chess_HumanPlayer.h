@@ -54,6 +54,8 @@ public:
 	virtual void OnWin() override;
 	virtual void OnLose() override;
 
+	void ResetMarkStatus();
+
 	bool FindPiece(FString ClassName);
 	bool FindTile(FString ClassName);
 	bool FindPieceToCapture(FString ClassName);

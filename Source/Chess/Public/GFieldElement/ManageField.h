@@ -24,22 +24,12 @@ protected:
 	UPROPERTY(Transient)
 	TArray<AChessPieces*> HumanPlayerPieces;
 
-	// Vector with tile marked
-	UPROPERTY(Transient)
-	TArray<ATile*> TileMarked;
-
 	//TODO: mettere dinamicamente il materiale e togliere questo vettore
 	UPROPERTY(Transient)
 	TArray<ATile*> TileMarkedSpawn;
 
 	UPROPERTY(Transient)
 	TArray<AKing*> KingArray;
-
-	UPROPERTY(Transient)
-	TArray<AChessPieces*> CheckArray;
-
-	UPROPERTY(Transient)
-	TArray<ATile*> CheckArrayTile;
 
 	// Given a position returns a tile
 	UPROPERTY(Transient)
@@ -53,20 +43,14 @@ public:
 	TArray<ATile*>& GetTileArray() { return TileArray; };
 	TArray<AChessPieces*>& GetBotPieces() { return BotPieces; }
 	TArray<AChessPieces*>& GetHumanPlayerPieces() { return HumanPlayerPieces; }
-	TArray<ATile*>& GetTileMarked() { return TileMarked; }
 	TArray<ATile*>& GetTileMarkedSpawn() { return TileMarkedSpawn; }
 	TArray<AKing*>& GetKingArray() { return KingArray; }
-	TArray<AChessPieces*>& GetCheckArray() { return CheckArray; }
-	TArray<ATile*>& GetCheckArrayTile() { return CheckArrayTile; }
 	TMap<FVector2D, ATile*>& GetTileMap() { return TileMap; }
 	TMap<FVector2D, AChessPieces*>& GetPiecesMap() { return PiecesMap; }
 
 	void AddBotPieces(AChessPieces* Piece) { BotPieces.Add(Piece); }
 	void AddTileArray(ATile* Tile) { TileArray.Add(Tile); }
-	void AddTileMarked(ATile* Tile) { TileMarked.Add(Tile); }
 	void AddTileMarkedSpawn(ATile* Tile) { TileMarkedSpawn.Add(Tile); }
-	void AddCheckArray(AChessPieces* Piece) { CheckArray.Add(Piece); }
-	void AddCheckArrayTile(ATile* Tile) { CheckArrayTile.Add(Tile); }
 	void AddTileMap(FVector2D Position, ATile* Tile) { TileMap.Add(Position, Tile); }
 	void AddPiecesMap(FVector2D Position, AChessPieces* Piece) { PiecesMap.Add(Position, Piece); }
 
@@ -75,13 +59,6 @@ public:
 	void BotPiecesRemove(AChessPieces* Piece) { BotPieces.Remove(Piece); BotPieces.Shrink(); }
 	void HumanPlayerPiecesRemove(AChessPieces* Piece) { HumanPlayerPieces.Remove(Piece); HumanPlayerPieces.Shrink(); }
 
-	void ResetTileArray();
-	void ResetBotPieces();
-	void ResetHumanPlayerPieces();
-	void ResetTileMarked();
 	void TileMarkedDestroy();
-	void ResetCheckArray();
-	void ResetCheckArrayTile();
-	void ResetMap();
 	void ResetAll();
 };

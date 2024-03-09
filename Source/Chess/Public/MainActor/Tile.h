@@ -15,39 +15,12 @@ enum class ETileStatus : uint8
 	MARKED				UMETA(DisplayNmae = "Marked"),
 };
 
-/*
-UENUM()
-enum class ETypePiece : uint8
-{
-	PAWN	UMETA(DisplayName = "Pawn"),
-	KING	UMETA(DisplayName = "King"),
-	BISHOP	UMETA(DisplayName = "Bishop"),
-	ROOK 	UMETA(DisplayName = "Rook"),
-	QUEEN	UMETA(DisplayName = "Queen"),
-	KNIGHT  UMETA(DisplayName = "Knight"),
-};
-*/
-
 UENUM()
 enum class EVirtualOccupied : uint8
 {
 	VIRTUAL_EMPTY			 UMETA(DisplayName = "Virtual Empty"),
 	VIRTUAL_OCCUPIED		 UMETA(DisplayName = "Virtual Occupied by enemy piece"),
 	VIRTUAL_OCCUPIED_BY_KING UMETA(DisplayName = "Virtual Occupied by King"),
-};
-
-UENUM()
-enum class EStatusCheckmate : uint8
-{
-	NEUTRAL						UMETA(DisplayName = "Neutral"),
-    MARK_BY_KING				UMETA(DisplayName = "mark by king"),
-	MARK_TO_AVOID_CHECKMATE		UMETA(DisplayName = "Mark to avoid checkmate"),
-	MARK_AND_BLOCK_KING  		UMETA(DisplayName = "Mark and block king"),
-	CAPTURE_AND_BLOCK_KING		UMETA(DisplayName = "capture and block king"),
-	CAPTURE_CHECK_PIECE  	    UMETA(DisplayName = "capture piece that attack the king"),
-	CAPTURE_TO_AVOID_CHECKMATE  UMETA(DisplayName = "Capture to avoid checkmate"),
-	BLOCK_KING					UMETA(DisplayName = "Block King"),
-	CAPTURE_BY_KING				UMETA(DisplayName = "Capture by King"),
 };
 
 UCLASS()
@@ -64,8 +37,6 @@ public:
 
 	void SetVirtualStatus(const EVirtualOccupied TileStatus);
 
-	void SetStatusCheckmate(const int32 TileOwner, const EStatusCheckmate TileStatus);
-
 	// set the (x, y) position
 	void SetGridPosition(const double InX, const double InY);
 
@@ -73,8 +44,6 @@ public:
 	ETileStatus GetTileStatus();
 
 	EVirtualOccupied GetVirtaulStatus();
-
-	EStatusCheckmate GetStatusCheckmate();
 
 	// get the tile owner
 	int32 GetOwner();
@@ -100,9 +69,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EVirtualOccupied VirtualStatus;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	EStatusCheckmate CheckmateStatus;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 PlayerOwner;

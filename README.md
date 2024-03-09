@@ -5,6 +5,7 @@
 - [x] Sometimes bot doesn't make any plays -> Find the reason
 - [x] Key non found is back -> where?
 - [ ] Crash if quit game while during bot turn
+- [ ] LegalMove bug if reset game during bot turn
 
 
 ## Code
@@ -45,11 +46,11 @@
 - [x] Se il king può muoversi solo a destra e io lo sto minaccaindo con una queen/rook lui si sposta a destra, ma teoricamente non
       scappa dalla minaccia -> dovrebbe esser sconfitta.
 - [x] Il re non può fare una giocata che lo espone alla minaccia
-- [ ] Se più pedine minacciano il re dovrei verificare che esiste una mossa univoca per scappare da entrambe le minaccie
-- [ ] Una pedina non può muoversi se questa giocata espone il re -> gestire
+- [x] Se più pedine minacciano il re dovrei verificare che esiste una mossa univoca per scappare da entrambe le minaccie
+- [x] Una pedina non può muoversi se questa giocata espone il re -> gestire
 - [x] Il king può mangiare la pedina che la sta minacciando a patto che la mossa non lo esponga a un nuovo scacco -> verificare questa situazione
 - [ ] Se il King si sposta tipo A-B, B-A, A-B e gli altri pezzi non si sono spostati è pareggio
-- [ ] Problema nella gestione dello scacco con il knight -> principalmente problemi nella possibilià di cattura durante lo scacco 
+- [x] Problema nella gestione dello scacco con il knight -> principalmente problemi nella possibilià di cattura durante lo scacco 
                                                             che non dovrebbe esser legit
 
 

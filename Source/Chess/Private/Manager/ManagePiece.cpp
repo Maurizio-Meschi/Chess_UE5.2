@@ -104,8 +104,6 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 		Obj.Position = Piece->GetGridPosition();
 		Obj.Capture = false;
 		ArrayOfPlays.Add(Obj);
-		for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)
-			TileMarkedForPiece[i].Empty();
 		CheckWinAndGoNextPlayer(PlayerNumber);
 	}
 }
@@ -155,6 +153,41 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
 		return;
 	}
+	AGameField* Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null in PawnPromotion"));
+		return;
+	}
+	
+	for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)
+		TileMarkedForPiece[i].Empty();
+
+	// Prima di andare al prossimo turno devo vedere se il prossimo giocatore ha mosse disponibili
+	auto PiecesArray = GMode->CurrentPlayer == 1 ? Field->GetHumanPlayerPieces() : Field->GetBotPieces();
+
+	for (auto Piece : PiecesArray)
+		Piece->LegalMove(GMode->CurrentPlayer == 0? 1:0, false);
+
+	int32 Cont = 0;
+	for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)
+	{
+		if (TileMarkedForPiece[i].Num() > 0)
+			break;
+		else
+			Cont++;
+	}
+
+	UE_LOG(LogTemp, Error, TEXT("TileMarked ha dim %d, Cont ha dim %d"), TileMarkedForPiece.Num(), Cont);
+	if (Cont == TileMarkedForPiece.Num())
+	{
+		IsGameOver = true;
+		GMode->Players[GMode->CurrentPlayer]->OnWin();
+		return;
+	}
+
+	for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)
+		TileMarkedForPiece[i].Empty();
 
 	if (GMode->CurrentPlayer == 1)
 	{
@@ -190,7 +223,6 @@ void AManagePiece::Replay()
 		UE_LOG(LogTemp, Error, TEXT("Field null in PawnPromotion"));
 		return;
 	}
-	Field->ResetTileMarked();
 	Field->TileMarkedDestroy();
 
 	for (auto Piece : CapturedPieces)

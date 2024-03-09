@@ -128,8 +128,6 @@ void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 
 			if (SelectedTile->GetOwner() != PlayerNumber)
 			{
-				//UE_LOG(LogTemp, Error, TEXT("Tile x=%d y=%d"), x, y);
-				UE_LOG(LogTemp, Error, TEXT("PlayerOwner: %d. TileOwner: %d"), PlayerNumber, SelectedTile->GetOwner());
 				SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 				SelectedTile->SetVirtualStatus(this->IsA<AKing>() ? EVirtualOccupied::VIRTUAL_OCCUPIED_BY_KING : EVirtualOccupied::VIRTUAL_OCCUPIED);
 				CurrTile->SetTileStatus(-1, ETileStatus::EMPTY);
@@ -234,7 +232,6 @@ bool AChessPieces::TestCheck(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 
 				if (Piece->IsA<AKing>() && SelectedTile->GetOwner() != PlayerNumber) //Piece->Color == (PlayerNumber == 0 ? EPieceColor::BLACK : EPieceColor::WHITE))
 				{
-					UE_LOG(LogTemp, Error, TEXT("%s è arrivato al re"), *Piece->GetName());
 					return true;
 				}
 				else

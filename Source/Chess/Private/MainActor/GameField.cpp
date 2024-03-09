@@ -15,12 +15,6 @@ AGameField::AGameField()
 	TileSize = 120;
 	// tile padding dimension
 	CellPadding = 5;
-
-	KingUnderAttack = false;
-
-	IsCheckmateSituation = false;
-
-	CheckSituation = false;
 }
 
 void AGameField::ResetField()
@@ -53,21 +47,18 @@ void AGameField::ResetField()
 		}
 		ManagerPiece->ArrayOfPlays.Empty();
 
+		for (int32 i = 0; i < ManagerPiece->TileMarkedForPiece.Num(); i++)
+			ManagerPiece->TileMarkedForPiece[i].Empty();
+
 		ManagerPiece->Count = 1;
 	}
-	StoragePiece.Empty();
+	Cont = 0;
 	ResetAll();
-
-	KingUnderAttack = false;
-	IsCheckmateSituation = false;
-	CheckSituation = false;
 
 	GenerateField();
 	OnResetEvent.Broadcast();
 	
 	GMode->ChoosePlayerAndStartGame();
-	
-		
 }
 
 void AGameField::OnConstruction(const FTransform& Transform)

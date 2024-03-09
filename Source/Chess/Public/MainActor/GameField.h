@@ -22,11 +22,6 @@ class CHESS_API AGameField : public AElementsToManageField
 	static constexpr int32 LAST_ROW_FIELD = 8;
 
 public:
-
-	TArray<AChessPieces*> Support;
-
-	TArray<AChessPieces*> StoragePiece;
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float NormalizedCellPadding;
 
@@ -48,14 +43,6 @@ public:
 	// tile size
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float TileSize;
-
-	bool KingUnderAttack;
-
-	bool IsCheckmateSituation;
-
-	bool CheckSituation;
-
-	bool CheckLegalMove = false;
 
 	FString Direction = "";
 
@@ -92,6 +79,4 @@ public:
 
 	// return (x,y) position given a relative position
 	FVector2D GetXYPositionByRelativeLocation(const FVector& Location) const;
-
-	bool Check(int32 PlayerNumber, bool IsHumanPlayer);
 };
