@@ -11,7 +11,7 @@ AKnight::AKnight()
 	Name = "N";
 }
 
-void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
+bool AKnight ::LegalMove(int32 PlayerNumber, bool CheckFlag)
 {
 	FVector2D ChessPawnXYposition = PieceGridPosition;
 	int32 x = ChessPawnXYposition.X;
@@ -25,15 +25,17 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	if (!GMode)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Game mode null Knight"));
-		return;
+		return false;
 	}
 
 	AGameField* Field = GMode->GField;
 	if (!Field)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Field null Knight"));
-		return;
+		return false;
 	}
+
+	bool IsHumanPlayer = PlayerNumber == 0 ? true : false;
 
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 2 : -2;
@@ -42,22 +44,20 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	{
 		if (CheckCoord(x + XMove, y + YMove) && !MarkedForward)
 		{
-			if (Field->CheckLegalMove)
-				CheckIfAllMoveIsLegal(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
-			else if (Field->CheckSituation)
-				CheckMateSituation(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			if (!CheckFlag)
+				MarkTile(x + XMove, y + YMove, PlayerNumber, MarkedForward);
 			else
-				Mark(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+				if (TestCheck(x + XMove, y + YMove, PlayerNumber, MarkedForward))
+					return true;
 		}
 
 		if (CheckCoord(x - XMove, y - YMove) && !MarkedBackwards)
 		{
-			if (Field->CheckLegalMove)
-				CheckIfAllMoveIsLegal(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
-			else if (Field->CheckSituation)
-				CheckMateSituation(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			if (!CheckFlag)
+				MarkTile(x - XMove, y - YMove, PlayerNumber, MarkedBackwards);
 			else
-				Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+				if (TestCheck(x - XMove, y - YMove, PlayerNumber, MarkedBackwards))
+					return true;
 		}
 
 		XMove = IsHumanPlayer ? 2 : -2;
@@ -65,7 +65,6 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 		MarkedForward = false;
 		MarkedBackwards = false;
 	}
-	Field->Support.Empty();
 
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 2 : -2;
@@ -74,22 +73,20 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	{
 		if (CheckCoord(x + XMove, y - YMove) && !MarkedForward)
 		{
-			if (Field->CheckLegalMove)
-				CheckIfAllMoveIsLegal(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
-			else if (Field->CheckSituation)
-				CheckMateSituation(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			if (!CheckFlag)
+				MarkTile(x + XMove, y - YMove, PlayerNumber, MarkedForward);
 			else
-				Mark(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+				if (TestCheck(x + XMove, y - YMove, PlayerNumber, MarkedForward))
+					return true;
 		}
 
 		if (CheckCoord(x - XMove, y + YMove) && !MarkedBackwards)
 		{
-			if (Field->CheckLegalMove)
-				CheckIfAllMoveIsLegal(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
-			else if (Field->CheckSituation)
-				CheckMateSituation(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			if (!CheckFlag)
+				MarkTile(x - XMove, y + YMove, PlayerNumber, MarkedBackwards);
 			else
-				Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+				if (TestCheck(x - XMove, y + YMove, PlayerNumber, MarkedBackwards))
+					return true;
 		}
 
 		XMove = IsHumanPlayer ? 2 : -2;
@@ -97,5 +94,5 @@ void AKnight ::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 		MarkedForward = false;
 		MarkedBackwards = false;
 	}
-	Field->Support.Empty();
+	return false;
 }

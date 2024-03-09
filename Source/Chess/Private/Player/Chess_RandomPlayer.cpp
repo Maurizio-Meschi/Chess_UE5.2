@@ -71,7 +71,7 @@ void AChess_RandomPlayer::OnTurn()
 
 			bool PieceIsPossibleToMove = false;
 			int32 RIndex;
-			Field->ResetTileMarked();
+			//Field->ResetTileMarked();
 
 			do{
 				// select random piece
@@ -84,54 +84,33 @@ void AChess_RandomPlayer::OnTurn()
 				AChessPieces* CurrPiece = PiecesArray[RIndex];
 				auto CurrPosition = CurrPiece->GetGridPosition();
 
-				Field->Direction = "None";
-				if (Field->StoragePiece.Contains(CurrPiece))
-				{
-					if (CurrPiece->IsA<AKnight>())
-						continue;
-
-					auto PiecePosition = CurrPiece->GetGridPosition();
-					auto KingPosition = Field->GetKingArray()[1]->GetGridPosition();
-					if (PiecePosition.X - KingPosition.X == 0)
-					{
-						Field->Direction = "Horizontal";
-					}
-					else if (PiecePosition.Y - KingPosition.Y == 0)
-					{
-						Field->Direction = "Vertical";
-					}
-					else if (PiecePosition.X - KingPosition.X != 0 && PiecePosition.Y - KingPosition.Y > 0)
-						Field->Direction = "Negative Oblique";
-					else if (PiecePosition.X - KingPosition.X != 0 && PiecePosition.Y - KingPosition.Y < 0)
-						Field->Direction = "Positive Oblique";
-					UE_LOG(LogTemp, Error, TEXT("Piece: %s can move only in %s cause PositionPiece: %f %f KingPosition: %f %f"), *CurrPiece->GetName(), *Field->Direction, PiecePosition.X, PiecePosition.Y, KingPosition.X, KingPosition.Y);
-				}
 				// check the possible move
 				CurrPiece->LegalMove(PlayerNumber, false);
 
-				TArray<ATile*> TileMarked = Field->GetTileMarked();
+				auto TileMarked = PieceManager->TileMarkedForPiece;
 
-				if (TileMarked.Num() == 0)
+				if (TileMarked[CurrPiece->IndexArray].Num() == 0)
 					continue;
 
 				PieceIsPossibleToMove = true;
 
-				if (TileMarked.Num() == 0)
+				if (TileMarked[CurrPiece->IndexArray].Num() == 0)
 				{
 					UE_LOG(LogTemp, Error, TEXT("No tile marked RandomPlayer"));
 					return;
 				}
 				// select the marked tile to move
-				int32 RIndexToMovePiece = FMath::Rand() % TileMarked.Num();
+				int32 RIndexToMovePiece = FMath::Rand() % TileMarked[CurrPiece->IndexArray].Num();
 
 				// take the tile where move the piece
-				ATile* TileActor = TileMarked[RIndexToMovePiece];
+				ATile* TileActor = TileMarked[CurrPiece->IndexArray][RIndexToMovePiece].Tile;
+				bool Capture = TileMarked[CurrPiece->IndexArray][RIndexToMovePiece].Capture;
 				FVector SpawnPosition = TileActor->GetActorLocation();
 
 				FVector2D Coord = TileActor->GetGridPosition();
 
 				// check if possible to capture an enemy piece
-				if (TileActor->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
+				if (Capture)
 				{
 					TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 

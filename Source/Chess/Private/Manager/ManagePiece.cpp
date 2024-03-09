@@ -104,7 +104,8 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 		Obj.Position = Piece->GetGridPosition();
 		Obj.Capture = false;
 		ArrayOfPlays.Add(Obj);
-		
+		for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)
+			TileMarkedForPiece[i].Empty();
 		CheckWinAndGoNextPlayer(PlayerNumber);
 	}
 }
@@ -155,56 +156,6 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 		return;
 	}
 
-	auto GField = GMode->GField;
-	if (!GField)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null in ManagePiece"));
-		return;
-	}
-
-	GField->IsCheckmateSituation = false;
-	GField->ResetTileMarked();
-
-	TArray<ATile*>& TileArray = GField->GetTileArray();
-	for (int32 i = 0; i < TileArray.Num(); i++)
-	{
-		TileArray[i]->SetStatusCheckmate(-1, EStatusCheckmate::NEUTRAL);
-	}
-
-	GField->StoragePiece.Empty();
-	bool IsHumanPlayer = static_cast<bool>(GMode->CurrentPlayer);
-
-	if (GField->Check(PlayerNumber, IsHumanPlayer))
-	{
-		GField->IsCheckmateSituation = true;
-		GField->ResetTileMarked();
-		TArray<AChessPieces*> Pieces = (IsHumanPlayer ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
-		for (int32 i = 0; i < Pieces.Num(); i++)
-		{
-			Pieces[i]->LegalMove(PlayerNumber, IsHumanPlayer);
-			if (GField->GetTileMarked().Num() != 0)
-				break;
-		}
-
-		if (GField->GetTileMarked().Num() == 0)
-		{
-			IsGameOver = true;
-			GMode->Players[GMode->CurrentPlayer]->OnWin();
-
-			for (int32 i = 0; i < GMode->Players.Num(); i++)
-			{
-				if (i != GMode->CurrentPlayer)
-				{
-					GMode->Players[i]->OnLose();
-					return;
-				}
-			}
-		}
-	}
-	else
-		GField->CheckSituation = false;
-
-	GField->ResetTileMarked();
 	if (GMode->CurrentPlayer == 1)
 	{
 		Visible = true;

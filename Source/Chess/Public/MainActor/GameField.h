@@ -59,6 +59,8 @@ public:
 
 	FString Direction = "";
 
+	int32 Cont = 0;
+
 	// Sets default values for this actor's properties
 	AGameField();
 

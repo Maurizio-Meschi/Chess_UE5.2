@@ -20,5 +20,5 @@ public:
 	int32 Value;
 
 	// defines the movements of the piece
-	void LegalMove(int32 PlayerNumber, bool IsHumanPlayer) override;
+	bool LegalMove(int32 PlayerNumber, bool CheckFlag) override;
 };

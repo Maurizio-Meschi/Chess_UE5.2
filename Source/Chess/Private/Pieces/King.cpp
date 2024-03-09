@@ -9,7 +9,7 @@ AKing::AKing()
 	Name = "K";
 }
 
-void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
+bool AKing::LegalMove(int32 PlayerNumber, bool CheckFlag)
 {
 	FVector2D ChessPawnXYposition = PieceGridPosition;
 	int32 x = ChessPawnXYposition.X;
@@ -23,33 +23,37 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	if (!GMode)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Game mode null King"));
-		return;
+		return false;
 	}
 
 	AGameField* Field = GMode->GField;
 	if (!Field)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Field null King"));
-		return;
+		return false;
 	}
+
+	bool IsHumanPlayer = PlayerNumber == 0 ? true : false;
 
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
 
 	if (CheckCoord(x + XMove, y + YMove) && !MarkedForward)
 	{
-		if (Field->CheckSituation)
-			CheckMateSituation(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		if (!CheckFlag)
+			MarkTile(x + XMove, y + YMove, PlayerNumber, MarkedForward);
 		else
-			Mark(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			if (TestCheck(x + XMove, y + YMove, PlayerNumber, MarkedForward))
+				return true;
 	}
 
 	if (CheckCoord(x - XMove, y - YMove) && !MarkedBackwards)
 	{
-		if (Field->CheckSituation)
-			CheckMateSituation(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		if (!CheckFlag)
+			MarkTile(x - XMove, y - YMove, PlayerNumber, MarkedBackwards);
 		else
-			Mark(x - XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			if (TestCheck(x - XMove, y - YMove, PlayerNumber, MarkedBackwards))
+				return true;
 	}
 
 	XMove = IsHumanPlayer ? 1 : -1;
@@ -59,18 +63,20 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 
 	if (CheckCoord(x + XMove, y - YMove) && !MarkedForward)
 	{
-		if (Field->CheckSituation)
-			CheckMateSituation(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		if (!CheckFlag)
+			MarkTile(x + XMove, y - YMove, PlayerNumber, MarkedForward);
 		else
-			Mark(x + XMove, y - YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			if (TestCheck(x + XMove, y - YMove, PlayerNumber, MarkedForward))
+				return true;
 	}
 
 	if (CheckCoord(x - XMove, y + YMove) && !MarkedBackwards)
 	{
-		if (Field->CheckSituation)
-			CheckMateSituation(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		if (!CheckFlag)
+			MarkTile(x - XMove, y + YMove, PlayerNumber, MarkedBackwards);
 		else
-			Mark(x - XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			if (TestCheck(x - XMove, y + YMove, PlayerNumber, MarkedBackwards))
+				return true;
 	}
 
 	XMove = IsHumanPlayer ? 1 : -1;
@@ -79,18 +85,20 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 
 	if (CheckCoord(x + XMove, y) && !MarkedForward)
 	{
-		if (Field->CheckSituation)
-			CheckMateSituation(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
+		if (!CheckFlag)
+			MarkTile(x + XMove, y, PlayerNumber, MarkedForward);
 		else
-			Mark(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
+			if (TestCheck(x + XMove, y, PlayerNumber, MarkedForward))
+				return true;
 	}
 
 	if (CheckCoord(x - XMove, y) && !MarkedBackwards)
 	{
-		if (Field->CheckSituation)
-			CheckMateSituation(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		if (!CheckFlag)
+			MarkTile(x - XMove, y, PlayerNumber, MarkedBackwards);
 		else
-			Mark(x - XMove, y, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+			if (TestCheck(x - XMove, y, PlayerNumber, MarkedBackwards))
+				return true;
 	}
 	
 	YMove = IsHumanPlayer ? 1 : -1;
@@ -99,59 +107,20 @@ void AKing::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 
 	if (CheckCoord(x, y + YMove) && !MarkedForward)
 	{
-		if (Field->CheckSituation)
-			CheckMateSituation(x, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+		if (!CheckFlag)
+			MarkTile(x, y + YMove, PlayerNumber, MarkedForward);
 		else
-			Mark(x, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
+			if (TestCheck(x, y + YMove, PlayerNumber, MarkedForward))
+				return true;
 	}
 
 	if (CheckCoord(x, y - YMove) && !MarkedBackwards)
 	{
-		if (Field->CheckSituation)
-			CheckMateSituation(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
+		if (!CheckFlag)
+			MarkTile(x, y - YMove, PlayerNumber, MarkedBackwards);
 		else
-			Mark(x, y - YMove, PlayerNumber, IsHumanPlayer, MarkedBackwards);
-	}
-}
-
-bool AKing::CheckKingSituation(int32 x, int32 y, bool IsHumanPlayer)
-{
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null King"));
-		return false;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null King"));
-		return false;
-	}
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	ATile* SelectedTile = nullptr;
-
-	
-	if (TileMap.Contains(FVector2D(x, y)))
-		SelectedTile = TileMap[FVector2D(x, y)];
-	
-
-	if (SelectedTile && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
-	{
-		AChessPieces* SelectedPiece = nullptr;
-		
-		if (PiecesMap.Contains(FVector2D(x, y)))
-			SelectedPiece = PiecesMap[FVector2D(x, y)];
-		
-
-		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
-		{
-			return true;
-		}
+			if (TestCheck(x, y - YMove, PlayerNumber, MarkedBackwards))
+				return true;
 	}
 	return false;
 }

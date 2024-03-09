@@ -16,7 +16,5 @@ public:
 	AKing();
 
 	// defines the movements of the piece
-	void LegalMove(int32 PlayerNumber, bool IsHumanPlayer) override;
-
-	bool CheckKingSituation(int32 x, int32 y, bool IsHumanPlayer);
+	bool LegalMove(int32 PlayerNumber, bool CheckFlag) override;
 };

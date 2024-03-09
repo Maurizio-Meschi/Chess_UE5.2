@@ -184,12 +184,14 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
 	Obj->SetGridPosition(x, y);
 	Obj->SetColor(color);
+	Obj->IndexArray = Cont;
+	Cont++;
 
 	ATile* CurrTile = nullptr;
 	if (TileMap.Contains(FVector2D(x, y)))
 		CurrTile = TileMap[FVector2D(x, y)];
 	if (CurrTile)
-		color == EPieceColor::BLACK ? CurrTile->SetTileStatus(0, ETileStatus::OCCUPIED) : CurrTile->SetTileStatus(1, ETileStatus::OCCUPIED);
+		color == EPieceColor::BLACK ? CurrTile->SetTileStatus(1, ETileStatus::OCCUPIED) : CurrTile->SetTileStatus(0, ETileStatus::OCCUPIED);
 
 	PiecesMap.Add(FVector2D(x, y), Obj);
 	if (color == EPieceColor::BLACK)
@@ -214,7 +216,10 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	}
 	auto ManagerPiece = GMode->Manager;
 	if (ManagerPiece)
+	{
 		ManagerPiece->ArrayOfPlays.Add(NewObj);
+		ManagerPiece->TileMarkedForPiece.SetNum(Cont);
+	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("Manager Piece null in GameField"));
 }
@@ -235,63 +240,4 @@ FVector2D AGameField::GetXYPositionByRelativeLocation(const FVector& Location) c
 	const double y = Location[1] / (TileSize * NormalizedCellPadding);
 	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("x=%f,y=%f"), x, y));
 	return FVector2D(x, y);
-}
-
-bool AGameField::Check(int32 PlayerNumber, bool IsHumanPlayer)
-{
-	UE_LOG(LogTemp, Error, TEXT("Check GameField"));
-	ResetCheckArray();
-	AKing* King = (IsHumanPlayer ? KingArray[0] : KingArray[1]);
-
-	CheckSituation = true;
-	// mark the tile (status MARK_BY_KING)
-	if (King)
-	{
-		King->IsKing = true;
-		King->LegalMove(PlayerNumber, IsHumanPlayer);
-		King->IsKing = false;
-	}
-
-	// Check if the enemy can attack the king
-	TArray<AChessPieces*> Pieces = (IsHumanPlayer ? BotPieces : HumanPlayerPieces);
-	for (int32 i = 0; i < Pieces.Num(); i++)
-	{
-		Pieces[i]->LegalMove(~PlayerNumber, !IsHumanPlayer);
-	}
-
-	CheckLegalMove = true;
-	for (int32 i = 0; i < Pieces.Num(); i++)
-	{
-		Pieces[i]->LegalMove(~PlayerNumber, !IsHumanPlayer);
-	}
-	CheckLegalMove = false;
-	UE_LOG(LogTemp, Error, TEXT("Dopo della checkLegalMove con StoragePiece: %d"), StoragePiece.Num());
-
-	if (!KingUnderAttack)
-		return false;
-
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in GameField"));
-		return false;
-	}
-	UE_LOG(LogTemp, Error, TEXT("avanzo!!"));
-	for (int32 i = 0; i < Pieces.Num(); i++)
-	{
-		FVector2D Position = Pieces[i]->GetGridPosition();
-
-		if (TileMap.Contains(Position))
-		{
-			ATile* Tile = TileMap[Position];
-			if (Tile && Tile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
-			{
-				Tile->SetStatusCheckmate(~PlayerNumber, EStatusCheckmate::CAPTURE_BY_KING);
-			}
-		}
-	}
-	
-
-	KingUnderAttack = false;
-	return true;
 }

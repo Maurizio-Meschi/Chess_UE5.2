@@ -11,7 +11,7 @@ AChessPawn::AChessPawn()
 	CaptureSituation = false;
 }
 
-void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
+bool AChessPawn::LegalMove(int32 PlayerNumber, bool CheckFlag)
 {
 	// get the coordinates of the pawn
 	FVector2D ChessPawnXYposition = PieceGridPosition;
@@ -26,273 +26,65 @@ void AChessPawn::LegalMove(int32 PlayerNumber, bool IsHumanPlayer)
 	if (!GMode)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Game mode null Pawn"));
-		return;
+		return false;
 	}
 
 	AGameField* Field = GMode->GField;
 	if (!Field)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Field null Pawn"));
-		return;
+		return false;
 	}
 
-	if (Field->Direction == "Vertical" || Field->Direction == "None")
+	bool IsHumanPlayer = PlayerNumber == 0 ? true : false;
+	//UE_LOG(LogTemp, Error, TEXT("Prima chiamata alla legalmove di %s con CheckFalg = %s"), *this->GetName(), CheckFlag ? TEXT("TRUE") : TEXT("FALSE"));
+
+	// check if the next first vertical tile is empty and if true, mark the tile
+	XMove = IsHumanPlayer ? 1 : -1;
+	if (CheckCoord(x + XMove, y) && !MarkedForward)
 	{
-		// check if the next first vertical tile is empty and if true, mark the tile
+		CaptureSituation = false;
+
+		if (!CheckFlag)
+			MarkTile(x + XMove, y, PlayerNumber, MarkedForward);
+		else
+			if (TestCheck(x + XMove, y, PlayerNumber, MarkedForward))
+				return true;
+	}
+
+	// check if it is possible to capture an enemy piece
+	int32 i = 1;
+	for (int32 k = 0; k < 2; k++)
+	{
+		CaptureSituation = true;
+
 		XMove = IsHumanPlayer ? 1 : -1;
+		YMove = IsHumanPlayer ? i : -i;
+		if (CheckCoord(x + XMove, y + YMove))
+		{
+			if (!CheckFlag)
+				MarkTile(x + XMove, y + YMove, PlayerNumber, MarkedForward);
+			else
+				if (TestCheck(x + XMove, y + YMove, PlayerNumber, MarkedForward))
+					return true;
+		}
+		i = -1;
+	}
+
+	// check if the next second vertical tile is empty and if true, mark the tile
+	if (x == 1)
+	{
+		CaptureSituation = false;
+
+		XMove = IsHumanPlayer ? 2 : -2;
 		if (CheckCoord(x + XMove, y) && !MarkedForward)
 		{
-			CaptureSituation = false;
-
-			if (Field->CheckLegalMove)
-				CheckIfAllMoveIsLegal(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
-			else if (Field->CheckSituation)
-				CheckMateSituationPawn(x + XMove, y, PlayerNumber, IsHumanPlayer);
-			else
+			if (!CheckFlag)
 				MarkTile(x + XMove, y, PlayerNumber, MarkedForward);
+			else
+				if (TestCheck(x + XMove, y, PlayerNumber, MarkedForward))
+					return true;
 		}
 	}
-	Field->Support.Empty();
-
-	if (Field->Direction == "None")
-	{
-		// check if it is possible to capture an enemy piece
-		int32 i = 1;
-		for (int32 k = 0; k < 2; k++)
-		{
-			XMove = IsHumanPlayer ? 1 : -1;
-			YMove = IsHumanPlayer ? i : -i;
-			if (CheckCoord(x + XMove, y + YMove))
-			{
-				CaptureSituation = true;
-
-				if (Field->CheckLegalMove)
-					CheckIfAllMoveIsLegal(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer, MarkedForward);
-				else if (Field->CheckSituation)
-					CheckMateSituationPawn(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer);
-				else
-					MarkToCapture(x + XMove, y + YMove, PlayerNumber, IsHumanPlayer);
-			}
-			i = -1;
-		}
-	}
-	Field->Support.Empty();
-
-	if (Field->Direction == "Horizontal" || Field->Direction == "None")
-	{
-		// check if the next second vertical tile is empty and if true, mark the tile
-		if (x == 1)
-		{
-			XMove = IsHumanPlayer ? 2 : -2;
-			if (CheckCoord(x + XMove, y) && !MarkedForward)
-			{
-				CaptureSituation = false;
-
-				if (Field->CheckLegalMove)
-					CheckIfAllMoveIsLegal(x + XMove, y, PlayerNumber, IsHumanPlayer, MarkedForward);
-				else if (Field->CheckSituation)
-					CheckMateSituationPawn(x + XMove, y, PlayerNumber, IsHumanPlayer);
-				else
-					MarkTile(x + XMove, y, PlayerNumber, MarkedForward);
-			}
-		}
-	}
-	Field->Support.Empty();
+	return false;
 }
-
-void AChessPawn::CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer)
-{
-	ATile* SelectedTile = nullptr;
-
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null Pawn"));
-		return;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null Pawn"));
-		return;
-	}
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	
-	if (TileMap.Contains(FVector2D(x, y)))
-		SelectedTile = TileMap[FVector2D(x, y)];
-	
-
-	if (Field->IsCheckmateSituation && SelectedTile)
-	{
-		ManagerCheckMateSituationPawn(SelectedTile, PlayerNumber);
-	}
-	else
-	{
-		if (CaptureSituation && SelectedTile && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
-		{
-			AChessPieces* SelectedPiece = nullptr;
-
-			
-			if (PiecesMap.Contains(FVector2D(x, y)))
-				SelectedPiece = PiecesMap[FVector2D(x, y)];
-			
-
-			if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
-			{
-				if (SelectedPiece->IsA<AKing>())
-				{
-					Field->KingUnderAttack = true;
-
-					FVector2d PiecePosition = this->GetGridPosition();
-
-
-					if (TileMap.Contains(PiecePosition))
-					{
-						//if (TileMap[PiecePosition]->GetStatusCheckmate() != EStatusCheckmate::BLOCK_KING)
-						TileMap[PiecePosition]->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_CHECK_PIECE);
-					}
-				}
-			}
-		}
-
-		if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_CHECK_PIECE)
-		{
-			SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_AND_BLOCK_KING);
-		}
-
-		if (CaptureSituation && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING || 
-			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING ||
-			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE)
-		{
-			SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::BLOCK_KING);;
-		}
-	}
-}
-
-void AChessPawn::ManagerCheckMateSituationPawn(ATile* SelectedTile, int32 PlayerNumber)
-{
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null Pawn"));
-		return;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null Pawn"));
-		return;
-	}
-
-	if (!SelectedTile)
-	{
-		UE_LOG(LogTemp, Error, TEXT("SelectedTile null Pawn"));
-		return;
-	}
-
-	if (!CaptureSituation && 
-		(SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE ||
-		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_AND_BLOCK_KING))
-	{
-		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
-		Field->AddTileMarked(SelectedTile);
-	}
-
-	if (CaptureSituation && (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE 
-			|| SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_AND_BLOCK_KING ||
-			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_CHECK_PIECE))
-	{
-		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
-		Field->AddTileMarked(SelectedTile);
-	}
-}
-
-void AChessPawn::MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer)
-{
-	ATile* SelectedTile = nullptr;
-
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null Pawn"));
-		return;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null Pawn"));
-		return;
-	}
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	
-	if (TileMap.Contains(FVector2D(x, y)))
-		SelectedTile = TileMap[FVector2D(x, y)];
-	
-
-	if (SelectedTile && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
-	{
-		AChessPieces* SelectedPiece = nullptr;
-
-		
-		if (PiecesMap.Contains(FVector2D(x, y)))
-			SelectedPiece = PiecesMap[FVector2D(x, y)];
-		
-		
-		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
-		{
-			if (!SelectedPiece->IsA<AKing>())
-			{
-				SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
-				Field->AddTileMarked(SelectedTile);
-			}
-		}
-	}
-}
-
-void AChessPawn::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool &Marked)
-{
-	ATile* SelectedTile = nullptr;
-
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null Pawn"));
-		return;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null Pawn"));
-		return;
-	}
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	
-	if (TileMap.Contains(FVector2D(x, y)))
-		SelectedTile = TileMap[FVector2D(x, y)];
-	
-
-	if (SelectedTile && SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
-	{
-		Marked = true;
-	}
-
-	if (SelectedTile && SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
-	{
-		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
-		Field->AddTileMarked(SelectedTile);
-	}
-}
-

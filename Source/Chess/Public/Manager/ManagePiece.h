@@ -25,6 +25,19 @@ public:
 	bool Capture;
 };
 
+USTRUCT()
+struct FMarked
+{
+	GENERATED_BODY()
+
+public:
+	FMarked() = default;
+
+	ATile* Tile;
+	bool Capture;
+};
+
+
 UCLASS()
 class CHESS_API AManagePiece : public AActor
 {
@@ -63,6 +76,8 @@ public:
 	TArray<AChessPieces*> CapturedPieces;
 
 	TArray<AChessPieces*> PromotePieces;
+
+	TArray<TArray<FMarked>> TileMarkedForPiece;
 
 	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition);
 

@@ -76,7 +76,12 @@ void AChess_HumanPlayer::OnTurn()
 		UE_LOG(LogTemp, Error, TEXT("PieceManager null RandomPlayer"));
 		return;
 	}
-	//PieceManager->Visible = true;
+	
+	auto PiecesArray = Field->GetHumanPlayerPieces();
+	for (auto Piece : PiecesArray)
+	{
+		Piece->LegalMove(PlayerNumber, false);
+	}
 }
 void AChess_HumanPlayer::OnWin()
 {
@@ -117,9 +122,20 @@ void AChess_HumanPlayer::OnClick()
 
 			FString ClassName = HitActor->GetClass()->GetName();
 			Field->TileMarkedDestroy();
+			
 			// look for the piece to move
 			if (FindPiece(ClassName))
 			{
+				auto TileMap = Field->GetTileMap();
+				for (auto Element : TileMap)
+				{
+					ATile* Tile = Element.Value;
+					if (Tile->GetTileStatus() == ETileStatus::MARKED)
+						Tile->SetTileStatus(-1, ETileStatus::EMPTY);
+
+					if (Tile->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
+						Tile->SetTileStatus(1, ETileStatus::OCCUPIED);
+				}
 				ManageClickPiece(HitActor, ClassName);
 				return;
 			}
@@ -128,6 +144,16 @@ void AChess_HumanPlayer::OnClick()
 			if (PieceChoose)
 			{
 				ManageClickTile(HitActor, ClassName);
+				auto TileMap = Field->GetTileMap();
+				for (auto Element : TileMap)
+				{
+					ATile* Tile = Element.Value;
+					if (Tile->GetTileStatus() == ETileStatus::MARKED)
+						Tile->SetTileStatus(-1, ETileStatus::EMPTY);
+
+					if (Tile->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
+						Tile->SetTileStatus(1, ETileStatus::OCCUPIED);
+				}
 			}
 		}
 
@@ -149,8 +175,15 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 		UE_LOG(LogTemp, Error, TEXT("Field null HumanPlayer"));
 		return;
 	}
+
+	auto ManagerPiece = GMode->Manager;
+	if (!ManagerPiece)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Manager null HumanPlayer"));
+		return;
+	}
 	// every time the player clicks on a piece, the reachable tiles are reset
-	Field->ResetTileMarked();
+	//Field->ResetTileMarked();
 
 	// get the piece
 	CurrPiece = Cast<AChessPieces>(HitActor);
@@ -159,47 +192,32 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 	if (CurrPiece->Color == EPieceColor::BLACK)
 		return;
 
-	Field->Direction = "None";
-	if (Field->StoragePiece.Contains(CurrPiece))
-	{
-		if (CurrPiece->IsA<AKnight>())
-			return;
-
-		auto PiecePosition = CurrPiece->GetGridPosition();
-		auto KingPosition = Field->GetKingArray()[0]->GetGridPosition();
-		if (PiecePosition.X - KingPosition.X == 0)
-		{
-			Field->Direction = "Horizontal";
-		}
-		else if (PiecePosition.Y - KingPosition.Y == 0)
-		{
-			Field->Direction = "Vertical";
-		}
-		else if (PiecePosition.X - KingPosition.X != 0 && PiecePosition.Y - KingPosition.Y > 0)
-			Field->Direction = "Positive Oblique";
-		else if (PiecePosition.X - KingPosition.X != 0 && PiecePosition.Y - KingPosition.Y < 0)
-			Field->Direction = "Negative Oblique";
-	}
 	// marks the tiles where the player can move his piece
-	CurrPiece->LegalMove(PlayerNumber, true);
+	//CurrPiece->LegalMove(PlayerNumber, false);
 
-	TArray<ATile*> TileMarked = Field->GetTileMarked();
+	auto TileMarked = ManagerPiece->TileMarkedForPiece[CurrPiece->IndexArray];
 
 	// sets that the player has chosen the piece to move
 	PieceChoose = true;
+	UE_LOG(LogTemp, Error, TEXT("Pezzo scelto, ha index = %d e l'array marked ha dim: %d"), CurrPiece->IndexArray, TileMarked.Num());
 
 	// if the selected piece cannot move, do nothing
-	if (TileMarked.Num() == 0) 
+	if (TileMarked.Num() == 0)
 		return;
 		
 
 	// spawn marked tile where i can move my piece
+	// Togliere gli stati di mark, mettere una bool per l'oggetto e settarlo true se cattuare, false altrimenti
 	for (int32 k = 0; k < TileMarked.Num(); k++) {
+		if (TileMarked[k].Capture)
+			TileMarked[k].Tile->SetTileStatus(0, ETileStatus::MARKED_TO_CAPTURE);
+		else
+			TileMarked[k].Tile->SetTileStatus(0, ETileStatus::MARKED);
 		// get x,y position
-		int32 x = TileMarked[k]->GetGridPosition().X;
-		int32 y = TileMarked[k]->GetGridPosition().Y;
+		int32 x = TileMarked[k].Tile->GetGridPosition().X;
+		int32 y = TileMarked[k].Tile->GetGridPosition().Y;
 		FVector Location = Field->GetRelativeLocationByXYPosition(x, y);
-		TSubclassOf<ATile> Class = (TileMarked[k]->GetTileStatus() == ETileStatus::MARKED) ? Field->GameFieldSubClass.TileClassMarked : Field->GameFieldSubClass.TileClassPieceToCapture;
+		TSubclassOf<ATile> Class = (TileMarked[k].Tile->GetTileStatus() == ETileStatus::MARKED) ? Field->GameFieldSubClass.TileClassMarked : Field->GameFieldSubClass.TileClassPieceToCapture;
 		ATile* Obj = GetWorld()->SpawnActor<ATile>(Class, Location, FRotator(0.0f, 0.0f, 0.0f));
 		// spawn the marked tile
 		const float TileScale = Field->TileSize / 100;
@@ -225,7 +243,15 @@ void AChess_HumanPlayer::ManageClickTile(AActor* HitActor, FString ClassName)
 		return;
 	}
 
+	auto ManagerPiece = GMode->Manager;
+	if (!ManagerPiece)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Manager null HumanPlayer"));
+		return;
+	}
+
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
+	auto TileMarked = ManagerPiece->TileMarkedForPiece;
 
 	PieceChoose = false;
 
@@ -351,7 +377,6 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 	if (TileMap.Contains(CurrPiece->GetGridPosition()))
 		TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 	
-
 	// move the piece
 	if (PieceManager)
 		PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord, CurrPosition);

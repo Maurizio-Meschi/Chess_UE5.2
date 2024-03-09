@@ -22,14 +22,5 @@ public:
 	bool CaptureSituation;
 
 	// defines the movements of the piece
-	void LegalMove(int32 PlayerNumber, bool IsHumanPlayer) override;
-
-	//void Mark(int32 x, int32 y, int32 PlayerNumber);
-	void MarkToCapture(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer);
-
-	void MarkTile(int32 x, int32 y, int32 PlayerNumber, bool &Marked);
-
-	void CheckMateSituationPawn(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer);
-
-	void ManagerCheckMateSituationPawn(ATile* SelectedTile, int32 PlayerNumber);
+	bool LegalMove(int32 PlayerNumber, bool CheckFlag) override;
 };

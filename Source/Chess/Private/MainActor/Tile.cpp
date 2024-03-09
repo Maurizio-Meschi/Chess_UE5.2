@@ -16,6 +16,8 @@ ATile::ATile()
 	StaticMeshComponent->SetupAttachment(Scene);
 
 	Status = ETileStatus::EMPTY;
+
+	VirtualStatus = EVirtualOccupied::VIRTUAL_EMPTY;
 	PlayerOwner = -1;
 	TileGridPosition = FVector2D(0, 0);
 
@@ -34,6 +36,11 @@ void ATile::SetTileStatus(const int32 TileOwner, const ETileStatus TileStatus)
 	Status = TileStatus;
 }
 
+void ATile::SetVirtualStatus(const EVirtualOccupied TileStatus)
+{
+	VirtualStatus = TileStatus;
+}
+
 void ATile::SetStatusCheckmate(const int32 TileOwner, const EStatusCheckmate TileStatus)
 {
 	PlayerOwner = TileOwner;
@@ -43,6 +50,11 @@ void ATile::SetStatusCheckmate(const int32 TileOwner, const EStatusCheckmate Til
 ETileStatus ATile::GetTileStatus()
 {
 	return Status;
+}
+
+EVirtualOccupied ATile::GetVirtaulStatus()
+{
+	return VirtualStatus;
 }
 
 EStatusCheckmate ATile::GetStatusCheckmate()

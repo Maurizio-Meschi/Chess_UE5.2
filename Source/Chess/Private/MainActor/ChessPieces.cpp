@@ -16,8 +16,6 @@ AChessPieces::AChessPieces()
 	PieceGridPosition = FVector2D(0, 0);
 
 	Color = EPieceColor::WHITE;
-
-	IsKing = false;
 }
 
 // Called when the game starts or when spawned
@@ -44,420 +42,210 @@ void AChessPieces::SetColor(EPieceColor color)
 	Color = color;
 }
 
-void AChessPieces::Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked)
+void AChessPieces::ResetTileStatus(ATile* CurrTile, ATile* NewTile, int32 PlayerNumber, bool IsTileEmpty)
 {
-
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
+	if (IsTileEmpty)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in ChessPieces"));
-		return;
-	}
+		CurrTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+		NewTile->SetTileStatus(-1, ETileStatus::EMPTY);
 
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{ 
-		UE_LOG(LogTemp, Error, TEXT("Game field null in ChessPieces"));
-		return;
-	}
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	ATile* SelectedTile = nullptr;
-
-	
-	if (TileMap.Contains(FVector2D(x, y)))
-		SelectedTile = TileMap[FVector2D(x, y)];
-	
-
-	if (!SelectedTile)
-	{
-		UE_LOG(LogTemp, Error, TEXT("SelectedTile null in ChessPieces"));
-		return;
-	}
-
-	if (this->IsA<AKing>() &&
-		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::BLOCK_KING)
-	{
-		return;
-	}
-	else if(SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
-	{
-		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
-		Field->AddTileMarked(SelectedTile);
-	}
-	else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
-	{
-		AChessPieces* SelectedPiece = nullptr;
-		
-		if (PiecesMap.Contains(FVector2D(x, y)))
-			SelectedPiece = PiecesMap[FVector2D(x, y)];
-		
-
-		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
-		{
-			if (!SelectedPiece->IsA<AKing>())
-			{
-				SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
-				Field->AddTileMarked(SelectedTile);
-			}
-		}
-		Marked = true;
-	}
-}
-
-void AChessPieces::CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked)
-{	
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in ChessPieces"));
-		return;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game field null in ChessPieces"));
-		return;
-	}
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	ATile* SelectedTile = nullptr;
-
-	
-	if (TileMap.Contains(FVector2D(x, y)))
-		SelectedTile = TileMap[FVector2D(x, y)];
-	
-
-	if (!SelectedTile)
-	{
-		UE_LOG(LogTemp, Error, TEXT("SelectedTile null in ChessPieces"));
-		return;
-	}
-
-	if (Field->IsCheckmateSituation)
-	{
-		ManageCheckMateSituation(PlayerNumber, IsHumanPlayer, Marked, SelectedTile);
 	}
 	else
 	{
-		// Questa è valida solo per il king
-		if (IsKing)
-			ManageCheckSituationKing(x, y, PlayerNumber, IsHumanPlayer, SelectedTile);
+		CurrTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+		NewTile->SetTileStatus(PlayerNumber == 0 ? 1 : 0, ETileStatus::OCCUPIED);
+	}
+	NewTile->SetVirtualStatus(EVirtualOccupied::VIRTUAL_EMPTY);
+}
 
-		// controllo se una pedina può andare diretta contro il re
+void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
+{
+	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
+		return;
+	}
+
+	auto GField = GMode->GField;
+	if (!GField)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null in ManagePiece"));
+		return;
+	}
+
+	auto ManagerPiece = GMode->Manager;
+	if (!ManagerPiece)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Manager Piece null in ChessPieces"));
+		return;
+	}
+	auto TileMap = GField->GetTileMap();
+	auto PiecesMap = GField->GetPiecesMap();
+
+	ATile* SelectedTile = nullptr;
+	ATile* CurrTile = nullptr;
+
+	if (TileMap.Contains(FVector2D(x, y)))
+		SelectedTile = TileMap[FVector2D(x, y)];
+
+	if (TileMap.Contains(this->GetGridPosition()))
+		CurrTile = TileMap[this->GetGridPosition()];
+
+	if (SelectedTile && CurrTile)
+	{
+		if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
+		{
+			//UE_LOG(LogTemp, Error, TEXT("Tile x=%d y=%d is empty"), x, y);
+			if (this->IsA<AChessPawn>() && Cast<AChessPawn>(this)->CaptureSituation)
+				return;
+
+			// Metto l'attuale tile vuota e quella selezionata occupata
+			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+			SelectedTile->SetVirtualStatus(this->IsA<AKing>() ? EVirtualOccupied::VIRTUAL_OCCUPIED_BY_KING : EVirtualOccupied::VIRTUAL_OCCUPIED);
+			CurrTile->SetTileStatus(-1, ETileStatus::EMPTY);
+
+			// Vedo se la mossa è legale. Se vero ripristino gli stati corretti delle tile, altrimenti ed esco, altrimenti lo alloco
+			auto Pieces = (PlayerNumber == 1 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
+			for (auto EnemyPiece : Pieces)
+			{
+				if (EnemyPiece->LegalMove(PlayerNumber == 0? 1:0, true))
+				{
+					ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, true);
+					return;
+				}
+			}
+			ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, true);
+			FMarked Obj;
+			Obj.Tile = SelectedTile;
+			Obj.Capture = false;
+			ManagerPiece->TileMarkedForPiece[this->IndexArray].Add(Obj);
+		}
 		else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 		{
-			ManageCheckSituationOccpied(x, y, PlayerNumber, IsHumanPlayer, SelectedTile, Marked);
-		}
+			if (this->IsA<AChessPawn>() && !Cast<AChessPawn>(this)->CaptureSituation)
+				return;
 
-		if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_CHECK_PIECE)
-		{
-			SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_AND_BLOCK_KING);
-		}
-		// controllo se una pedina può andare in una cella in cui si potrebbe spostare il re
-		if (!IsKing && (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING || 
-			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING || 
-			SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE))
-		{
-			SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::BLOCK_KING);
-		}
-	}
-}
-
-void AChessPieces::ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlayer, bool& Marked, ATile* SelectedTile)
-{
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in ChessPieces"));
-		return;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game field null in ChessPieces"));
-		return;
-	}
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	if (!SelectedTile)
-	{
-		UE_LOG(LogTemp, Error, TEXT("SelectedTile null in ChessPieces"));
-		return;
-	}
-
-	if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_TO_AVOID_CHECKMATE)
-	{
-		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
-		Field->AddTileMarked(SelectedTile);
-	}
-
-	if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_AND_BLOCK_KING &&
-		!this->IsA<AKing>())
-	{
-		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
-		Field->AddTileMarked(SelectedTile);
-	}
-
-	if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_AND_BLOCK_KING &&
-		!this->IsA<AKing>())
-	{
-		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
-		Field->AddTileMarked(SelectedTile);
-	}
-
-
-	// impedisco alle pedine di saltare i pezzi illegalmente
-	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
-	{
-		Marked = true;
-	}
-
-	if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_BY_KING ||
-		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_TO_AVOID_CHECKMATE ||
-		SelectedTile->GetStatusCheckmate() == EStatusCheckmate::CAPTURE_CHECK_PIECE)
-	{
-		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED_TO_CAPTURE);
-		Field->AddTileMarked(SelectedTile);
-		Marked = true;
-	}
-
-	if (this->IsA<AKing>() && SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING)
-	{
-		SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::MARKED);
-		Field->AddTileMarked(SelectedTile);
-	}
-}
-
-void AChessPieces::ManageCheckSituationKing(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, ATile* SelectedTile)
-{
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in ChessPieces"));
-		return;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game field null in ChessPieces"));
-		return;
-	}
-
-	if (!SelectedTile)
-	{
-		UE_LOG(LogTemp, Error, TEXT("SelectedTile null in ChessPieces"));
-		return;
-	}
-
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
-	{
-		SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
-	}
-	// Evito che catturando una pedina mi vada ad esporre
-	if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
-	{
-		AChessPieces* SelectedPiece = nullptr;
-
-		if (PiecesMap.Contains(FVector2D(x, y)))
-			SelectedPiece = PiecesMap[FVector2D(x, y)];
-		
-		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
-		{
-			if (!SelectedPiece->IsA<AKing>())
+			if (SelectedTile->GetOwner() != PlayerNumber)
 			{
-				SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_BY_KING);
+				//UE_LOG(LogTemp, Error, TEXT("Tile x=%d y=%d"), x, y);
+				UE_LOG(LogTemp, Error, TEXT("PlayerOwner: %d. TileOwner: %d"), PlayerNumber, SelectedTile->GetOwner());
+				SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+				SelectedTile->SetVirtualStatus(this->IsA<AKing>() ? EVirtualOccupied::VIRTUAL_OCCUPIED_BY_KING : EVirtualOccupied::VIRTUAL_OCCUPIED);
+				CurrTile->SetTileStatus(-1, ETileStatus::EMPTY);
+
+				auto Pieces = (PlayerNumber == 1 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
+				for (auto EnemyPiece : Pieces)
+				{
+					if (EnemyPiece->LegalMove(PlayerNumber == 0? 1:0, true))
+					{
+						ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, false);
+						return;
+					}
+				}
+				ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, false);
+				FMarked Obj;
+				Obj.Tile = SelectedTile;
+				Obj.Capture = true;
+				ManagerPiece->TileMarkedForPiece[this->IndexArray].Add(Obj);
 			}
+			Marked = true;
 		}
-	}
-}
-
-void AChessPieces::ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, ATile* SelectedTile, bool& Marked)
-{
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in ChessPieces"));
-		return;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game field null in ChessPieces"));
-		return;
-	}
-
-	if (!SelectedTile)
-	{
-		UE_LOG(LogTemp, Error, TEXT("SelectedTile null in ChessPieces"));
-		return;
-	}
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	AChessPieces* SelectedPiece = nullptr;
-
-	
-	if (PiecesMap.Contains(FVector2D(x, y)))
-		SelectedPiece = PiecesMap[FVector2D(x, y)];
-	
-
-	if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE) &&
-		SelectedPiece->IsA<AKing>())
-	{
-		Field->KingUnderAttack = true;
-		FVector2d PiecePosition = this->GetGridPosition();
-
-		
-		if (TileMap.Contains(PiecePosition))
-		{
-			//if (TileMap[PiecePosition]->GetStatusCheckmate() != EStatusCheckmate::BLOCK_KING)
-				TileMap[PiecePosition]->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::CAPTURE_CHECK_PIECE);
-		}
-		
-
-		// non devo marcare le tile intermedie perchè il cavallo va diretto dal re
-		if (!this->IsA<AKnight>())
-			FindTileBetweenP1P2(PiecePosition, FVector2D(x, y), PlayerNumber);
 	}
 	else
+		UE_LOG(LogTemp, Error, TEXT("Error in select tile in ChessPieces"));
+
+}
+
+bool AChessPieces::TestCheck(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
+{
+	auto GMode = FGameModeRef::GetGameMode(this);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
+		return false;
+	}
+
+	auto GField = GMode->GField;
+	if (!GField)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Field null in ManagePiece"));
+		return false;
+	}
+
+	auto ManagerPiece = GMode->Manager;
+	if (!ManagerPiece)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Manager Piece null in ChessPieces"));
+		return false;
+	}
+	auto TileMap = GField->GetTileMap();
+	auto PiecesMap = GField->GetPiecesMap();
+
+
+	ATile* SelectedTile = nullptr;
+
+	// Se il pezzo è in una tile VIRTUAl_OCCUPIED è come se fosse stata mangiata e non devo considerarla
+	if (TileMap.Contains(this->GetGridPosition()))
+		SelectedTile = TileMap[this->GetGridPosition()];
+
+	if (SelectedTile && SelectedTile->GetVirtaulStatus() == EVirtualOccupied::VIRTUAL_OCCUPIED)
+	{
 		Marked = true;
-}
-
-void AChessPieces::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2, int32 PlayerNumber)
-{
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in ChessPieces"));
-		return;
+		return false;
 	}
 
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game field null in ChessPieces"));
-		return;
-	}
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	ATile* SelectedTile = nullptr;
-
-	int32 deltaX = P2.X - P1.X;
-	int32 deltaY = P2.Y - P1.Y;
-	int32 stepX = (deltaX > 0) ? 1 : -1;
-	int32 stepY = (deltaY > 0) ? 1 : -1;
-
-	int32 x = P1.X;
-	int32 y = P1.Y;
-
-
-	// Bresenham algorithm.
-	while (x != P2.X || y != P2.Y)
-	{
-		if (CheckCoord(x, y) && FVector2D(x, y) != P1 && FVector2D(x, y) != P1) {
-			
-			UE_LOG(LogTemp, Error, TEXT("x: %d, y: %d"), x, y);
-			if (TileMap.Contains(FVector2D(x, y)))
-				SelectedTile = TileMap[FVector2D(x, y)];
-
-			if (SelectedTile)
-			{
-				if (SelectedTile->GetStatusCheckmate() == EStatusCheckmate::MARK_BY_KING || 
-					SelectedTile->GetStatusCheckmate() == EStatusCheckmate::BLOCK_KING)
-				{
-					SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_AND_BLOCK_KING);
-				}
-				else
-					SelectedTile->SetStatusCheckmate(PlayerNumber, EStatusCheckmate::MARK_TO_AVOID_CHECKMATE);
-			}
-
-		}
-		int32 offsetX = FMath::Abs(x - P1.X);
-		int32 offsetY = FMath::Abs(y - P1.Y);
-
-		if (offsetX < FMath::Abs(deltaX))
-		{
-			x += stepX;
-		}
-		if (offsetY < FMath::Abs(deltaY))
-		{
-			y += stepY;
-		}
-	}
-}
-
-void AChessPieces::CheckIfAllMoveIsLegal(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked)
-{
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in ChessPieces"));
-		return;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game field null in ChessPieces"));
-		return;
-	}
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	ATile* SelectedTile = nullptr;
+	SelectedTile = nullptr;
 
 	if (TileMap.Contains(FVector2D(x, y)))
 		SelectedTile = TileMap[FVector2D(x, y)];
 
-	if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
+	if (SelectedTile)
 	{
-		return;
-	}
-	else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
-	{
-		AChessPieces* SelectedPiece = nullptr;
-
-		if (PiecesMap.Contains(FVector2D(x, y)))
-			SelectedPiece = PiecesMap[FVector2D(x, y)];
-
-		if (SelectedPiece && SelectedPiece->Color == (IsHumanPlayer ? EPieceColor::BLACK : EPieceColor::WHITE))
+		if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
 		{
-			if (!SelectedPiece->IsA<AKing>())
+			return false;
+		}
+		else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
+		{
+			if (this->IsA<AChessPawn>() && !Cast<AChessPawn>(this)->CaptureSituation)
+				return false;
+
+			if (SelectedTile->GetVirtaulStatus() == EVirtualOccupied::VIRTUAL_OCCUPIED_BY_KING)
 			{
-				Field->Support.Add(SelectedPiece);
+				return true;
+			}
+			else if (SelectedTile->GetVirtaulStatus() == EVirtualOccupied::VIRTUAL_OCCUPIED)
+			{
+				Marked = true;
+				return false;
 			}
 			else
 			{
-				UE_LOG(LogTemp, Error, TEXT("Ho trovato il re passando per %d "), Field->Support.Num());
-				//Alla fine qua avro tutti i pezzi che devono muoversi in una dir specifica
-				if (Field->Support.Num() == 1)
-					Field->StoragePiece.Add(Field->Support[0]);
+				AChessPieces* Piece = nullptr;
+				if (PiecesMap.Contains(SelectedTile->GetGridPosition()))
+					Piece = PiecesMap[SelectedTile->GetGridPosition()];
+
+				if (!Piece)
+				{
+					UE_LOG(LogTemp, Error, TEXT("Piece null in CheckTest"));
+					return false;
+				}
+
+				if (Piece->IsA<AKing>() && SelectedTile->GetOwner() != PlayerNumber) //Piece->Color == (PlayerNumber == 0 ? EPieceColor::BLACK : EPieceColor::WHITE))
+				{
+					UE_LOG(LogTemp, Error, TEXT("%s è arrivato al re"), *Piece->GetName());
+					return true;
+				}
+				else
+					Marked = true;
 			}
 		}
-		else
-			Marked = true;
+		return false;
 	}
-
-}
-
-void AChessPieces::PieceDestroy()
-{
-	Destroy();
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Selected tile null in ChessPieces"));
+		return false;
+	}
 }

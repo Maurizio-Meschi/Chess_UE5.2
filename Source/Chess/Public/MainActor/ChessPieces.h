@@ -48,7 +48,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FString Name;
 
-	bool IsKing;
+	int32 IndexArray;
 
 	// set chess piece position
 	void SetGridPosition(const double InX, const double InY);
@@ -64,22 +64,11 @@ public:
 		return PieceGridPosition;
 	}
 
-	virtual void LegalMove(int32 PlayerNumber, bool IsHumanPlayer) {};
+	virtual bool LegalMove(int32 PlayerNumber, bool CheckFlag) { return true; }
 
-	void Mark(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked);
+	void ResetTileStatus(ATile* CurrTile, ATile* NewTile, int32 PlayerNumber, bool IsTileEmpty);
 
-	void CheckMateSituation(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked);
+	void MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked);
 
-	void ManageCheckMateSituation(int32 PlayerNumber, bool IsHumanPlayer, bool& Marked, ATile* SelectedTile);
-
-	void ManageCheckSituationKing(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, ATile* SelectedTile);
-
-	void ManageCheckSituationOccpied(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, ATile* SelectedTile, bool& Marked);
-
-	void FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P2, int32 PlayerNumber);
-
-	void CheckIfAllMoveIsLegal(int32 x, int32 y, int32 PlayerNumber, bool IsHumanPlayer, bool& Marked);
-
-	UFUNCTION()
-	void PieceDestroy();
+	bool TestCheck(int32 x, int32 y, int32 PlayerNumber, bool& Marked);
 };

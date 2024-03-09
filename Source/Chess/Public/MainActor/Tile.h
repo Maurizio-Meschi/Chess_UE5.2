@@ -15,6 +15,27 @@ enum class ETileStatus : uint8
 	MARKED				UMETA(DisplayNmae = "Marked"),
 };
 
+/*
+UENUM()
+enum class ETypePiece : uint8
+{
+	PAWN	UMETA(DisplayName = "Pawn"),
+	KING	UMETA(DisplayName = "King"),
+	BISHOP	UMETA(DisplayName = "Bishop"),
+	ROOK 	UMETA(DisplayName = "Rook"),
+	QUEEN	UMETA(DisplayName = "Queen"),
+	KNIGHT  UMETA(DisplayName = "Knight"),
+};
+*/
+
+UENUM()
+enum class EVirtualOccupied : uint8
+{
+	VIRTUAL_EMPTY			 UMETA(DisplayName = "Virtual Empty"),
+	VIRTUAL_OCCUPIED		 UMETA(DisplayName = "Virtual Occupied by enemy piece"),
+	VIRTUAL_OCCUPIED_BY_KING UMETA(DisplayName = "Virtual Occupied by King"),
+};
+
 UENUM()
 enum class EStatusCheckmate : uint8
 {
@@ -41,6 +62,8 @@ public:
 	// set the player owner and the status of a tile
 	void SetTileStatus(const int32 TileOwner, const ETileStatus TileStatus);
 
+	void SetVirtualStatus(const EVirtualOccupied TileStatus);
+
 	void SetStatusCheckmate(const int32 TileOwner, const EStatusCheckmate TileStatus);
 
 	// set the (x, y) position
@@ -48,6 +71,8 @@ public:
 
 	// get the tile status
 	ETileStatus GetTileStatus();
+
+	EVirtualOccupied GetVirtaulStatus();
 
 	EStatusCheckmate GetStatusCheckmate();
 
@@ -72,6 +97,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	ETileStatus Status;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	EVirtualOccupied VirtualStatus;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EStatusCheckmate CheckmateStatus;
