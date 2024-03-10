@@ -56,26 +56,12 @@ void AChess_HumanPlayer::OnTurn()
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Your Turn"));
 	GameInstance->SetTurnMessage(TEXT("Human Turn"));
 
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null RandomPlayer"));
-		return;
-	}
+	AChess_GameMode* GMode = nullptr;
+	AGameField* Field = nullptr;
+	AManagePiece* PieceManager = nullptr;
 
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null RandomPlayer"));
+	if (!FGameRef::GetGameRef(this, GMode, Field, PieceManager, "ChessPieces"))
 		return;
-	}
-
-	auto PieceManager = GMode->Manager;
-	if (!PieceManager)
-	{
-		UE_LOG(LogTemp, Error, TEXT("PieceManager null RandomPlayer"));
-		return;
-	}
 	
 	auto PiecesArray = Field->GetHumanPlayerPieces();
 	for (auto Piece : PiecesArray)
@@ -97,19 +83,10 @@ void AChess_HumanPlayer::OnLose()
 
 void AChess_HumanPlayer::ResetMarkStatus()
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null HumanPlayer"));
-		return;
-	}
+	AGameField* Field = nullptr;
 
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null HumanPlayer"));
+	if (!FGameRef::GetGameField(this, Field, "HumanPlayer"))
 		return;
-	}
 
 	auto TileArray = Field->GetTileMap();
 	for (auto Element : TileArray)
@@ -134,19 +111,10 @@ void AChess_HumanPlayer::OnClick()
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor)
 		{
-			auto GMode = FGameModeRef::GetGameMode(this);
-			if (!GMode)
-			{
-				UE_LOG(LogTemp, Error, TEXT("Game mode null HumanPlayer"));
-				return;
-			}
+			AGameField* Field = nullptr;
 
-			AGameField* Field = GMode->GField;
-			if (!Field)
-			{
-				UE_LOG(LogTemp, Error, TEXT("Field null HumanPlayer"));
+			if (!FGameRef::GetGameField(this, Field, "HumanPlayer"))
 				return;
-			}
 
 			FString ClassName = HitActor->GetClass()->GetName();
 			Field->TileMarkedDestroy();
@@ -172,26 +140,12 @@ void AChess_HumanPlayer::OnClick()
 
 void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null HumanPlayer"));
-		return;
-	}
+	AChess_GameMode* GMode = nullptr;
+	AGameField* Field = nullptr;
+	AManagePiece* ManagerPiece = nullptr;
 
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null HumanPlayer"));
+	if (!FGameRef::GetGameRef(this, GMode, Field, ManagerPiece, "HumanPlayer"))
 		return;
-	}
-
-	auto ManagerPiece = GMode->Manager;
-	if (!ManagerPiece)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Manager null HumanPlayer"));
-		return;
-	}
 	// every time the player clicks on a piece, the reachable tiles are reset
 	//Field->ResetTileMarked();
 
@@ -239,26 +193,12 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 
 void AChess_HumanPlayer::ManageClickTile(AActor* HitActor, FString ClassName)
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null HumanPlayer"));
-		return;
-	}
+	AChess_GameMode* GMode = nullptr;
+	AGameField* Field = nullptr;
+	AManagePiece* ManagerPiece = nullptr;
 
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null HumanPlayer"));
+	if (!FGameRef::GetGameRef(this, GMode, Field, ManagerPiece, "HumanPlayer"))
 		return;
-	}
-
-	auto ManagerPiece = GMode->Manager;
-	if (!ManagerPiece)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Manager null HumanPlayer"));
-		return;
-	}
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	auto TileMarked = ManagerPiece->TileMarkedForPiece;
@@ -293,26 +233,12 @@ void AChess_HumanPlayer::ManageClickTile(AActor* HitActor, FString ClassName)
 
 void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null HumanPlayer"));
-		return;
-	}
+	AChess_GameMode* GMode = nullptr;
+	AGameField* Field = nullptr;
+	AManagePiece* PieceManager = nullptr;
 
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null HumanPlayer"));
+	if (!FGameRef::GetGameRef(this, GMode, Field, PieceManager, "HumanPlayer"))
 		return;
-	}
-
-	auto PieceManager = GMode->Manager;
-	if (!PieceManager)
-	{
-		UE_LOG(LogTemp, Error, TEXT("PieceManager null RandomPlayer"));
-		return;
-	}
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 
@@ -327,37 +253,19 @@ void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 	if (TileMap.Contains(CurrPiece->GetGridPosition()))
 		TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 	
+	PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord, CurrPiece->GetGridPosition());
 
-	// move the piece
-	if (PieceManager)
-		PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord, CurrPiece->GetGridPosition());
-	else
-		UE_LOG(LogTemp, Error, TEXT("PieceManager null HumanPlayer"));
 	MyTurn = false;
 }
 
 void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null HumanPlayer"));
-		return;
-	}
+	AChess_GameMode* GMode = nullptr;
+	AGameField* Field = nullptr;
+	AManagePiece* PieceManager = nullptr;
 
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null HumanPlayer"));
+	if (!FGameRef::GetGameRef(this, GMode, Field, PieceManager, "HumanPlayer"))
 		return;
-	}
-
-	auto PieceManager = GMode->Manager;
-	if (!PieceManager)
-	{
-		UE_LOG(LogTemp, Error, TEXT("PieceManager null RandomPlayer"));
-		return;
-	}
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
@@ -375,23 +283,15 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 	if (PiecesMap.Contains(Coord))
 		PieceToCapture = PiecesMap[(Coord)];
 	
-
-	// capture the piece
-	if (PieceManager)
-		PieceManager->CapturePiece(PieceToCapture, Coord);
-	else
-		UE_LOG(LogTemp, Error, TEXT("PieceManager null HumanPlayer"));
-
+	PieceManager->CapturePiece(PieceToCapture, Coord);
 	
 	// Before moving the piece, set the current tile to be empty
 	if (TileMap.Contains(CurrPiece->GetGridPosition()))
 		TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 	
 	// move the piece
-	if (PieceManager)
-		PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord, CurrPosition);
-	else
-		UE_LOG(LogTemp, Error, TEXT("PieceManager null HumanPlayer"));
+	PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord, CurrPosition);
+	
 	MyTurn = false;
 }
 

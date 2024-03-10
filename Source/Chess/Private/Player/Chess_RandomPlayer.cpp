@@ -38,36 +38,37 @@ void AChess_RandomPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 void AChess_RandomPlayer::OnTurn()
 {
 	GameInstance->SetTurnMessage(TEXT("AI (Random) Turn"));
+
+	AChess_GameMode* GMode = nullptr;
+	AGameField* Field = nullptr;
+	AManagePiece* ManagerPiece = nullptr;
+
+	if (!FGameRef::GetGameRef(this, GMode, Field, ManagerPiece, "RandomPlayer"))
+		return;
+
+	// mi calcolo tutte le legalmove del bot per evitare che venga scelto lo stesso pezzo diverse 
+	// e volte e che vengano calcolate le legalmove tutte le volte
+	auto PiecesArray = Field->GetBotPieces();
+	for (auto Piece : PiecesArray)
+	{
+		Piece->LegalMove(PlayerNumber, false);
+	}
 	
 	FTimerHandle TimerHandle;
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 		{
-			auto GMode = FGameModeRef::GetGameMode(this);
-			if (!GMode)
-			{
-				UE_LOG(LogTemp, Error, TEXT("Game mode null RandomPlayer"));
-				return;
-			}
+			AChess_GameMode* GMode = nullptr;
+			AGameField* Field = nullptr;
+			AManagePiece* ManagerPiece = nullptr;
 
-			AGameField* Field = GMode->GField;
-			if (!Field)
-			{
-				UE_LOG(LogTemp, Error, TEXT("Field null RandomPlayer"));
+			if (!FGameRef::GetGameRef(this, GMode, Field, ManagerPiece, "RandomPlayer"))
 				return;
-			}
-
-			auto PieceManager = GMode->Manager;
-			if (!PieceManager)
-			{
-				UE_LOG(LogTemp, Error, TEXT("PieceManager null RandomPlayer"));
-				return;
-			}
 
 			TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 			TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
-			TArray<AChessPieces*> PiecesArray = Field->GetBotPieces();
+			auto PiecesArray = Field->GetBotPieces();
 
 			bool PieceIsPossibleToMove = false;
 			int32 RIndex;
@@ -85,26 +86,21 @@ void AChess_RandomPlayer::OnTurn()
 				auto CurrPosition = CurrPiece->GetGridPosition();
 
 				// check the possible move
-				CurrPiece->LegalMove(PlayerNumber, false);
+				//CurrPiece->LegalMove(PlayerNumber, false);
 
-				auto TileMarked = PieceManager->TileMarkedForPiece;
+				auto TileMarked = ManagerPiece->TileMarkedForPiece[CurrPiece->IndexArray];
 
-				if (TileMarked[CurrPiece->IndexArray].Num() == 0)
+				if (TileMarked.Num() == 0)
 					continue;
 
 				PieceIsPossibleToMove = true;
 
-				if (TileMarked[CurrPiece->IndexArray].Num() == 0)
-				{
-					UE_LOG(LogTemp, Error, TEXT("No tile marked RandomPlayer"));
-					return;
-				}
 				// select the marked tile to move
-				int32 RIndexToMovePiece = FMath::Rand() % TileMarked[CurrPiece->IndexArray].Num();
+				int32 RIndexToMovePiece = FMath::Rand() % TileMarked.Num();
 
 				// take the tile where move the piece
-				ATile* TileActor = TileMarked[CurrPiece->IndexArray][RIndexToMovePiece].Tile;
-				bool Capture = TileMarked[CurrPiece->IndexArray][RIndexToMovePiece].Capture;
+				ATile* TileActor = TileMarked[RIndexToMovePiece].Tile;
+				bool Capture = TileMarked[RIndexToMovePiece].Capture;
 				FVector SpawnPosition = TileActor->GetActorLocation();
 
 				FVector2D Coord = TileActor->GetGridPosition();
@@ -118,7 +114,7 @@ void AChess_RandomPlayer::OnTurn()
 					if (PiecesMap.Contains(Coord))
 						PieceToCapture = PiecesMap[(Coord)];
 
-					PieceManager->CapturePiece(PieceToCapture, Coord);
+					ManagerPiece->CapturePiece(PieceToCapture, Coord);
 				}
 				TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
@@ -132,11 +128,11 @@ void AChess_RandomPlayer::OnTurn()
 					TileMap[FVector2D(x, y)]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 				
 				
-				PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord, CurrPosition);
+				ManagerPiece->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord, CurrPosition);
 
 			} while (!PieceIsPossibleToMove);
 
-		}, 2, false);
+		}, 0.5, false);
 }
 
 void AChess_RandomPlayer::OnWin()

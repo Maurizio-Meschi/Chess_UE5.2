@@ -29,20 +29,12 @@ void AManagePiece::BeginPlay()
 
 void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition)
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
+	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
+	AGameField* GField = nullptr;
+	
+	if (!GMode || !FGameRef::GetGameField(this, GField, "ManagePiece"))
 		return;
-	}
-
-	auto GField = GMode->GField;
-	if (!GField)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null in ManagePiece"));
-		return;
-	}
-
+	
 	if (IsGameOver || PlayerNumber != GMode->CurrentPlayer)
 	{
 		return;
@@ -110,19 +102,10 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 
 void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
-		return;
-	}
+	AGameField* GField = nullptr;
 
-	auto GField = GMode->GField;
-	if (!GField)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null in ManagePiece"));
+	if (!FGameRef::GetGameField(this, GField, "ManagePiece"))
 		return;
-	}
 
 	
 	GField->PiecesMapRemove(Coord);
@@ -147,18 +130,11 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 
 void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
+	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
+	AGameField* Field = nullptr;
+
+	if (!GMode || !FGameRef::GetGameField(this, Field, "ManagePiece"))
 		return;
-	}
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null in PawnPromotion"));
-		return;
-	}
 	
 	for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)
 		TileMarkedForPiece[i].Empty();
@@ -204,25 +180,13 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 	GMode->TurnNextPlayer();
 }
 
-void AManagePiece::Replay()
+void AManagePiece::RewindManager(int32 MoveNumber)
 {
-	auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
-	if (PlayerController)
-		PlayerController->DisableInput(PlayerController);
+	AGameField* Field = nullptr;
 
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in PawnPromotion"));
+	if (!FGameRef::GetGameField(this, Field, "ManagePiece"))
 		return;
-	}
 
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null in PawnPromotion"));
-		return;
-	}
 	Field->TileMarkedDestroy();
 
 	for (auto Piece : CapturedPieces)
@@ -235,21 +199,21 @@ void AManagePiece::Replay()
 		Piece->SetActorHiddenInGame(true);
 	}
 
-	int32 ArrivalIndex = ButtonValue;
-	if (ArrivalIndex > ArrayOfPlays.Num())
+	if (MoveNumber > ArrayOfPlays.Num())
 	{
-		UE_LOG(LogTemp, Error, TEXT("Invalid Index: ArrivalIndex: %d. ArrayOfPlay Num: %d"), ArrivalIndex, ArrayOfPlays.Num() - 1);
+		UE_LOG(LogTemp, Error, TEXT("Invalid Index"));
 		return;
 	}
-	
-	for (int32 i = 0; i < ArrivalIndex + 1; i++)
+
+	for (int32 i = 0; i < MoveNumber; i++)
 	{
 		auto Position = ArrayOfPlays[i].Position;
 		auto Piece = ArrayOfPlays[i].PieceToRewind;
 		if (ArrayOfPlays[i].Capture)
 		{
 			Piece->SetActorHiddenInGame(true);
-			ArrivalIndex++;
+			if (MoveNumber < ArrayOfPlays.Num())
+				MoveNumber++;
 		}
 		else
 			Piece->SetActorHiddenInGame(false);
@@ -259,55 +223,18 @@ void AManagePiece::Replay()
 	}
 }
 
+void AManagePiece::Replay()
+{
+	auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	if (PlayerController)
+		PlayerController->DisableInput(PlayerController);
+
+	RewindManager(ButtonValue + 1);
+}
+
 void AManagePiece::BackToPlay()
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in PawnPromotion"));
-		return;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null in PawnPromotion"));
-		return;
-	}
-
-	for (auto Piece : CapturedPieces)
-	{
-		Piece->SetActorHiddenInGame(true);
-	}
-
-	for (auto Piece : PromotePieces)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Promote piece: %s"), *Piece->GetClass()->GetName());
-		Piece->SetActorHiddenInGame(true);
-	}
-
-	int32 ArrivalIndex = ButtonValue;
-	if (ArrivalIndex > ArrayOfPlays.Num())
-	{
-		UE_LOG(LogTemp, Error, TEXT("Invalid Index: ArrivalIndex: %d. ArrayOfPlay Num: %d"), ArrivalIndex, ArrayOfPlays.Num() - 1);
-		return;
-	}
-
-	for (int32 i = 0; i < ArrayOfPlays.Num(); i++)
-	{
-		auto Position = ArrayOfPlays[i].Position;
-		auto Piece = ArrayOfPlays[i].PieceToRewind;
-		if (ArrayOfPlays[i].Capture)
-		{
-			Piece->SetActorHiddenInGame(true);
-			ArrivalIndex++;
-		}
-		else
-			Piece->SetActorHiddenInGame(false);
-		FVector NewLocation = Field->GetActorLocation() + FVector(Position.X, Position.Y, 0.0f);
-		NewLocation = Field->GetRelativeLocationByXYPosition(NewLocation.X, NewLocation.Y);
-		Piece->SetActorLocation(NewLocation);
-	}
+	RewindManager(ArrayOfPlays.Num());
 
 	auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	if (PlayerController)
@@ -316,7 +243,7 @@ void AManagePiece::BackToPlay()
 
 void AManagePiece::HandlePromotionCompleted()
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
+	auto GMode = FGameRef::GetGameMode(this);
 	if (!GMode)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
@@ -329,19 +256,11 @@ void AManagePiece::HandlePromotionCompleted()
 
 void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in PawnPromotion"));
-		return;
-	}
+	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
+	AGameField* Field = nullptr;
 
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null in PawnPromotion"));
+	if (!GMode || !FGameRef::GetGameField(this, Field, "ManagePiece"))
 		return;
-	}
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	TSubclassOf<AChessPieces> PieceClass;

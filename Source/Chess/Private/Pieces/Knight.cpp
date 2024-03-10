@@ -21,20 +21,6 @@ bool AKnight ::LegalMove(int32 PlayerNumber, bool CheckFlag)
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
 
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null Knight"));
-		return false;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null Knight"));
-		return false;
-	}
-
 	bool IsHumanPlayer = PlayerNumber == 0 ? true : false;
 
 	XMove = IsHumanPlayer ? 1 : -1;

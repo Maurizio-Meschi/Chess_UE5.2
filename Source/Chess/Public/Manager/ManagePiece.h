@@ -73,8 +73,10 @@ public:
 
 	bool IsBotPlayed = true;
 
+	UPROPERTY(Transient)
 	TArray<AChessPieces*> CapturedPieces;
 
+	UPROPERTY(Transient)
 	TArray<AChessPieces*> PromotePieces;
 
 	TArray<TArray<FMarked>> TileMarkedForPiece;
@@ -82,8 +84,6 @@ public:
 	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition);
 
 	void CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord);
-
-	void CheckWinAndGoNextPlayer(const int32 PlayerNumber);
 
 	UFUNCTION(BlueprintCallable)
 	void Replay();
@@ -108,4 +108,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Button Category")
 	bool GetIsBotPlayed() { return Visible; }
+
+protected:
+
+	void CheckWinAndGoNextPlayer(const int32 PlayerNumber);
+
+	void RewindManager(int32 MoveNumber);
 };

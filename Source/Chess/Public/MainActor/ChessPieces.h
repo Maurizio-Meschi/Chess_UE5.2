@@ -36,9 +36,6 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AChess_GameMode> GameModeClass;
 
-	//UPROPERTY(VisibleAnywhere)
-	//AChess_GameMode* GMode;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector2D PieceGridPosition;
 
@@ -56,15 +53,17 @@ public:
 	// set chess piece color
 	void SetColor(EPieceColor color);
 
-	// checks if the coordinates are part of the board
-	bool CheckCoord(int32 x, int32 y);
-
 	FVector2D GetGridPosition()
 	{
 		return PieceGridPosition;
 	}
 
 	virtual bool LegalMove(int32 PlayerNumber, bool CheckFlag) { return true; }
+
+protected:
+
+	// checks if the coordinates are part of the board
+	bool CheckCoord(int32 x, int32 y);
 
 	void ResetTileStatus(ATile* CurrTile, ATile* NewTile, int32 PlayerNumber, bool IsTileEmpty);
 

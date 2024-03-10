@@ -76,15 +76,6 @@ void AChess_PlayerController::AddInventoryWidgetToViewport()
 	}
 	if (!InventoryWidget->IsInViewport())
 		InventoryWidget->AddToViewport();
-	/*
-	if (InventoryWidget && InventoryWidget->IsInViewport())
-	{
-		InventoryWidget->SetVisibility(ESlateVisibility::Visible);
-		InventoryWidget->SetIsEnabled(true);
-	}
-	else
-		UE_LOG(LogTemp, Error, TEXT("Widget null in controller"));
-		*/
 }
 
 void AChess_PlayerController::RemoveInventoryWidgetToViewport()
@@ -100,20 +91,10 @@ void AChess_PlayerController::RemoveInventoryWidgetToViewport()
 	}
 	if (InventoryWidget && InventoryWidget->IsInViewport())
 		InventoryWidget->RemoveFromParent();
-	/*
-	if (InventoryWidget && InventoryWidget->IsInViewport())
-	{
-		InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
-		InventoryWidget->SetIsEnabled(false);
-	}
-	else
-		UE_LOG(LogTemp, Error, TEXT("Widget null in controller"));
-		*/
 }
 
 void AChess_PlayerController::ClickOnGrid()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Click in controller!"));
 	const auto HumanPlayer = Cast<AChess_HumanPlayer>(GetPawn());
 	if (IsValid(HumanPlayer))
 	{

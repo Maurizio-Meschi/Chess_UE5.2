@@ -54,6 +54,11 @@ public:
 	virtual void OnWin() override;
 	virtual void OnLose() override;
 
+	// called on left mouse click (binding)
+	UFUNCTION()
+	void OnClick();
+
+protected:
 	void ResetMarkStatus();
 
 	bool FindPiece(FString ClassName);
@@ -65,8 +70,4 @@ public:
 
 	void ManageMovingInEmptyTile(ATile* TileActor);
 	void ManageCaptureInEnemyTile(ATile* EnemyTile);
-
-	// called on left mouse click (binding)
-	UFUNCTION()
-	void OnClick();
 };

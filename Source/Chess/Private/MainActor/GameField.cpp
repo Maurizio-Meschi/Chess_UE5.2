@@ -19,7 +19,7 @@ AGameField::AGameField()
 
 void AGameField::ResetField()
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
+	auto GMode = FGameRef::GetGameMode(this);
 	if (!GMode)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Game mode null in GameField"));
@@ -49,6 +49,7 @@ void AGameField::ResetField()
 
 		for (int32 i = 0; i < ManagerPiece->TileMarkedForPiece.Num(); i++)
 			ManagerPiece->TileMarkedForPiece[i].Empty();
+		ManagerPiece->TileMarkedForPiece.Empty();
 
 		ManagerPiece->Count = 1;
 	}
@@ -200,12 +201,13 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	NewObj.Position = Obj->GetGridPosition();
 	NewObj.Capture = false;
 
-	auto GMode = FGameModeRef::GetGameMode(this);
+	auto GMode = FGameRef::GetGameMode(this);
 	if (!GMode)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Game mode null in GameField"));
 	}
 	auto ManagerPiece = GMode->Manager;
+
 	if (ManagerPiece)
 	{
 		ManagerPiece->ArrayOfPlays.Add(NewObj);

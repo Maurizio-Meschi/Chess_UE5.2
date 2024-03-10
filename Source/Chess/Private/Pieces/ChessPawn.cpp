@@ -22,26 +22,12 @@ bool AChessPawn::LegalMove(int32 PlayerNumber, bool CheckFlag)
 
 	bool MarkedForward = false;
 
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null Pawn"));
-		return false;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null Pawn"));
-		return false;
-	}
-
 	bool IsHumanPlayer = PlayerNumber == 0 ? true : false;
 	//UE_LOG(LogTemp, Error, TEXT("Prima chiamata alla legalmove di %s con CheckFalg = %s"), *this->GetName(), CheckFlag ? TEXT("TRUE") : TEXT("FALSE"));
 
 	// check if the next first vertical tile is empty and if true, mark the tile
 	XMove = IsHumanPlayer ? 1 : -1;
-	if (CheckCoord(x + XMove, y) && !MarkedForward)
+	if (CheckCoord(x + XMove, y))
 	{
 		CaptureSituation = false;
 
@@ -50,6 +36,22 @@ bool AChessPawn::LegalMove(int32 PlayerNumber, bool CheckFlag)
 		else
 			if (TestCheck(x + XMove, y, PlayerNumber, MarkedForward))
 				return true;
+	}
+
+	// check if the next second vertical tile is empty and if true, mark the tile
+	if (x == 1)
+	{
+		CaptureSituation = false;
+
+		XMove = IsHumanPlayer ? 2 : -2;
+		if (CheckCoord(x + XMove, y) && !MarkedForward)
+		{
+			if (!CheckFlag)
+				MarkTile(x + XMove, y, PlayerNumber, MarkedForward);
+			else
+				if (TestCheck(x + XMove, y, PlayerNumber, MarkedForward))
+					return true;
+		}
 	}
 
 	// check if it is possible to capture an enemy piece
@@ -70,21 +72,6 @@ bool AChessPawn::LegalMove(int32 PlayerNumber, bool CheckFlag)
 		}
 		i = -1;
 	}
-
-	// check if the next second vertical tile is empty and if true, mark the tile
-	if (x == 1)
-	{
-		CaptureSituation = false;
-
-		XMove = IsHumanPlayer ? 2 : -2;
-		if (CheckCoord(x + XMove, y))
-		{
-			if (!CheckFlag)
-				MarkTile(x + XMove, y, PlayerNumber, MarkedForward);
-			else
-				if (TestCheck(x + XMove, y, PlayerNumber, MarkedForward))
-					return true;
-		}
-	}
+	
 	return false;
 }

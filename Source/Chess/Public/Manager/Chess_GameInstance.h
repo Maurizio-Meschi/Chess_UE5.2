@@ -40,13 +40,3 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetTurnMessage(FString Message);
 };
-
-class FGameInstanceRef
-{
-private:
-	static UChess_GameInstance* CachedGameInstance;
-
-public:
-	//FGameModeRef() { FGameModeRef::CachedGameMode = nullptr; }
-	static UChess_GameInstance* GetGameInstance(UObject* WorldContextObject);
-};

@@ -67,7 +67,7 @@ void AChess_GameMode::BeginDestroy()
 {
 	Super::BeginDestroy();
 	
-	FGameModeRef::ResetCachedGameMode();
+	FGameRef::ResetCachedGameMode();
 }
 
 void AChess_GameMode::ChoosePlayerAndStartGame()
@@ -103,9 +103,9 @@ void AChess_GameMode::TurnNextPlayer()
 	Players[CurrentPlayer]->OnTurn();
 }
 
-AChess_GameMode* FGameModeRef::CachedGameMode = nullptr;
+AChess_GameMode* FGameRef::CachedGameMode = nullptr;
 
-AChess_GameMode* FGameModeRef::GetGameMode(UObject* WorldContextObject)
+AChess_GameMode* FGameRef::GetGameMode(UObject* WorldContextObject)
 {
 	if (!CachedGameMode)
 	{
@@ -115,3 +115,43 @@ AChess_GameMode* FGameModeRef::GetGameMode(UObject* WorldContextObject)
 
 	return CachedGameMode;
 }
+
+bool FGameRef::GetGameRef(UObject* WorldContextObject, AChess_GameMode*& GMode, AGameField*& Field, AManagePiece*& PieceManager, FString Source)
+{
+	GMode = FGameRef::GetGameMode(WorldContextObject);
+	if (!GMode)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game mode null in %s"), *Source);
+		return false;
+	}
+	Field = GMode->GField;
+	if (!Field)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game Field null in %s"), *Source);
+		return false;
+	}
+	PieceManager = GMode->Manager;
+	if (!PieceManager)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Piece Manager null in %s"), *Source);
+		return false;
+	}
+	return true;
+}
+
+bool FGameRef::GetGameField(UObject* WorldContextObject, AGameField*& Field, FString Source)
+{
+	auto GMode = FGameRef::GetGameMode(WorldContextObject);
+	if (GMode)
+	{
+		Field = GMode->GField;
+		if (!Field)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Game Field null in %s"), *Source);
+			return false;
+		}
+		return true;
+	}
+	return false;
+}
+

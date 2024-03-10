@@ -60,26 +60,13 @@ void AChessPieces::ResetTileStatus(ATile* CurrTile, ATile* NewTile, int32 Player
 
 void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
-		return;
-	}
+	AChess_GameMode* GMode = nullptr;
+	AGameField* GField = nullptr;
+	AManagePiece* ManagerPiece = nullptr;
 
-	auto GField = GMode->GField;
-	if (!GField)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null in ManagePiece"));
+	if (!FGameRef::GetGameRef(this, GMode, GField, ManagerPiece, "ChessPieces"))
 		return;
-	}
-
-	auto ManagerPiece = GMode->Manager;
-	if (!ManagerPiece)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Manager Piece null in ChessPieces"));
-		return;
-	}
+	
 	auto TileMap = GField->GetTileMap();
 	auto PiecesMap = GField->GetPiecesMap();
 
@@ -124,7 +111,10 @@ void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 		else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 		{
 			if (this->IsA<AChessPawn>() && !Cast<AChessPawn>(this)->CaptureSituation)
+			{
+				Marked = true;
 				return;
+			}
 
 			if (SelectedTile->GetOwner() != PlayerNumber)
 			{
@@ -157,26 +147,11 @@ void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 
 bool AChessPieces::TestCheck(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 {
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
-		return false;
-	}
+	AGameField* GField = nullptr;
 
-	auto GField = GMode->GField;
-	if (!GField)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null in ManagePiece"));
+	if (!FGameRef::GetGameField(this, GField, "ChessPieces"))
 		return false;
-	}
-
-	auto ManagerPiece = GMode->Manager;
-	if (!ManagerPiece)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Manager Piece null in ChessPieces"));
-		return false;
-	}
+	
 	auto TileMap = GField->GetTileMap();
 	auto PiecesMap = GField->GetPiecesMap();
 

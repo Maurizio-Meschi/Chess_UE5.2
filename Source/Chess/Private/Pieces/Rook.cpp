@@ -21,20 +21,6 @@ bool ARook::LegalMove(int32 PlayerNumber, bool CheckFlag)
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
 
-	auto GMode = FGameModeRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null Rook"));
-		return false;
-	}
-
-	AGameField* Field = GMode->GField;
-	if (!Field)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Field null Rook"));
-		return false;
-	}
-
 	bool IsHumanPlayer = PlayerNumber == 0 ? true : false;
 
 	XMove   = IsHumanPlayer ? 1 : -1;

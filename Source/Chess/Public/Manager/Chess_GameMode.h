@@ -17,18 +17,12 @@ class CHESS_API AChess_GameMode : public AGameModeBase
 
 private:
 
-	// tracks if the game is over
-	//bool IsGameOver;
-
-	//int32 CurrentPlayer;
-
 	// tracks the number of moves in order to signal a drawn game
 	int32 MoveCounter;
 
 	AChess_GameMode();
 
 public:
-	FCriticalSection CriticalSection;
 
 	int32 CurrentPlayer;
 
@@ -69,12 +63,16 @@ public:
 };
 
 
-class FGameModeRef
+class FGameRef
 {
 private:
 	static AChess_GameMode* CachedGameMode;
 
 public:
 	static void ResetCachedGameMode() { CachedGameMode = nullptr; }
+
 	static AChess_GameMode* GetGameMode(UObject* WorldContextObject);
+
+	static bool GetGameRef(UObject* WorldContextObject, AChess_GameMode*& GMode, AGameField*& Field, AManagePiece*& PieceManager, FString Source);
+	static bool GetGameField(UObject* WorldContextObject, AGameField*& Field, FString Source);
 };
