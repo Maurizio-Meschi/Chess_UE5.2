@@ -21,6 +21,8 @@ AManagePiece::AManagePiece()
 	Capture = "";
 }
 
+bool AManagePiece::Castling = false;
+
 // Called when the game starts or when spawned
 void AManagePiece::BeginPlay()
 {
@@ -40,13 +42,106 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 		return;
 	}
 
+	//Arrocco
 	FVector NewLocation = GField->GetActorLocation() + SpawnPosition;
 
-	GField->PiecesMapRemove(Piece->GetGridPosition());
-	Piece->SetGridPosition(Coord.X, Coord.Y);
-	
-	GField->AddPiecesMap(Coord, Piece);
-	Piece->SetActorLocation(NewLocation);
+	if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(0, 6))
+	{
+		auto PiecesMap = GField->GetPiecesMap();
+		auto TileMap = GField->GetTileMap();
+
+		AChessPieces* Rook = nullptr;
+		if (PiecesMap.Contains(FVector2D(0, 7)))
+		{
+			Rook = PiecesMap[FVector2D(0, 7)];
+			if (Rook->IsA<ARook>() && Cast<ARook>(Rook)->NeverMoved)
+			{
+				if (TileMap.Contains(FVector2D(0, 7)))
+					TileMap[FVector2D(0, 7)]->SetTileStatus(-1, ETileStatus::EMPTY);
+
+				if (TileMap.Contains(FVector2D(0, 5)))
+					TileMap[FVector2D(0, 5)]->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+
+				GField->PiecesMapRemove(Piece->GetGridPosition());
+				GField->PiecesMapRemove(Rook->GetGridPosition());
+
+				Piece->SetGridPosition(Coord.X, Coord.Y);
+				Rook->SetGridPosition(0, 5);
+
+				GField->AddPiecesMap(Coord, Piece);
+				GField->AddPiecesMap(FVector2D(0, 5), Rook);
+
+				auto RookPosition = GField->GetRelativeLocationByXYPosition(0, 5);
+
+				Piece->SetActorLocation(NewLocation);
+				Rook->SetActorLocation(RookPosition);
+
+				FRewind Obj;
+				Obj.PieceToRewind = Rook;
+				Obj.Position = Rook->GetGridPosition();
+				Obj.Capture = false;
+				Obj.Castling = true;
+				ArrayOfPlays.Add(Obj);
+			}
+		}
+	}
+	else if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(0, 2))
+	{
+		auto PiecesMap = GField->GetPiecesMap();
+		auto TileMap = GField->GetTileMap();
+
+		AChessPieces* Rook = nullptr;
+		if (PiecesMap.Contains(FVector2D(0, 0)))
+		{
+			Rook = PiecesMap[FVector2D(0, 0)];
+			if (Rook->IsA<ARook>() && Cast<ARook>(Rook)->NeverMoved)
+			{
+				if (TileMap.Contains(FVector2D(0, 0)))
+					TileMap[FVector2D(0, 7)]->SetTileStatus(-1, ETileStatus::EMPTY);
+
+				if (TileMap.Contains(FVector2D(0, 3)))
+					TileMap[FVector2D(0, 3)]->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+
+				GField->PiecesMapRemove(Piece->GetGridPosition());
+				GField->PiecesMapRemove(Rook->GetGridPosition());
+
+				Piece->SetGridPosition(Coord.X, Coord.Y);
+				Rook->SetGridPosition(0, 3);
+
+				GField->AddPiecesMap(Coord, Piece);
+				GField->AddPiecesMap(FVector2D(0, 3), Rook);
+
+				auto RookPosition = GField->GetRelativeLocationByXYPosition(0, 3);
+
+				Piece->SetActorLocation(NewLocation);
+				Rook->SetActorLocation(RookPosition);
+
+				FRewind Obj;
+				Obj.PieceToRewind = Rook;
+				Obj.Position = Rook->GetGridPosition();
+				Obj.Capture = false;
+				Obj.Castling = true;
+				ArrayOfPlays.Add(Obj);
+			}
+		}
+	}
+	else
+	{
+		if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved)
+			Cast<AKing>(Piece)->NeverMoved = false;
+
+		if (Piece->IsA<ARook>() && Cast<ARook>(Piece)->NeverMoved)
+			Cast<ARook>(Piece)->NeverMoved = false;
+
+		GField->PiecesMapRemove(Piece->GetGridPosition());
+		Piece->SetGridPosition(Coord.X, Coord.Y);
+
+		GField->AddPiecesMap(Coord, Piece);
+		Piece->SetActorLocation(NewLocation);
+	}
+
+	if (AManagePiece::Castling)
+		AManagePiece::Castling = false;
 
 	auto TileMap = GField->GetTileMap();
 
@@ -217,6 +312,12 @@ void AManagePiece::RewindManager(int32 MoveNumber)
 		}
 		else
 			Piece->SetActorHiddenInGame(false);
+
+		if (ArrayOfPlays[i].Castling)
+		{
+			if (MoveNumber < ArrayOfPlays.Num())
+				MoveNumber++;
+		}
 		FVector NewLocation = Field->GetActorLocation() + FVector(Position.X, Position.Y, 0.0f);
 		NewLocation = Field->GetRelativeLocationByXYPosition(NewLocation.X, NewLocation.Y);
 		Piece->SetActorLocation(NewLocation);

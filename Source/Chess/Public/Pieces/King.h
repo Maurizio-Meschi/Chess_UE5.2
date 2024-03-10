@@ -15,6 +15,8 @@ class CHESS_API AKing : public AChessPieces
 public:
 	AKing();
 
+	bool NeverMoved = true;
+
 	// defines the movements of the piece
 	bool LegalMove(int32 PlayerNumber, bool CheckFlag) override;
 };

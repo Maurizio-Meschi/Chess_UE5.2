@@ -107,6 +107,61 @@ void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 			Obj.Tile = SelectedTile;
 			Obj.Capture = false;
 			ManagerPiece->TileMarkedForPiece[this->IndexArray].Add(Obj);
+
+			// Arrocco
+			if (IsA<AKing>() && x == 0 && y == 5 && Cast<AKing>(this)->NeverMoved)
+			{
+				ATile* NextTile = nullptr;
+				if (TileMap.Contains(FVector2D(0, 6)))
+					NextTile = TileMap[FVector2D(0, 6)];
+				if (NextTile && NextTile->GetTileStatus() == ETileStatus::EMPTY)
+				{
+					AChessPieces* Rook = nullptr;
+					if (PiecesMap.Contains(FVector2D(0, 7)))
+					{
+						Rook = PiecesMap[FVector2D(0, 7)];
+						if (Rook->IsA<ARook>() && Cast<ARook>(Rook)->NeverMoved)
+						{
+							MarkTile(0, 6, PlayerNumber, Marked);
+							auto TileMarked = ManagerPiece->TileMarkedForPiece[this->IndexArray];
+							for (auto Element : TileMarked)
+							{
+								if (Element.Tile->GetGridPosition() == FVector2D(0, 6))
+									AManagePiece::Castling = true;
+							}
+						}
+					}
+				}
+			}
+
+			// Arrocco Lungo
+			if (IsA<AKing>() && x == 0 && y == 3 && Cast<AKing>(this)->NeverMoved)
+			{
+				if (TileMap.Contains(FVector2D(0, 1)))
+					if (TileMap[FVector2D(0, 1)]->GetTileStatus() != ETileStatus::EMPTY)
+						return;
+				ATile* NextTile = nullptr;
+				if (TileMap.Contains(FVector2D(0, 2)))
+					NextTile = TileMap[FVector2D(0, 2)];
+				if (NextTile && NextTile->GetTileStatus() == ETileStatus::EMPTY)
+				{
+					AChessPieces* Rook = nullptr;
+					if (PiecesMap.Contains(FVector2D(0, 0)))
+					{
+						Rook = PiecesMap[FVector2D(0, 0)];
+						if (Rook->IsA<ARook>() && Cast<ARook>(Rook)->NeverMoved)
+						{
+							MarkTile(0, 2, PlayerNumber, Marked);
+							auto TileMarked = ManagerPiece->TileMarkedForPiece[this->IndexArray];
+							for (auto Element : TileMarked)
+							{
+								if (Element.Tile->GetGridPosition() == FVector2D(0, 2))
+									AManagePiece::Castling = true;
+							}
+						}
+					}
+				}
+			}
 		}
 		else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 		{

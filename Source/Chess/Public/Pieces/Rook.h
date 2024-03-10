@@ -14,6 +14,8 @@ class CHESS_API ARook : public AChessPieces
 public:
 	ARook();
 
+	bool NeverMoved = true;
+
 	// every piece has a value
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 Value;

@@ -23,6 +23,7 @@ public:
 	AChessPieces* PieceToRewind;
 	FVector2D Position;
 	bool Capture;
+	bool Castling = false;
 };
 
 USTRUCT()
@@ -62,6 +63,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Events Disable")
 	FDisableButtonDelegate DisableButtonEvent;
+
+	static bool Castling;
 
 	bool IsGameOver;
 
