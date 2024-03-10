@@ -245,7 +245,6 @@ void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 	// Set the tile status to OCCUPIED where the piece will be placed
 	TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
-	FVector SpawnPosition = TileActor->GetActorLocation();
 	FVector2D Coord = TileActor->GetGridPosition();
 
 	
@@ -253,7 +252,7 @@ void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 	if (TileMap.Contains(CurrPiece->GetGridPosition()))
 		TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 	
-	PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord, CurrPiece->GetGridPosition());
+	PieceManager->MovePiece(PlayerNumber, CurrPiece, Coord, CurrPiece->GetGridPosition());
 
 	MyTurn = false;
 }
@@ -273,7 +272,6 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 	// Set the tile status to OCCUPIED where the piece will be placed
 	EnemyTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
-	FVector SpawnPosition = EnemyTile->GetActorLocation();
 	FVector2D Coord = EnemyTile->GetGridPosition();
 	auto CurrPosition = CurrPiece->GetGridPosition();
 
@@ -290,7 +288,7 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 		TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 	
 	// move the piece
-	PieceManager->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord, CurrPosition);
+	PieceManager->MovePiece(PlayerNumber, CurrPiece, Coord, CurrPosition);
 	
 	MyTurn = false;
 }

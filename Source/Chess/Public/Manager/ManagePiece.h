@@ -84,7 +84,7 @@ public:
 
 	TArray<TArray<FMarked>> TileMarkedForPiece;
 
-	void MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition);
+	void MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition);
 
 	void CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord);
 
@@ -117,4 +117,6 @@ protected:
 	void CheckWinAndGoNextPlayer(const int32 PlayerNumber);
 
 	void RewindManager(int32 MoveNumber);
+
+	void CastlingManager(FVector2D StartRookCoord, FVector2d NewRookCoord, FVector2D Coord, AChessPieces* Piece);
 };

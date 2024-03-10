@@ -29,7 +29,7 @@ void AManagePiece::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosition, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition)
+void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition)
 {
 	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
 	AGameField* GField = nullptr;
@@ -43,88 +43,16 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 	}
 
 	//Arrocco
-	FVector NewLocation = GField->GetActorLocation() + SpawnPosition;
-
 	if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(0, 6))
 	{
-		auto PiecesMap = GField->GetPiecesMap();
-		auto TileMap = GField->GetTileMap();
-
-		AChessPieces* Rook = nullptr;
-		if (PiecesMap.Contains(FVector2D(0, 7)))
-		{
-			Rook = PiecesMap[FVector2D(0, 7)];
-			if (Rook->IsA<ARook>() && Cast<ARook>(Rook)->NeverMoved)
-			{
-				if (TileMap.Contains(FVector2D(0, 7)))
-					TileMap[FVector2D(0, 7)]->SetTileStatus(-1, ETileStatus::EMPTY);
-
-				if (TileMap.Contains(FVector2D(0, 5)))
-					TileMap[FVector2D(0, 5)]->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
-
-				GField->PiecesMapRemove(Piece->GetGridPosition());
-				GField->PiecesMapRemove(Rook->GetGridPosition());
-
-				Piece->SetGridPosition(Coord.X, Coord.Y);
-				Rook->SetGridPosition(0, 5);
-
-				GField->AddPiecesMap(Coord, Piece);
-				GField->AddPiecesMap(FVector2D(0, 5), Rook);
-
-				auto RookPosition = GField->GetRelativeLocationByXYPosition(0, 5);
-
-				Piece->SetActorLocation(NewLocation);
-				Rook->SetActorLocation(RookPosition);
-
-				FRewind Obj;
-				Obj.PieceToRewind = Rook;
-				Obj.Position = Rook->GetGridPosition();
-				Obj.Capture = false;
-				Obj.Castling = true;
-				ArrayOfPlays.Add(Obj);
-			}
-		}
+		CastlingManager(FVector2D(0, 7), FVector2D(0, 5), Coord, Piece);
 	}
+	//Arrocco lungo
 	else if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(0, 2))
 	{
-		auto PiecesMap = GField->GetPiecesMap();
-		auto TileMap = GField->GetTileMap();
-
-		AChessPieces* Rook = nullptr;
-		if (PiecesMap.Contains(FVector2D(0, 0)))
-		{
-			Rook = PiecesMap[FVector2D(0, 0)];
-			if (Rook->IsA<ARook>() && Cast<ARook>(Rook)->NeverMoved)
-			{
-				if (TileMap.Contains(FVector2D(0, 0)))
-					TileMap[FVector2D(0, 7)]->SetTileStatus(-1, ETileStatus::EMPTY);
-
-				if (TileMap.Contains(FVector2D(0, 3)))
-					TileMap[FVector2D(0, 3)]->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
-
-				GField->PiecesMapRemove(Piece->GetGridPosition());
-				GField->PiecesMapRemove(Rook->GetGridPosition());
-
-				Piece->SetGridPosition(Coord.X, Coord.Y);
-				Rook->SetGridPosition(0, 3);
-
-				GField->AddPiecesMap(Coord, Piece);
-				GField->AddPiecesMap(FVector2D(0, 3), Rook);
-
-				auto RookPosition = GField->GetRelativeLocationByXYPosition(0, 3);
-
-				Piece->SetActorLocation(NewLocation);
-				Rook->SetActorLocation(RookPosition);
-
-				FRewind Obj;
-				Obj.PieceToRewind = Rook;
-				Obj.Position = Rook->GetGridPosition();
-				Obj.Capture = false;
-				Obj.Castling = true;
-				ArrayOfPlays.Add(Obj);
-			}
-		}
+		CastlingManager(FVector2D(0, 0), FVector2D(0, 3), Coord, Piece);
 	}
+	//std case
 	else
 	{
 		if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved)
@@ -132,6 +60,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 
 		if (Piece->IsA<ARook>() && Cast<ARook>(Piece)->NeverMoved)
 			Cast<ARook>(Piece)->NeverMoved = false;
+		FVector NewLocation = GField->GetRelativeLocationByXYPosition(Coord.X, Coord.Y);
 
 		GField->PiecesMapRemove(Piece->GetGridPosition());
 		Piece->SetGridPosition(Coord.X, Coord.Y);
@@ -161,6 +90,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 		//Count++;
 		Capture = "";
 		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+
 		if (PlayerController)
 			PlayerController->Event.Broadcast();
 		else
@@ -192,6 +122,54 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, const FVector& SpawnPosit
 		Obj.Capture = false;
 		ArrayOfPlays.Add(Obj);
 		CheckWinAndGoNextPlayer(PlayerNumber);
+	}
+}
+
+void AManagePiece::CastlingManager(FVector2D StartRookCoord, FVector2d NewRookCoord, FVector2D Coord, AChessPieces* Piece)
+{
+	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
+	AGameField* GField = nullptr;
+
+	if (!GMode || !FGameRef::GetGameField(this, GField, "ManagePiece"))
+		return;
+
+	auto PiecesMap = GField->GetPiecesMap();
+	auto TileMap = GField->GetTileMap();
+
+	AChessPieces* Rook = nullptr;
+	if (PiecesMap.Contains(StartRookCoord))
+	{
+		Rook = PiecesMap[StartRookCoord];
+		if (Rook->IsA<ARook>() && Cast<ARook>(Rook)->NeverMoved)
+		{
+			if (TileMap.Contains(StartRookCoord))
+				TileMap[StartRookCoord]->SetTileStatus(-1, ETileStatus::EMPTY);
+
+			if (TileMap.Contains(NewRookCoord))
+				TileMap[NewRookCoord]->SetTileStatus(GMode->CurrentPlayer, ETileStatus::OCCUPIED);
+
+			GField->PiecesMapRemove(Piece->GetGridPosition());
+			GField->PiecesMapRemove(Rook->GetGridPosition());
+
+			Piece->SetGridPosition(Coord.X, Coord.Y);
+			Rook->SetGridPosition(NewRookCoord.X, NewRookCoord.Y);
+
+			GField->AddPiecesMap(Coord, Piece);
+			GField->AddPiecesMap(NewRookCoord, Rook);
+
+			auto RookPosition = GField->GetRelativeLocationByXYPosition(NewRookCoord.X, NewRookCoord.Y);
+			auto PiecePosition = GField->GetRelativeLocationByXYPosition(Coord.X, Coord.Y);
+
+			Piece->SetActorLocation(PiecePosition);
+			Rook->SetActorLocation(RookPosition);
+
+			FRewind Obj;
+			Obj.PieceToRewind = Rook;
+			Obj.Position = Rook->GetGridPosition();
+			Obj.Capture = false;
+			Obj.Castling = true;
+			ArrayOfPlays.Add(Obj);
+		}
 	}
 }
 

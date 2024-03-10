@@ -101,7 +101,6 @@ void AChess_RandomPlayer::OnTurn()
 				// take the tile where move the piece
 				ATile* TileActor = TileMarked[RIndexToMovePiece].Tile;
 				bool Capture = TileMarked[RIndexToMovePiece].Capture;
-				FVector SpawnPosition = TileActor->GetActorLocation();
 
 				FVector2D Coord = TileActor->GetGridPosition();
 
@@ -118,17 +117,11 @@ void AChess_RandomPlayer::OnTurn()
 				}
 				TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
-				int32 x = CurrPiece->GetGridPosition().X;
-				int32 y = CurrPiece->GetGridPosition().Y;
-				//UE_LOG(LogTemp, Error, TEXT("Prima di accedere alla map - Bot"));
-
-				
 				// Before moving the piece, set the current tile to be empty
-				if (TileMap.Contains(FVector2D(x, y)))
-					TileMap[FVector2D(x, y)]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+				if (TileMap.Contains(CurrPiece->GetGridPosition()))
+					TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 				
-				
-				ManagerPiece->MovePiece(PlayerNumber, SpawnPosition, CurrPiece, Coord, CurrPosition);
+				ManagerPiece->MovePiece(PlayerNumber, CurrPiece, Coord, CurrPosition);
 
 			} while (!PieceIsPossibleToMove);
 
