@@ -55,19 +55,6 @@ void AChess_HumanPlayer::OnTurn()
 	MyTurn = true;
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Your Turn"));
 	GameInstance->SetTurnMessage(TEXT("Human Turn"));
-
-	AChess_GameMode* GMode = nullptr;
-	AGameField* Field = nullptr;
-	AManagePiece* PieceManager = nullptr;
-
-	if (!FGameRef::GetGameRef(this, GMode, Field, PieceManager, "ChessPieces"))
-		return;
-	
-	auto PiecesArray = Field->GetHumanPlayerPieces();
-	for (auto Piece : PiecesArray)
-	{
-		Piece->LegalMove(PlayerNumber, false);
-	}
 }
 void AChess_HumanPlayer::OnWin()
 {

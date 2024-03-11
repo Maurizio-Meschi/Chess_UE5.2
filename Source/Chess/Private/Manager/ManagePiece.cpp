@@ -235,8 +235,8 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 		return;
 	}
 
-	for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)
-		TileMarkedForPiece[i].Empty();
+	//for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)
+		//TileMarkedForPiece[i].Empty();
 
 	if (GMode->CurrentPlayer == 1)
 	{

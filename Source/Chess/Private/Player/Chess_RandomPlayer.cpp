@@ -39,21 +39,6 @@ void AChess_RandomPlayer::OnTurn()
 {
 	GameInstance->SetTurnMessage(TEXT("AI (Random) Turn"));
 
-	AChess_GameMode* GMode = nullptr;
-	AGameField* Field = nullptr;
-	AManagePiece* ManagerPiece = nullptr;
-
-	if (!FGameRef::GetGameRef(this, GMode, Field, ManagerPiece, "RandomPlayer"))
-		return;
-
-	// mi calcolo tutte le legalmove del bot per evitare che venga scelto lo stesso pezzo diverse 
-	// e volte e che vengano calcolate le legalmove tutte le volte
-	auto PiecesArray = Field->GetBotPieces();
-	for (auto Piece : PiecesArray)
-	{
-		Piece->LegalMove(PlayerNumber, false);
-	}
-	
 	FTimerHandle TimerHandle;
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()

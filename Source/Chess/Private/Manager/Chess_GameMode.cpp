@@ -83,6 +83,11 @@ void AChess_GameMode::ChoosePlayerAndStartGame()
 		Players[i]->PlayerNumber = i;
 		Players[i]->PieceColor = i == i == CurrentPlayer ? EPieceColor::WHITE : EPieceColor::BLACK;
 	}
+
+	auto PiecesArray = CurrentPlayer == 0 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces();
+	for (auto Piece : PiecesArray)
+		Piece->LegalMove(CurrentPlayer, false);
+
 	//MoveCounter += 1;
 	Players[CurrentPlayer]->OnTurn();
 }

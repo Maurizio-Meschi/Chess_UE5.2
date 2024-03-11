@@ -39,7 +39,7 @@ bool AChessPawn::LegalMove(int32 PlayerNumber, bool CheckFlag)
 	}
 
 	// check if the next second vertical tile is empty and if true, mark the tile
-	if (x == 1)
+	if (x == (IsHumanPlayer? 1:6))
 	{
 		CaptureSituation = false;
 
