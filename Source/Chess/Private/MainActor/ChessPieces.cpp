@@ -111,27 +111,7 @@ void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 			// Arrocco
 			if (IsA<AKing>() && x == 0 && y == 5 && Cast<AKing>(this)->NeverMoved)
 			{
-				ATile* NextTile = nullptr;
-				if (TileMap.Contains(FVector2D(0, 6)))
-					NextTile = TileMap[FVector2D(0, 6)];
-				if (NextTile && NextTile->GetTileStatus() == ETileStatus::EMPTY)
-				{
-					AChessPieces* Rook = nullptr;
-					if (PiecesMap.Contains(FVector2D(0, 7)))
-					{
-						Rook = PiecesMap[FVector2D(0, 7)];
-						if (Rook->IsA<ARook>() && Cast<ARook>(Rook)->NeverMoved)
-						{
-							MarkTile(0, 6, PlayerNumber, Marked);
-							auto TileMarked = ManagerPiece->TileMarkedForPiece[this->IndexArray];
-							for (auto Element : TileMarked)
-							{
-								if (Element.Tile->GetGridPosition() == FVector2D(0, 6))
-									AManagePiece::Castling = true;
-							}
-						}
-					}
-				}
+				Castling(FVector2D(0, 6), FVector2D(0, 7), PlayerNumber, Marked);
 			}
 
 			// Arrocco Lungo
@@ -140,27 +120,24 @@ void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 				if (TileMap.Contains(FVector2D(0, 1)))
 					if (TileMap[FVector2D(0, 1)]->GetTileStatus() != ETileStatus::EMPTY)
 						return;
-				ATile* NextTile = nullptr;
-				if (TileMap.Contains(FVector2D(0, 2)))
-					NextTile = TileMap[FVector2D(0, 2)];
-				if (NextTile && NextTile->GetTileStatus() == ETileStatus::EMPTY)
-				{
-					AChessPieces* Rook = nullptr;
-					if (PiecesMap.Contains(FVector2D(0, 0)))
-					{
-						Rook = PiecesMap[FVector2D(0, 0)];
-						if (Rook->IsA<ARook>() && Cast<ARook>(Rook)->NeverMoved)
-						{
-							MarkTile(0, 2, PlayerNumber, Marked);
-							auto TileMarked = ManagerPiece->TileMarkedForPiece[this->IndexArray];
-							for (auto Element : TileMarked)
-							{
-								if (Element.Tile->GetGridPosition() == FVector2D(0, 2))
-									AManagePiece::Castling = true;
-							}
-						}
-					}
-				}
+
+				Castling(FVector2D(0, 2), FVector2D(0, 0), PlayerNumber, Marked);
+			}
+
+			// Arrocco nemico
+			if (IsA<AKing>() && x == 7 && y == 5 && Cast<AKing>(this)->NeverMoved)
+			{
+				Castling(FVector2D(7, 6), FVector2D(7, 7), PlayerNumber, Marked);
+			}
+
+			// Arrocco Lungo nemico
+			if (IsA<AKing>() && x == 7 && y == 3 && Cast<AKing>(this)->NeverMoved)
+			{
+				if (TileMap.Contains(FVector2D(7, 1)))
+					if (TileMap[FVector2D(7, 1)]->GetTileStatus() != ETileStatus::EMPTY)
+						return;
+
+				Castling(FVector2D(7, 2), FVector2D(7, 0), PlayerNumber, Marked);
 			}
 		}
 		else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
@@ -183,6 +160,7 @@ void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 					if (EnemyPiece->LegalMove(PlayerNumber == 0? 1:0, true))
 					{
 						ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, false);
+						Marked = true;
 						return;
 					}
 				}
@@ -199,6 +177,43 @@ void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 		UE_LOG(LogTemp, Error, TEXT("Error in select tile in ChessPieces"));
 
 }
+
+
+void AChessPieces::Castling(FVector2D TilePosition, FVector2D RookPosition, int32 PlayerNumber, bool& Marked)
+{
+	AChess_GameMode* GMode = nullptr;
+	AGameField* GField = nullptr;
+	AManagePiece* ManagerPiece = nullptr;
+
+	if (!FGameRef::GetGameRef(this, GMode, GField, ManagerPiece, "ChessPieces"))
+		return;
+
+	auto TileMap = GField->GetTileMap();
+	auto PiecesMap = GField->GetPiecesMap();
+
+	ATile* NextTile = nullptr;
+	if (TileMap.Contains(TilePosition))
+		NextTile = TileMap[TilePosition];
+	if (NextTile && NextTile->GetTileStatus() == ETileStatus::EMPTY)
+	{
+		AChessPieces* Rook = nullptr;
+		if (PiecesMap.Contains(RookPosition))
+		{
+			Rook = PiecesMap[RookPosition];
+			if (Rook->IsA<ARook>() && Cast<ARook>(Rook)->NeverMoved)
+			{
+				MarkTile(TilePosition.X, TilePosition.Y, PlayerNumber, Marked);
+				auto TileMarked = ManagerPiece->TileMarkedForPiece[this->IndexArray];
+				for (auto Element : TileMarked)
+				{
+					if (Element.Tile->GetGridPosition() == TilePosition)
+						AManagePiece::Castling = true;
+				}
+			}
+		}
+	}
+}
+
 
 bool AChessPieces::TestCheck(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 {

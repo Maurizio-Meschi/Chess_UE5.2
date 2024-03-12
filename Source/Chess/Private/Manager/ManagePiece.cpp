@@ -52,6 +52,16 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 	{
 		CastlingManager(FVector2D(0, 0), FVector2D(0, 3), Coord, Piece);
 	}
+
+	if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(7, 6))
+	{
+		CastlingManager(FVector2D(7, 7), FVector2D(7, 5), Coord, Piece);
+	}
+	else if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(7, 2))
+	{
+		CastlingManager(FVector2D(7, 0), FVector2D(7, 3), Coord, Piece);
+	}
+
 	//std case
 	else
 	{
@@ -227,17 +237,6 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 			Cont++;
 	}
 
-	UE_LOG(LogTemp, Error, TEXT("TileMarked ha dim %d, Cont ha dim %d"), TileMarkedForPiece.Num(), Cont);
-	if (Cont == TileMarkedForPiece.Num())
-	{
-		IsGameOver = true;
-		GMode->Players[GMode->CurrentPlayer]->OnWin();
-		return;
-	}
-
-	//for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)
-		//TileMarkedForPiece[i].Empty();
-
 	if (GMode->CurrentPlayer == 1)
 	{
 		Visible = true;
@@ -250,6 +249,14 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 		IsBotPlayed = false;
 	}
 	DisableButtonEvent.Broadcast();
+
+	if (Cont == TileMarkedForPiece.Num())
+	{
+		IsGameOver = true;
+		GMode->Players[GMode->CurrentPlayer]->OnWin();
+		return;
+	}
+
 	GMode->TurnNextPlayer();
 }
 

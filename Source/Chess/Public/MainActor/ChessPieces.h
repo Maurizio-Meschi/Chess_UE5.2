@@ -70,4 +70,6 @@ protected:
 	void MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked);
 
 	bool TestCheck(int32 x, int32 y, int32 PlayerNumber, bool& Marked);
+
+	void Castling(FVector2D TilePosition, FVector2D RookPosition, int32 PlayerNumber, bool& Marked);
 };
