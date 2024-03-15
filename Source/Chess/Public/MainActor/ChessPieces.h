@@ -47,6 +47,8 @@ public:
 
 	int32 IndexArray;
 
+	int32 Value;
+
 	// set chess piece position
 	void SetGridPosition(const double InX, const double InY);
 

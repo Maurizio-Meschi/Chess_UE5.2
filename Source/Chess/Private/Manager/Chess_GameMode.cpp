@@ -7,6 +7,7 @@
 #include "../Public/Player/Chess_HumanPlayer.h"
 #include "../Public/Player/Chess_RandomPlayer.h"
 #include "../Public/Manager/Chess_GameInstance.h"
+#include "../Public/Player/Chess_Minimax.h"
 #include "Async/TaskGraphInterfaces.h"
 #include "Async/TaskGraphInterfaces.h"
 #include "EngineUtils.h"
@@ -52,10 +53,10 @@ void AChess_GameMode::BeginPlay()
 
 	Players.Add(HumanPlayer);
 	// Random Player
-	auto* AI = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
+	//auto* AI = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
 
 	// MiniMax Player
-	//auto* AI = GetWorld()->SpawnActor<ATTT_MinimaxPlayer>(FVector(), FRotator());
+	auto* AI = GetWorld()->SpawnActor<AChess_Minimax>(FVector(), FRotator());
 
 	// AI player = 1
 	Players.Add(AI);

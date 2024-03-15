@@ -15,10 +15,6 @@ class CHESS_API AChessPawn : public AChessPieces
 public:
 	AChessPawn();
 
-	// every piece has a value
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 Value;
-
 	bool CaptureSituation;
 
 	// defines the movements of the piece

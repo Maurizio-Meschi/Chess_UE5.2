@@ -30,7 +30,7 @@ protected:
 
 	UPROPERTY(Transient)
 	TArray<AKing*> KingArray;
-
+public:
 	// Given a position returns a tile
 	UPROPERTY(Transient)
 	TMap<FVector2D, ATile*> TileMap;
@@ -38,15 +38,18 @@ protected:
 	// Given a position returns a piece
 	UPROPERTY(Transient)
 	TMap<FVector2D, AChessPieces*> PiecesMap;
-public:
+//public:
 	// return the array of tile pointers
-	TArray<ATile*>& GetTileArray() { return TileArray; };
-	TArray<AChessPieces*>& GetBotPieces() { return BotPieces; }
-	TArray<AChessPieces*>& GetHumanPlayerPieces() { return HumanPlayerPieces; }
-	TArray<ATile*>& GetTileMarkedSpawn() { return TileMarkedSpawn; }
-	TArray<AKing*>& GetKingArray() { return KingArray; }
+	TArray<ATile*> GetTileArray() { return TileArray; };
+	TArray<AChessPieces*> GetBotPieces() { return BotPieces; }
+	TArray<AChessPieces*> GetHumanPlayerPieces() { return HumanPlayerPieces; }
+	TArray<ATile*> GetTileMarkedSpawn() { return TileMarkedSpawn; }
+	TArray<AKing*> GetKingArray() { return KingArray; }
 	TMap<FVector2D, ATile*>& GetTileMap() { return TileMap; }
 	TMap<FVector2D, AChessPieces*>& GetPiecesMap() { return PiecesMap; }
+
+	void SetTileMap(TMap<FVector2D, ATile*> Map) { TileMap = Map; }
+	void SetPiecesMap(TMap<FVector2D, AChessPieces*> Map) { PiecesMap = Map; }
 
 	void AddBotPieces(AChessPieces* Piece) { BotPieces.Add(Piece); }
 	void AddTileArray(ATile* Tile) { TileArray.Add(Tile); }

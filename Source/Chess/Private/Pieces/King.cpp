@@ -7,6 +7,8 @@
 AKing::AKing()
 {
 	Name = "K";
+
+	Value = 0;
 }
 
 bool AKing::LegalMove(int32 PlayerNumber, bool CheckFlag)

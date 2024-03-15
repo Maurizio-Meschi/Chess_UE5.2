@@ -15,10 +15,6 @@ class CHESS_API AQueen : public AChessPieces
 public:
 	AQueen();
 
-	// every piece has a value
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 Value;
-
 	// defines the movements of the piece
 	bool LegalMove(int32 PlayerNumber, bool CheckFlag) override;
 };

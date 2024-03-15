@@ -30,9 +30,8 @@
                     Infine posso considerare con un valore se la mossa mette sotto scacco.
       Pt         -> pedone: 1, alfiere e torre: 3, regina: 9. Numero legal move: 1(poce mosse) - 5(tante mosse). Sicurezza del re: 1(poco protetto) - 5(ben protetto). Scacco: 6.
       
-- [ ] idea minmax -> calcolo la legal move di un pezzo->se può andare in quella posizione me la salvo. A quel punto simulo lo spotamento del pezzo nella prima posizione trovata
-                     e valuto il valore della scacchiera. Poi ripeto e simulo lo spostamento per ogni posizione trovata. A quel punto vado a prendere un'altro pezzo e rifaccio la stessa cosa.
-                     A questo punto bisogna solo scegliere la giocata col costo maggiore.
+- [ ] idea minmax -> Calcolo tutte le legalmove del bot, cilco e a ogni move diponibile sposto di uno il pezzo (avrò una copia delle strutture dati che vado ad aggiornare come se avessi giocato)
+                     e a questo punto caclolo tutte le legal move dello human player, ciclo e a ogni move sposto il pezzo. chiamo tipo 3 profondità per i due player
       
 - [ ] Gestire all'inizio del gioco se usare random palyer o min max. Potrei spedire da blueprint una varibile boolean
       e se true nella game mode faccio lo spawn del minmax else random. In alternativa potrei fare un livello con minmax

@@ -15,10 +15,6 @@ class CHESS_API AKnight : public AChessPieces
 public:
 	AKnight();
 
-	// every piece has a value
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 Value;
-
 	// defines the movements of the piece
 	bool LegalMove(int32 PlayerNumber, bool CheckFlag) override;
 };
