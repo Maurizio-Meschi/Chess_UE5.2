@@ -5,6 +5,7 @@
 #include "../MainActor/ChessPieces.h"
 #include "Knight.generated.h"
 
+struct FBoard;
 class AGameField;
 
 UCLASS()
@@ -16,5 +17,5 @@ public:
 	AKnight();
 
 	// defines the movements of the piece
-	bool LegalMove(int32 PlayerNumber, bool CheckFlag) override;
+	bool LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag) override;
 };

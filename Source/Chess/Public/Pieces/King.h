@@ -5,6 +5,7 @@
 #include "../MainActor/ChessPieces.h"
 #include "King.generated.h"
 
+struct FBoard;
 class AGameField;
 
 UCLASS()
@@ -18,5 +19,5 @@ public:
 	bool NeverMoved = true;
 
 	// defines the movements of the piece
-	bool LegalMove(int32 PlayerNumber, bool CheckFlag) override;
+	bool LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag) override;
 };

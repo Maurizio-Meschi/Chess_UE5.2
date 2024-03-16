@@ -11,7 +11,7 @@ ARook::ARook()
 	Name = "R";
 }
 
-bool ARook::LegalMove(int32 PlayerNumber, bool CheckFlag)
+bool ARook::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 {
 	FVector2D ChessPawnXYposition = PieceGridPosition;
 	int32 x = ChessPawnXYposition.X;
@@ -30,17 +30,17 @@ bool ARook::LegalMove(int32 PlayerNumber, bool CheckFlag)
 		if (CheckCoord(x + XMove, y) && !MarkedForward)
 		{
 			if (!CheckFlag)
-				MarkTile(x + XMove, y + YMove, PlayerNumber, MarkedForward);
+				MarkTile(Board, x + XMove, y + YMove, PlayerNumber, MarkedForward);
 			else
-				if (TestCheck(x + XMove, y + YMove, PlayerNumber, MarkedForward))
+				if (TestCheck(Board, x + XMove, y + YMove, PlayerNumber, MarkedForward))
 					return true;
 		}
 		if (CheckCoord(x - XMove, y) && !MarkedBackwards)
 		{
 			if (!CheckFlag)
-				MarkTile(x - XMove, y, PlayerNumber, MarkedBackwards);
+				MarkTile(Board, x - XMove, y, PlayerNumber, MarkedBackwards);
 			else
-				if (TestCheck(x - XMove, y, PlayerNumber, MarkedBackwards))
+				if (TestCheck(Board, x - XMove, y, PlayerNumber, MarkedBackwards))
 					return true;
 		}
 
@@ -57,18 +57,18 @@ bool ARook::LegalMove(int32 PlayerNumber, bool CheckFlag)
 		if (CheckCoord(x, y + YMove) && !MarkedForward)
 		{
 			if (!CheckFlag)
-				MarkTile(x, y + YMove, PlayerNumber, MarkedForward);
+				MarkTile(Board, x, y + YMove, PlayerNumber, MarkedForward);
 			else
-				if (TestCheck(x, y + YMove, PlayerNumber, MarkedForward))
+				if (TestCheck(Board, x, y + YMove, PlayerNumber, MarkedForward))
 					return true;
 		}
 
 		if (CheckCoord(x, y - YMove) && !MarkedBackwards)
 		{
 			if (!CheckFlag)
-				MarkTile(x, y - YMove, PlayerNumber, MarkedBackwards);
+				MarkTile(Board, x, y - YMove, PlayerNumber, MarkedBackwards);
 			else
-				if (TestCheck(x, y - YMove, PlayerNumber, MarkedBackwards))
+				if (TestCheck(Board, x, y - YMove, PlayerNumber, MarkedBackwards))
 					return true;
 		}
 

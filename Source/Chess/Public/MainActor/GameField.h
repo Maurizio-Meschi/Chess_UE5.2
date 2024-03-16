@@ -12,6 +12,25 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReset);
 
+USTRUCT()
+struct FBoard
+{
+	GENERATED_BODY()
+
+public:
+	FBoard() = default;
+
+	TMap<FVector2D, ATile*> Field;
+	TMap<FVector2D, AChessPieces*> Pieces;
+	TArray<AChessPieces*> PlayerArray;
+	TArray<AChessPieces*> CapturePieces;
+
+	ATile* NewPieceTile = nullptr;
+	AChessPieces* PieceToMove = nullptr;
+	bool IsMax = true;
+
+};
+
 UCLASS()
 class CHESS_API AGameField : public AElementsToManageField
 {

@@ -11,7 +11,7 @@ AKnight::AKnight()
 	Name = "N";
 }
 
-bool AKnight ::LegalMove(int32 PlayerNumber, bool CheckFlag)
+bool AKnight ::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 {
 	FVector2D ChessPawnXYposition = PieceGridPosition;
 	int32 x = ChessPawnXYposition.X;
@@ -31,18 +31,18 @@ bool AKnight ::LegalMove(int32 PlayerNumber, bool CheckFlag)
 		if (CheckCoord(x + XMove, y + YMove) && !MarkedForward)
 		{
 			if (!CheckFlag)
-				MarkTile(x + XMove, y + YMove, PlayerNumber, MarkedForward);
+				MarkTile(Board, x + XMove, y + YMove, PlayerNumber, MarkedForward);
 			else
-				if (TestCheck(x + XMove, y + YMove, PlayerNumber, MarkedForward))
+				if (TestCheck(Board, x + XMove, y + YMove, PlayerNumber, MarkedForward))
 					return true;
 		}
 
 		if (CheckCoord(x - XMove, y - YMove) && !MarkedBackwards)
 		{
 			if (!CheckFlag)
-				MarkTile(x - XMove, y - YMove, PlayerNumber, MarkedBackwards);
+				MarkTile(Board, x - XMove, y - YMove, PlayerNumber, MarkedBackwards);
 			else
-				if (TestCheck(x - XMove, y - YMove, PlayerNumber, MarkedBackwards))
+				if (TestCheck(Board, x - XMove, y - YMove, PlayerNumber, MarkedBackwards))
 					return true;
 		}
 
@@ -60,18 +60,18 @@ bool AKnight ::LegalMove(int32 PlayerNumber, bool CheckFlag)
 		if (CheckCoord(x + XMove, y - YMove) && !MarkedForward)
 		{
 			if (!CheckFlag)
-				MarkTile(x + XMove, y - YMove, PlayerNumber, MarkedForward);
+				MarkTile(Board, x + XMove, y - YMove, PlayerNumber, MarkedForward);
 			else
-				if (TestCheck(x + XMove, y - YMove, PlayerNumber, MarkedForward))
+				if (TestCheck(Board, x + XMove, y - YMove, PlayerNumber, MarkedForward))
 					return true;
 		}
 
 		if (CheckCoord(x - XMove, y + YMove) && !MarkedBackwards)
 		{
 			if (!CheckFlag)
-				MarkTile(x - XMove, y + YMove, PlayerNumber, MarkedBackwards);
+				MarkTile(Board, x - XMove, y + YMove, PlayerNumber, MarkedBackwards);
 			else
-				if (TestCheck(x - XMove, y + YMove, PlayerNumber, MarkedBackwards))
+				if (TestCheck(Board, x - XMove, y + YMove, PlayerNumber, MarkedBackwards))
 					return true;
 		}
 

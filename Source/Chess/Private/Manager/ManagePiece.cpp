@@ -225,8 +225,12 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 	// Prima di andare al prossimo turno devo vedere se il prossimo giocatore ha mosse disponibili
 	auto PiecesArray = GMode->CurrentPlayer == 1 ? Field->GetHumanPlayerPieces() : Field->GetBotPieces();
 
+	FBoard Board;
+	Board.Field = Field->GetTileMap();
+	Board.Pieces = Field->GetPiecesMap();
+
 	for (auto Piece : PiecesArray)
-		Piece->LegalMove(GMode->CurrentPlayer == 0? 1:0, false);
+		Piece->LegalMove(Board, GMode->CurrentPlayer == 0? 1:0, false);
 
 	int32 Cont = 0;
 	for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)

@@ -11,7 +11,7 @@ AChessPawn::AChessPawn()
 	CaptureSituation = false;
 }
 
-bool AChessPawn::LegalMove(int32 PlayerNumber, bool CheckFlag)
+bool AChessPawn::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 {
 	// get the coordinates of the pawn
 	FVector2D ChessPawnXYposition = PieceGridPosition;
@@ -32,9 +32,9 @@ bool AChessPawn::LegalMove(int32 PlayerNumber, bool CheckFlag)
 		CaptureSituation = false;
 
 		if (!CheckFlag)
-			MarkTile(x + XMove, y, PlayerNumber, MarkedForward);
+			MarkTile(Board, x + XMove, y, PlayerNumber, MarkedForward);
 		else
-			if (TestCheck(x + XMove, y, PlayerNumber, MarkedForward))
+			if (TestCheck(Board, x + XMove, y, PlayerNumber, MarkedForward))
 				return true;
 	}
 
@@ -47,9 +47,9 @@ bool AChessPawn::LegalMove(int32 PlayerNumber, bool CheckFlag)
 		if (CheckCoord(x + XMove, y) && !MarkedForward)
 		{
 			if (!CheckFlag)
-				MarkTile(x + XMove, y, PlayerNumber, MarkedForward);
+				MarkTile(Board, x + XMove, y, PlayerNumber, MarkedForward);
 			else
-				if (TestCheck(x + XMove, y, PlayerNumber, MarkedForward))
+				if (TestCheck(Board, x + XMove, y, PlayerNumber, MarkedForward))
 					return true;
 		}
 	}
@@ -65,9 +65,9 @@ bool AChessPawn::LegalMove(int32 PlayerNumber, bool CheckFlag)
 		if (CheckCoord(x + XMove, y + YMove))
 		{
 			if (!CheckFlag)
-				MarkTile(x + XMove, y + YMove, PlayerNumber, MarkedForward);
+				MarkTile(Board, x + XMove, y + YMove, PlayerNumber, MarkedForward);
 			else
-				if (TestCheck(x + XMove, y + YMove, PlayerNumber, MarkedForward))
+				if (TestCheck(Board, x + XMove, y + YMove, PlayerNumber, MarkedForward))
 					return true;
 		}
 		i = -1;

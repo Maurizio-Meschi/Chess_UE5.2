@@ -3,8 +3,11 @@
 #pragma once
 
 #include "../MainActor/ChessPieces.h"
+//#include "Queen.generated.h"
 #include "Queen.generated.h"
 
+
+struct FBoard;
 class AGameField;
 
 UCLASS()
@@ -16,5 +19,5 @@ public:
 	AQueen();
 
 	// defines the movements of the piece
-	bool LegalMove(int32 PlayerNumber, bool CheckFlag) override;
+	bool LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag) override;
 };

@@ -8,6 +8,7 @@
 #include "GameFramework/Actor.h"
 #include "ChessPieces.generated.h"
 
+struct FBoard;
 class AGameField;
 class AChess_GameMode;
 
@@ -60,7 +61,7 @@ public:
 		return PieceGridPosition;
 	}
 
-	virtual bool LegalMove(int32 PlayerNumber, bool CheckFlag) { return true; }
+	virtual bool LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag) { return true; }
 
 protected:
 
@@ -69,9 +70,9 @@ protected:
 
 	void ResetTileStatus(ATile* CurrTile, ATile* NewTile, int32 PlayerNumber, bool IsTileEmpty);
 
-	void MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked);
+	void MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber, bool& Marked);
 
-	bool TestCheck(int32 x, int32 y, int32 PlayerNumber, bool& Marked);
+	bool TestCheck(FBoard& Board, int32 x, int32 y, int32 PlayerNumber, bool& Marked);
 
-	void Castling(FVector2D TilePosition, FVector2D RookPosition, int32 PlayerNumber, bool& Marked);
+	void Castling(FBoard& Board, FVector2D TilePosition, FVector2D RookPosition, int32 PlayerNumber, bool& Marked);
 };

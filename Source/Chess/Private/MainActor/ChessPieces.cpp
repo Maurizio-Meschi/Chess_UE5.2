@@ -58,7 +58,7 @@ void AChessPieces::ResetTileStatus(ATile* CurrTile, ATile* NewTile, int32 Player
 	NewTile->SetVirtualStatus(EVirtualOccupied::VIRTUAL_EMPTY);
 }
 
-void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
+void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 {
 	AChess_GameMode* GMode = nullptr;
 	AGameField* GField = nullptr;
@@ -67,17 +67,17 @@ void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 	if (!FGameRef::GetGameRef(this, GMode, GField, ManagerPiece, "ChessPieces"))
 		return;
 	
-	auto TileMap = GField->GetTileMap();
-	auto PiecesMap = GField->GetPiecesMap();
+	//auto TileMap = GField->GetTileMap();
+	//auto PiecesMap = GField->GetPiecesMap();
 
 	ATile* SelectedTile = nullptr;
 	ATile* CurrTile = nullptr;
 
-	if (TileMap.Contains(FVector2D(x, y)))
-		SelectedTile = TileMap[FVector2D(x, y)];
+	if (Board.Field.Contains(FVector2D(x, y)))
+		SelectedTile = Board.Field[FVector2D(x, y)];
 
-	if (TileMap.Contains(this->GetGridPosition()))
-		CurrTile = TileMap[this->GetGridPosition()];
+	if (Board.Field.Contains(this->GetGridPosition()))
+		CurrTile = Board.Field[this->GetGridPosition()];
 
 	if (SelectedTile && CurrTile)
 	{
@@ -96,7 +96,7 @@ void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 			auto Pieces = (PlayerNumber == 1 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
 			for (auto EnemyPiece : Pieces)
 			{
-				if (EnemyPiece->LegalMove(PlayerNumber == 0? 1:0, true))
+				if (EnemyPiece->LegalMove(Board, PlayerNumber == 0? 1:0, true))
 				{
 					ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, true);
 					return;
@@ -111,33 +111,33 @@ void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 			// Arrocco
 			if (IsA<AKing>() && x == 0 && y == 5 && Cast<AKing>(this)->NeverMoved)
 			{
-				Castling(FVector2D(0, 6), FVector2D(0, 7), PlayerNumber, Marked);
+				Castling(Board, FVector2D(0, 6), FVector2D(0, 7), PlayerNumber, Marked);
 			}
 
 			// Arrocco Lungo
 			if (IsA<AKing>() && x == 0 && y == 3 && Cast<AKing>(this)->NeverMoved)
 			{
-				if (TileMap.Contains(FVector2D(0, 1)))
-					if (TileMap[FVector2D(0, 1)]->GetTileStatus() != ETileStatus::EMPTY)
+				if (Board.Field.Contains(FVector2D(0, 1)))
+					if (Board.Field[FVector2D(0, 1)]->GetTileStatus() != ETileStatus::EMPTY)
 						return;
 
-				Castling(FVector2D(0, 2), FVector2D(0, 0), PlayerNumber, Marked);
+				Castling(Board, FVector2D(0, 2), FVector2D(0, 0), PlayerNumber, Marked);
 			}
 
 			// Arrocco nemico
 			if (IsA<AKing>() && x == 7 && y == 5 && Cast<AKing>(this)->NeverMoved)
 			{
-				Castling(FVector2D(7, 6), FVector2D(7, 7), PlayerNumber, Marked);
+				Castling(Board, FVector2D(7, 6), FVector2D(7, 7), PlayerNumber, Marked);
 			}
 
 			// Arrocco Lungo nemico
 			if (IsA<AKing>() && x == 7 && y == 3 && Cast<AKing>(this)->NeverMoved)
 			{
-				if (TileMap.Contains(FVector2D(7, 1)))
-					if (TileMap[FVector2D(7, 1)]->GetTileStatus() != ETileStatus::EMPTY)
+				if (Board.Field.Contains(FVector2D(7, 1)))
+					if (Board.Field[FVector2D(7, 1)]->GetTileStatus() != ETileStatus::EMPTY)
 						return;
 
-				Castling(FVector2D(7, 2), FVector2D(7, 0), PlayerNumber, Marked);
+				Castling(Board, FVector2D(7, 2), FVector2D(7, 0), PlayerNumber, Marked);
 			}
 		}
 		else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
@@ -157,7 +157,7 @@ void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 				auto Pieces = (PlayerNumber == 1 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
 				for (auto EnemyPiece : Pieces)
 				{
-					if (EnemyPiece->LegalMove(PlayerNumber == 0? 1:0, true))
+					if (EnemyPiece->LegalMove(Board, PlayerNumber == 0? 1:0, true))
 					{
 						ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, false);
 						Marked = true;
@@ -179,7 +179,7 @@ void AChessPieces::MarkTile(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 }
 
 
-void AChessPieces::Castling(FVector2D TilePosition, FVector2D RookPosition, int32 PlayerNumber, bool& Marked)
+void AChessPieces::Castling(FBoard& Board, FVector2D TilePosition, FVector2D RookPosition, int32 PlayerNumber, bool& Marked)
 {
 	AChess_GameMode* GMode = nullptr;
 	AGameField* GField = nullptr;
@@ -202,7 +202,7 @@ void AChessPieces::Castling(FVector2D TilePosition, FVector2D RookPosition, int3
 			Rook = PiecesMap[RookPosition];
 			if (Rook->IsA<ARook>() && Cast<ARook>(Rook)->NeverMoved)
 			{
-				MarkTile(TilePosition.X, TilePosition.Y, PlayerNumber, Marked);
+				MarkTile(Board, TilePosition.X, TilePosition.Y, PlayerNumber, Marked);
 				auto TileMarked = ManagerPiece->TileMarkedForPiece[this->IndexArray];
 				for (auto Element : TileMarked)
 				{
@@ -215,22 +215,18 @@ void AChessPieces::Castling(FVector2D TilePosition, FVector2D RookPosition, int3
 }
 
 
-bool AChessPieces::TestCheck(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
+bool AChessPieces::TestCheck(FBoard& Board, int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 {
 	AGameField* GField = nullptr;
 
 	if (!FGameRef::GetGameField(this, GField, "ChessPieces"))
 		return false;
-	
-	auto TileMap = GField->GetTileMap();
-	auto PiecesMap = GField->GetPiecesMap();
-
 
 	ATile* SelectedTile = nullptr;
 
 	// Se il pezzo è in una tile VIRTUAl_OCCUPIED è come se fosse stata mangiata e non devo considerarla
-	if (TileMap.Contains(this->GetGridPosition()))
-		SelectedTile = TileMap[this->GetGridPosition()];
+	if (Board.Field.Contains(this->GetGridPosition()))
+		SelectedTile = Board.Field[this->GetGridPosition()];
 
 	if (SelectedTile && SelectedTile->GetVirtaulStatus() == EVirtualOccupied::VIRTUAL_OCCUPIED)
 	{
@@ -240,8 +236,8 @@ bool AChessPieces::TestCheck(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 
 	SelectedTile = nullptr;
 
-	if (TileMap.Contains(FVector2D(x, y)))
-		SelectedTile = TileMap[FVector2D(x, y)];
+	if (Board.Field.Contains(FVector2D(x, y)))
+		SelectedTile = Board.Field[FVector2D(x, y)];
 
 	if (SelectedTile)
 	{
@@ -266,8 +262,8 @@ bool AChessPieces::TestCheck(int32 x, int32 y, int32 PlayerNumber, bool& Marked)
 			else
 			{
 				AChessPieces* Piece = nullptr;
-				if (PiecesMap.Contains(SelectedTile->GetGridPosition()))
-					Piece = PiecesMap[SelectedTile->GetGridPosition()];
+				if (Board.Pieces.Contains(SelectedTile->GetGridPosition()))
+					Piece = Board.Pieces[SelectedTile->GetGridPosition()];
 
 				if (!Piece)
 				{
