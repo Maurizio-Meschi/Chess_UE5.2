@@ -96,10 +96,13 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 			auto Pieces = (PlayerNumber == 1 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
 			for (auto EnemyPiece : Pieces)
 			{
-				if (EnemyPiece->LegalMove(Board, PlayerNumber == 0? 1:0, true))
+				if (!Board.CapturePieces.Contains(EnemyPiece))
 				{
-					ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, true);
-					return;
+					if (EnemyPiece->LegalMove(Board, PlayerNumber == 0 ? 1 : 0, true))
+					{
+						ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, true);
+						return;
+					}
 				}
 			}
 			ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, true);
@@ -148,6 +151,16 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 				return;
 			}
 
+			if (Board.Pieces.Contains(SelectedTile->GetGridPosition()))
+			{
+				auto Piece = Board.Pieces[SelectedTile->GetGridPosition()];
+				if (this->Color == Piece->Color)
+				{
+					Marked = true;
+					return;
+				}
+			}
+
 			if (SelectedTile->GetOwner() != PlayerNumber)
 			{
 				SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
@@ -157,11 +170,14 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 				auto Pieces = (PlayerNumber == 1 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
 				for (auto EnemyPiece : Pieces)
 				{
-					if (EnemyPiece->LegalMove(Board, PlayerNumber == 0? 1:0, true))
+					if (!Board.CapturePieces.Contains(EnemyPiece))
 					{
-						ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, false);
-						Marked = true;
-						return;
+						if (EnemyPiece->LegalMove(Board, PlayerNumber == 0 ? 1 : 0, true))
+						{
+							ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, false);
+							Marked = true;
+							return;
+						}
 					}
 				}
 				ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, false);

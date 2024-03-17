@@ -27,6 +27,7 @@ public:
 
 	ATile* NewPieceTile = nullptr;
 	AChessPieces* PieceToMove = nullptr;
+	AChessPieces* PieceMove = nullptr;
 	bool IsMax = true;
 
 };
