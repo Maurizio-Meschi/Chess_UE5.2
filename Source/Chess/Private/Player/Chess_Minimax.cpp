@@ -77,6 +77,7 @@ void AChess_Minimax::OnTurn()
 		}, 0.1, false);
 }
 
+
 int32 AChess_Minimax::EvaluateGrid(FBoard& Board)
 {
 	AChess_GameMode* GMode = nullptr;
@@ -99,24 +100,42 @@ int32 AChess_Minimax::EvaluateGrid(FBoard& Board)
 	}
 
 	// 3) Devo capire quante pedine sono adiacenti al re per valutare la sua protezione
-	/*
+	
 	auto KingPosition = (Board.IsMax ? GField->GetKingArray()[0]->GetGridPosition() : GField->GetKingArray()[1]->GetGridPosition());
-	auto PiecePosition = Board.PieceMove->GetGridPosition();
+
+	auto PiecesArray = (Board.IsMax ? GField->GetBotPieces() : GField->GetHumanPlayerPieces());
+	for (auto Piece : PiecesArray)
+	{
+		if (!Board.CapturePieces.Contains(Piece))
+			Piece->LegalMove(Board, Board.IsMax ? 1 : 0, false);
+
+		if (FindTileBetweenP1P2(Piece->GetGridPosition(), KingPosition, Board))
+		{
+			UE_LOG(LogTemp, Error, TEXT("Pezzo: %s è arrivato a picchiare il re in %f %f"), *Board.PieceMove->GetName(), KingPosition.X, KingPosition.Y);
+			break;
+			Score += (Board.IsMax ? 15 : -15);
+			//UE_LOG(LogTemp, Error, TEXT("Piece = %s ha messo sotto sacco e lo score vale: %d"), *Board.PieceMove->GetName(), Score);
+		}
+		
+	}
+	
+	
+	//auto PiecePosition = Board.PieceMove->GetGridPosition();
 
 	// Se il pezzo che ho spostato mette sotto scacco il re è una buona giocata
-	if (FindTileBetweenP1P2(PiecePosition, KingPosition, Board))
-	{
-		UE_LOG(LogTemp, Error, TEXT("Pezzo: %s è arrivato a picchiare il re in %f %f"), *Board.PieceMove->GetName(), KingPosition.X, KingPosition.Y);
-		Score += (Board.IsMax ? 15 : -15);
+	//if (FindTileBetweenP1P2(PiecePosition, KingPosition, Board))
+	//{
+		//UE_LOG(LogTemp, Error, TEXT("Pezzo: %s è arrivato a picchiare il re in %f %f"), *Board.PieceMove->GetName(), KingPosition.X, KingPosition.Y);
+		//Score += (Board.IsMax ? 15 : -15);
 		//UE_LOG(LogTemp, Error, TEXT("Piece = %s ha messo sotto sacco e lo score vale: %d"), *Board.PieceMove->GetName(), Score);
-	}
-	*/
+	//}
+	
 
 	// 2) Devo considerare il numero di legal move disponibili per aumentare il valore 
 	//    (Se il nemico ha poche legal move probabilmente è sotto scacco -> valore alto). Se io ho tante legalmove anche valore alto 
 	//     Posso inglobarlo nel controllo se è checkmate (zero legal move nemico -> valore 10000, poche legal move nemico -> x punti etc) 
 	
-	auto PiecesArray = (Board.IsMax ? GField->GetBotPieces() : GField->GetHumanPlayerPieces());
+	PiecesArray = (Board.IsMax ? GField->GetBotPieces() : GField->GetHumanPlayerPieces());
 	for (auto Piece : PiecesArray)
 	{
 		if (!Board.CapturePieces.Contains(Piece))
@@ -226,6 +245,26 @@ bool AChess_Minimax::FindTileBetweenP1P2(const FVector2D& P1, const FVector2D& P
 			y += stepY;
 		}
 	}
+
+	if (Board.Field.Contains(P2))
+	{
+		ATile* SelectedTile = Board.Field[P2];
+		int32 cont = 0;
+		for (auto Marked : TileMarked)
+		{
+			if (Marked.Tile == SelectedTile)
+			{
+				break;
+			}
+			cont++;
+		}
+
+		if (cont == TileMarked.Num())
+		{
+			return false;
+		}
+	}
+	
 	return true;
 }
 
@@ -509,8 +548,17 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 				Marked.Tile->SetTileStatus(0, ETileStatus::OCCUPIED);
 			}
 
-			if (moveVal > bestVal)
+			if (moveVal >= bestVal)
 			{
+				if (moveVal == bestVal)
+				{
+					int32 Index = FMath::Rand() % 2;
+					if (Index == 1)
+					{
+						TileToMovePiece = Marked;
+						Board.PieceToMove = Piece;
+					}
+				}
 				TileToMovePiece = Marked;
 				Board.PieceToMove = Piece;
 				bestVal = moveVal;
