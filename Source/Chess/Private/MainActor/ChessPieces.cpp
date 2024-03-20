@@ -53,7 +53,7 @@ void AChessPieces::ResetTileStatus(ATile* CurrTile, ATile* NewTile, int32 Player
 	else
 	{
 		CurrTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
-		NewTile->SetTileStatus(PlayerNumber == 0 ? 1 : 0, ETileStatus::OCCUPIED);
+		NewTile->SetTileStatus(PlayerNumber == Player::HUMAN ? Player::AI : Player::HUMAN, ETileStatus::OCCUPIED);
 	}
 	NewTile->SetVirtualStatus(EVirtualOccupied::VIRTUAL_EMPTY);
 }
@@ -66,9 +66,6 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 
 	if (!FGameRef::GetGameRef(this, GMode, GField, ManagerPiece, "ChessPieces"))
 		return;
-	
-	//auto TileMap = GField->GetTileMap();
-	//auto PiecesMap = GField->GetPiecesMap();
 
 	ATile* SelectedTile = nullptr;
 	ATile* CurrTile = nullptr;
@@ -93,12 +90,12 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 			CurrTile->SetTileStatus(-1, ETileStatus::EMPTY);
 
 			// Vedo se la mossa è legale. Se vero ripristino gli stati corretti delle tile, altrimenti ed esco, altrimenti lo alloco
-			auto Pieces = (PlayerNumber == 1 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
+			auto Pieces = (PlayerNumber == Player::AI ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
 			for (auto EnemyPiece : Pieces)
 			{
-				if (!Board.CapturePieces.Contains(EnemyPiece))
+				if (!Board.CapturedPieces.Contains(EnemyPiece))
 				{
-					if (EnemyPiece->LegalMove(Board, PlayerNumber == 0 ? 1 : 0, true))
+					if (EnemyPiece->LegalMove(Board, PlayerNumber == Player::HUMAN ? Player::AI : Player::HUMAN, true))
 					{
 						ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, true);
 						return;
@@ -167,12 +164,12 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 				SelectedTile->SetVirtualStatus(this->IsA<AKing>() ? EVirtualOccupied::VIRTUAL_OCCUPIED_BY_KING : EVirtualOccupied::VIRTUAL_OCCUPIED);
 				CurrTile->SetTileStatus(-1, ETileStatus::EMPTY);
 
-				auto Pieces = (PlayerNumber == 1 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
+				auto Pieces = (PlayerNumber == Player::AI ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
 				for (auto EnemyPiece : Pieces)
 				{
-					if (!Board.CapturePieces.Contains(EnemyPiece))
+					if (!Board.CapturedPieces.Contains(EnemyPiece))
 					{
-						if (EnemyPiece->LegalMove(Board, PlayerNumber == 0 ? 1 : 0, true))
+						if (EnemyPiece->LegalMove(Board, PlayerNumber == Player::HUMAN ? Player::AI : Player::HUMAN, true))
 						{
 							ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, false);
 							Marked = true;

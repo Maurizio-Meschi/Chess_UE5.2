@@ -22,14 +22,11 @@ public:
 
 	TMap<FVector2D, ATile*> Field;
 	TMap<FVector2D, AChessPieces*> Pieces;
-	TArray<AChessPieces*> PlayerArray;
-	TArray<AChessPieces*> CapturePieces;
+	TArray<AChessPieces*> CapturedPieces;
 
-	ATile* NewPieceTile = nullptr;
 	AChessPieces* PieceToMove = nullptr;
-	AChessPieces* PieceMove = nullptr;
+	
 	bool IsMax = true;
-
 };
 
 UCLASS()

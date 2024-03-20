@@ -70,6 +70,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 
 		if (Piece->IsA<ARook>() && Cast<ARook>(Piece)->NeverMoved)
 			Cast<ARook>(Piece)->NeverMoved = false;
+
 		FVector NewLocation = GField->GetRelativeLocationByXYPosition(Coord.X, Coord.Y);
 
 		GField->PiecesMapRemove(Piece->GetGridPosition());
@@ -223,7 +224,7 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 		TileMarkedForPiece[i].Empty();
 
 	// Prima di andare al prossimo turno devo vedere se il prossimo giocatore ha mosse disponibili
-	auto PiecesArray = GMode->CurrentPlayer == 1 ? Field->GetHumanPlayerPieces() : Field->GetBotPieces();
+	auto PiecesArray = GMode->CurrentPlayer == Player::AI ? Field->GetHumanPlayerPieces() : Field->GetBotPieces();
 
 	FBoard Board;
 	Board.Field = Field->GetTileMap();
@@ -241,7 +242,7 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 			Cont++;
 	}
 
-	if (GMode->CurrentPlayer == 1)
+	if (GMode->CurrentPlayer == Player::AI)
 	{
 		Visible = true;
 		IsBotPlayed = true;
@@ -394,7 +395,7 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	}
 
 	EPieceColor Color = EPieceColor::WHITE;
-	if (Player == 1)
+	if (Player == Player::AI)
 		Color = EPieceColor::BLACK;
 	
 	Field->GenerateChessPieceInXYPosition(Position.X, Position.Y, PieceClass, Color);
@@ -403,9 +404,10 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	if (PiecesMap.Contains(Position))
 		PromotePieces.Add(PiecesMap[Position]);
 
-	if (Player == 0)
+	if (Player == Player::HUMAN)
 	{
 		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+
 		if (PlayerController)
 			PlayerController->RemoveInventoryWidgetToViewport();
 		else

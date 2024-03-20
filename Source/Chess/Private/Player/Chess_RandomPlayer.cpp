@@ -89,22 +89,20 @@ void AChess_RandomPlayer::OnTurn()
 
 				FVector2D Coord = TileActor->GetGridPosition();
 
+				TileActor->SetTileStatus(Player::AI, ETileStatus::OCCUPIED);
 				// check if possible to capture an enemy piece
 				if (Capture)
 				{
-					TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
-
 					AChessPieces* PieceToCapture = nullptr;
 					if (PiecesMap.Contains(Coord))
 						PieceToCapture = PiecesMap[(Coord)];
 
 					ManagerPiece->CapturePiece(PieceToCapture, Coord);
 				}
-				TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
 				// Before moving the piece, set the current tile to be empty
 				if (TileMap.Contains(CurrPiece->GetGridPosition()))
-					TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+					TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(-1, ETileStatus::EMPTY);
 				
 				ManagerPiece->MovePiece(PlayerNumber, CurrPiece, Coord, CurrPosition);
 

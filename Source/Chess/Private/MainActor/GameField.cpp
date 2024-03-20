@@ -122,7 +122,7 @@ void AGameField::GenerateField()
 			else
 			{
 				// generate the chess pieces in the second row
-				GenerateChessPieceInXYPosition(x, y, GameFieldSubClass.ChessPawn[0], EPieceColor::WHITE);
+				GenerateChessPieceInXYPosition(x, y, GameFieldSubClass.ChessPawn[Player::HUMAN], EPieceColor::WHITE);
 			}
 		}
 		normalized_row = 8;
@@ -140,7 +140,7 @@ void AGameField::GenerateField()
 			if (k < 24)
 			{
 				// generate the chess pieces in the first row
-				GenerateChessPieceInXYPosition(x, y, GameFieldSubClass.ChessPawn[1], EPieceColor::BLACK);
+				GenerateChessPieceInXYPosition(x, y, GameFieldSubClass.ChessPawn[Player::AI], EPieceColor::BLACK);
 			}
 			else
 			{

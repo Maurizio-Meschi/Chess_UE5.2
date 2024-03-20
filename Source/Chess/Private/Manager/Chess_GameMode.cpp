@@ -51,16 +51,25 @@ void AChess_GameMode::BeginPlay()
 	FVector CameraPos(CameraPosX, CameraPosX, 1000.0f);
 	HumanPlayer->SetActorLocationAndRotation(CameraPos, FRotationMatrix::MakeFromX(FVector(0, 0, -1)).Rotator());
 
+	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
 	Players.Add(HumanPlayer);
 	// Random Player
 	//auto* AI = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
 
 	// MiniMax Player
-	auto* AI = GetWorld()->SpawnActor<AChess_Minimax>(FVector(), FRotator());
-
-	// AI player = 1
-	Players.Add(AI);
-
+	if (GameInstance->ChooseAiPlayer == "Hard")
+	{
+		auto* AI = GetWorld()->SpawnActor<AChess_Minimax>(FVector(), FRotator());
+		Players.Add(AI);
+	}
+	// Random Player
+	else
+	{
+		auto* AI = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
+		Players.Add(AI);
+	}
+	
 	this->ChoosePlayerAndStartGame();
 }
 
@@ -77,7 +86,7 @@ void AChess_GameMode::ChoosePlayerAndStartGame()
 	//CurrentPlayer = FMath::RandRange(0, Players.Num() - 1);
 	Manager->IsGameOver = false;
 
-	CurrentPlayer = 0;
+	CurrentPlayer = Player::HUMAN;
 
 	for (int32 i = 0; i < Players.Num(); i++)
 	{
@@ -90,7 +99,7 @@ void AChess_GameMode::ChoosePlayerAndStartGame()
 	Board.Pieces = GField->GetPiecesMap();
 
 
-	auto PiecesArray = CurrentPlayer == 0 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces();
+	auto PiecesArray = CurrentPlayer == Player::HUMAN ? GField->GetHumanPlayerPieces() : GField->GetBotPieces();
 	for (auto Piece : PiecesArray)
 		Piece->LegalMove(Board,CurrentPlayer, false);
 
@@ -103,7 +112,7 @@ int32 AChess_GameMode::GetNextPlayer(int32 Player)
 	Player++;
 	MoveCounter++;
 	if (!Players.IsValidIndex(Player))
-		Player = 0;
+		Player = Player::HUMAN;
 	return Player;
 }
 

@@ -83,7 +83,7 @@ void AChess_HumanPlayer::ResetMarkStatus()
 			Tile->SetTileStatus(-1, ETileStatus::EMPTY);
 
 		if (Tile->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
-			Tile->SetTileStatus(1, ETileStatus::OCCUPIED);
+			Tile->SetTileStatus(Player::AI, ETileStatus::OCCUPIED);
 	}
 }
 
@@ -161,9 +161,9 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 	// Togliere gli stati di mark, mettere una bool per l'oggetto e settarlo true se cattuare, false altrimenti
 	for (int32 k = 0; k < TileMarked.Num(); k++) {
 		if (TileMarked[k].Capture)
-			TileMarked[k].Tile->SetTileStatus(0, ETileStatus::MARKED_TO_CAPTURE);
+			TileMarked[k].Tile->SetTileStatus(Player::HUMAN, ETileStatus::MARKED_TO_CAPTURE);
 		else
-			TileMarked[k].Tile->SetTileStatus(0, ETileStatus::MARKED);
+			TileMarked[k].Tile->SetTileStatus(Player::HUMAN, ETileStatus::MARKED);
 		// get x,y position
 		int32 x = TileMarked[k].Tile->GetGridPosition().X;
 		int32 y = TileMarked[k].Tile->GetGridPosition().Y;

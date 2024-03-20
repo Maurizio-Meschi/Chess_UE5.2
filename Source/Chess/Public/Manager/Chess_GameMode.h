@@ -10,6 +10,12 @@
 #include "../Player/Chess_PlayerController.h"
 #include "Chess_GameMode.generated.h"
 
+struct Player
+{
+	static constexpr int8 HUMAN = 0;
+	static constexpr int8 AI = 1;
+};
+
 UCLASS()
 class CHESS_API AChess_GameMode : public AGameModeBase
 {

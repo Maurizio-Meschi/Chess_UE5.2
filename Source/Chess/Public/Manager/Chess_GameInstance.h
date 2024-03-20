@@ -24,6 +24,11 @@ protected:
 	FString CurrentTurnMessage = "Current Player";
 
 public:
+	UPROPERTY(VisibleAnywhere)
+	FString ChooseAiPlayer;
+
+	UFUNCTION(BlueprintCallable)
+	void SetChooseAiPlayer(FString name) { ChooseAiPlayer = name; }
 	
 	// increment the score for human player
 	void SetInfo(FString Message);

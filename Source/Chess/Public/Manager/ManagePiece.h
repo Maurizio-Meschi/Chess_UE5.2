@@ -36,6 +36,10 @@ public:
 
 	ATile* Tile;
 	bool Capture;
+
+	bool operator==(const FMarked& other) const {
+		return Tile == other.Tile;
+	}
 };
 
 
