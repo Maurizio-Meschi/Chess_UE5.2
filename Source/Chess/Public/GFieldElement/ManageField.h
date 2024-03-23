@@ -14,9 +14,10 @@ UCLASS(ABSTRACT)
 class CHESS_API AElementsToManageField : public AActor
 {
 	GENERATED_BODY()
+
 protected:
-	UPROPERTY(Transient)
-	TArray<ATile*> TileArray;
+	//UPROPERTY(Transient)
+	//TArray<ATile*> TileArray;
 
 	UPROPERTY(Transient)
 	TArray<AChessPieces*> BotPieces;
@@ -30,7 +31,7 @@ protected:
 
 	UPROPERTY(Transient)
 	TArray<AKing*> KingArray;
-public:
+
 	// Given a position returns a tile
 	UPROPERTY(Transient)
 	TMap<FVector2D, ATile*> TileMap;
@@ -38,9 +39,9 @@ public:
 	// Given a position returns a piece
 	UPROPERTY(Transient)
 	TMap<FVector2D, AChessPieces*> PiecesMap;
-//public:
+public:
 	// return the array of tile pointers
-	TArray<ATile*> GetTileArray() { return TileArray; };
+	//TArray<ATile*> GetTileArray() { return TileArray; };
 	TArray<AChessPieces*> GetBotPieces() { return BotPieces; }
 	TArray<AChessPieces*> GetHumanPlayerPieces() { return HumanPlayerPieces; }
 	TArray<ATile*> GetTileMarkedSpawn() { return TileMarkedSpawn; }
@@ -48,11 +49,7 @@ public:
 	TMap<FVector2D, ATile*>& GetTileMap() { return TileMap; }
 	TMap<FVector2D, AChessPieces*>& GetPiecesMap() { return PiecesMap; }
 
-	void SetTileMap(TMap<FVector2D, ATile*> Map) { TileMap = Map; }
-	void SetPiecesMap(TMap<FVector2D, AChessPieces*> Map) { PiecesMap = Map; }
-
 	void AddBotPieces(AChessPieces* Piece) { BotPieces.Add(Piece); }
-	void AddTileArray(ATile* Tile) { TileArray.Add(Tile); }
 	void AddTileMarkedSpawn(ATile* Tile) { TileMarkedSpawn.Add(Tile); }
 	void AddTileMap(FVector2D Position, ATile* Tile) { TileMap.Add(Position, Tile); }
 	void AddPiecesMap(FVector2D Position, AChessPieces* Piece) { PiecesMap.Add(Position, Piece); }
@@ -63,5 +60,5 @@ public:
 	void HumanPlayerPiecesRemove(AChessPieces* Piece) { HumanPlayerPieces.Remove(Piece); HumanPlayerPieces.Shrink(); }
 
 	void TileMarkedDestroy();
-	void ResetAll();
+	void ResetFieldData();
 };

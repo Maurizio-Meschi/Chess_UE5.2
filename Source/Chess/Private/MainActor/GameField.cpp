@@ -15,6 +15,8 @@ AGameField::AGameField()
 	TileSize = 120;
 	// tile padding dimension
 	CellPadding = 5;
+
+	PieceIndexValue = 0;
 }
 
 void AGameField::ResetField()
@@ -27,37 +29,14 @@ void AGameField::ResetField()
 	auto ManagerPiece = GMode->Manager;
 	if (ManagerPiece)
 	{
-		for (int32 i = 0; i < ManagerPiece->CapturedPieces.Num(); i++)
-		{
-			ManagerPiece->CapturedPieces[i]->Destroy();
-			//ManagerPiece->CapturedPieces[i] = nullptr;
-		}
-		ManagerPiece->CapturedPieces.Empty();
-
-		for (int32 i = 0; i < ManagerPiece->PromotePieces.Num(); i++)
-		{
-			ManagerPiece->PromotePieces[i]->Destroy();
-		}
-		ManagerPiece->PromotePieces.Empty();
-
-		for (int32 i = 0; i < ManagerPiece->ArrayOfPlays.Num(); i++)
-		{
-			ManagerPiece->ArrayOfPlays[i].PieceToRewind->Destroy();
-			//ManagerPiece->ArrayOfPlays = nullptr;
-		}
-		ManagerPiece->ArrayOfPlays.Empty();
-
-		for (int32 i = 0; i < ManagerPiece->LegalMoveArray.Num(); i++)
-			ManagerPiece->LegalMoveArray[i].Empty();
-		ManagerPiece->LegalMoveArray.Empty();
-
-		ManagerPiece->Count = 1;
+		ManagerPiece->ResetData();
+		ManagerPiece->DeleteTime();
 	}
-	Cont = 0;
-	ResetAll();
+	PieceIndexValue = 0;
+	ResetFieldData();
 
 	GenerateField();
-	OnResetEvent.Broadcast();
+	
 	
 	GMode->ChoosePlayerAndStartGame();
 }
@@ -74,11 +53,6 @@ void AGameField::BeginPlay()
 {
 	Super::BeginPlay();
 	GenerateField();
-}
-
-void AGameField::BeginDestroy()
-{
-	Super::BeginDestroy();
 }
 
 void AGameField::GenerateField()
@@ -163,7 +137,7 @@ void AGameField::GenerateTileInXYPosition(int32 x, int32 y, TSubclassOf<ATile> C
 	Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
 	Obj->SetGridPosition(x, y);
 	Obj->Name = IntToChar[y] + FString::FromInt(x+1);
-	TileArray.Add(Obj);
+
 	TileMap.Add(FVector2D(x, y), Obj);
 }
 
@@ -176,8 +150,8 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
 	Obj->SetGridPosition(x, y);
 	Obj->SetColor(color);
-	Obj->IndexArray = Cont;
-	Cont++;
+	Obj->IndexArray = PieceIndexValue;
+	PieceIndexValue++;
 
 	ATile* CurrTile = nullptr;
 	if (TileMap.Contains(FVector2D(x, y)))
@@ -211,7 +185,7 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	if (ManagerPiece)
 	{
 		ManagerPiece->ArrayOfPlays.Add(NewObj);
-		ManagerPiece->LegalMoveArray.SetNum(Cont);
+		ManagerPiece->LegalMoveArray.SetNum(PieceIndexValue);
 	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("Manager Piece null in GameField"));

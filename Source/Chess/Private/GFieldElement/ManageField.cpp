@@ -11,7 +11,7 @@ void AElementsToManageField::TileMarkedDestroy()
 	TileMarkedSpawn.Empty();
 }
 
-void AElementsToManageField::ResetAll()
+void AElementsToManageField::ResetFieldData()
 {
 	for (int32 i = 0; i < TileMarkedSpawn.Num(); i++)
 	{
@@ -22,7 +22,6 @@ void AElementsToManageField::ResetAll()
 	KingArray.Empty();
 	HumanPlayerPieces.Empty();
 	BotPieces.Empty();
-	TileArray.Empty();
 
 	for (auto Element : TileMap)
 	{

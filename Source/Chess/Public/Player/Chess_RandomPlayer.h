@@ -21,13 +21,9 @@ public:
 
 	UChess_GameInstance* GameInstance;
 
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void BeginDestroy() override;
-
-	//FTimerHandle TimerHandle;
 
 public:	
 	// Called every frame
@@ -39,4 +35,5 @@ public:
 	virtual void OnTurn() override;
 	virtual void OnWin() override;
 	virtual void OnLose() override;
+
 };

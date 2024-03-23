@@ -15,8 +15,11 @@ AManagePiece::AManagePiece()
 	PrimaryActorTick.bCanEverTick = false;
 
 	IsGameOver = false;
+	Visible = true;
+	IsBotPlayed = true;
 
-	Count = 1;
+	MoveCounter = 1;
+	ButtonValue = 0;
 
 	Capture = "";
 }
@@ -28,6 +31,15 @@ void AManagePiece::BeginPlay()
 {
 	Super::BeginPlay();
 }
+
+void AManagePiece::DeleteTime()
+{
+	if (GetWorldTimerManager().IsTimerActive(TimerHandle))
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandle);
+	}
+}
+
 
 TArray<TArray<FMarked>>& AManagePiece::GetAllLegalMoveByPlayer(FBoard& Board, int8 Player)
 {
@@ -131,8 +143,20 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 			if (TileMap.Contains(Coord) && Capture == "x")
 				Capture = TileMap[StartPosition]->Name.Left(1) + "x";
 		}
-		GameInstance->SetInfo(FString::FromInt(Count) + TEXT(". ") + Piece->Name + Capture + Tile->Name);
-		//Count++;
+
+		FBoard Board;
+		Board.Field = GField->GetTileMap();
+		Board.Pieces = GField->GetPiecesMap();
+		FString CheckNotation;
+
+		if (Piece->LegalMove(Board, GMode->CurrentPlayer, true))
+			CheckNotation = "+";
+		else 
+			CheckNotation = "";
+		
+
+		GameInstance->SetInfo(FString::FromInt(MoveCounter) + TEXT(". ") + Piece->Name + Capture + Tile->Name + CheckNotation);
+		//MoveCounter++;
 		Capture = "";
 		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
@@ -246,6 +270,36 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 	Capture = "x";
 }
 
+void AManagePiece::ResetData()
+{
+	for (int32 i = 0; i < CapturedPieces.Num(); i++)
+	{
+		CapturedPieces[i]->Destroy();
+	}
+	CapturedPieces.Empty();
+
+	for (int32 i = 0; i < PromotePieces.Num(); i++)
+	{
+		PromotePieces[i]->Destroy();
+	}
+	PromotePieces.Empty();
+
+	for (int32 i = 0; i < ArrayOfPlays.Num(); i++)
+	{
+		ArrayOfPlays[i].PieceToRewind->Destroy();
+	}
+	ArrayOfPlays.Empty();
+
+	for (int32 i = 0; i < LegalMoveArray.Num(); i++)
+		LegalMoveArray[i].Empty();
+	LegalMoveArray.Empty();
+
+	MoveCounter = 1;
+
+	Visible = true;
+	IsBotPlayed = true;
+}
+
 void AManagePiece::CheckWinAndGoNextPlayer()
 {
 	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
@@ -278,7 +332,7 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 	{
 		Visible = true;
 		IsBotPlayed = true;
-		Count++;
+		MoveCounter++;
 	}
 	else
 	{

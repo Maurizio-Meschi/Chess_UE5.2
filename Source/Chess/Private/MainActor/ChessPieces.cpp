@@ -85,10 +85,6 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 			if (this->IsA<AChessPawn>() && Cast<AChessPawn>(this)->CaptureSituation)
 				return;
 
-			if (this->IsA<AKing>() && this->Color == EPieceColor::BLACK)
-				UE_LOG(LogTemp, Error, TEXT("%s ha marcato la tile x=%f y=%f"), *this->GetName(), SelectedTile->GetGridPosition().X, SelectedTile->GetGridPosition().Y);
-
-
 			// Metto l'attuale tile vuota e quella selezionata occupata
 			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 			SelectedTile->SetVirtualStatus(this->IsA<AKing>() ? EVirtualOccupied::VIRTUAL_OCCUPIED_BY_KING : EVirtualOccupied::VIRTUAL_OCCUPIED);
@@ -111,39 +107,8 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 			FMarked Obj;
 			Obj.Tile = SelectedTile;
 			Obj.Capture = false;
-			ManagerPiece->LegalMoveArray[this->IndexArray].Add(Obj);
+			ManagerPiece->LegalMoveArray[IndexArray].Add(Obj);
 
-			// Arrocco
-			if (IsA<AKing>() && x == 0 && y == 5 && Cast<AKing>(this)->NeverMoved)
-			{
-				Castling(Board, FVector2D(0, 6), HUMAN_ROOK_POSITION2, PlayerNumber, Marked);
-			}
-
-			// Arrocco Lungo
-			if (IsA<AKing>() && x == 0 && y == 3 && Cast<AKing>(this)->NeverMoved)
-			{
-				if (Board.Field.Contains(FVector2D(0, 1)))
-					if (Board.Field[FVector2D(0, 1)]->GetTileStatus() != ETileStatus::EMPTY)
-						return;
-
-				Castling(Board, FVector2D(0, 2), HUMAN_ROOK_POSITION1, PlayerNumber, Marked);
-			}
-
-			// Arrocco nemico
-			if (IsA<AKing>() && x == 7 && y == 5 && Cast<AKing>(this)->NeverMoved)
-			{
-				Castling(Board, FVector2D(7, 6), AI_ROOK_POSITION2, PlayerNumber, Marked);
-			}
-
-			// Arrocco Lungo nemico
-			if (IsA<AKing>() && x == 7 && y == 3 && Cast<AKing>(this)->NeverMoved)
-			{
-				if (Board.Field.Contains(FVector2D(7, 1)))
-					if (Board.Field[FVector2D(7, 1)]->GetTileStatus() != ETileStatus::EMPTY)
-						return;
-
-				Castling(Board, FVector2D(7, 2), AI_ROOK_POSITION1, PlayerNumber, Marked);
-			}
 		}
 		else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
 		{
@@ -292,7 +257,6 @@ bool AChessPieces::TestCheck(FBoard& Board, int32 x, int32 y, int32 PlayerNumber
 
 				if (Piece->IsA<AKing>() && SelectedTile->GetOwner() != PlayerNumber) //Piece->Color == (PlayerNumber == 0 ? EPieceColor::BLACK : EPieceColor::WHITE))
 				{
-					//UE_LOG(LogTemp, Error, TEXT("La tile x=%f y=%f e' vista da %s"), SelectedTile->GetGridPosition().X, SelectedTile->GetGridPosition().Y, *this->GetName());
 					return true;
 				}
 				else

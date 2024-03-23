@@ -32,13 +32,11 @@ bool AKing::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 		{
 			if (i == 1 && j == 1)
 				continue;
+
 			XMove = i - 1;
 			YMove = j - 1;
 
-			
-
-
-			if (CheckCoord(x + XMove, y + YMove)) //&& !MarkedForward)
+			if (CheckCoord(x + XMove, y + YMove)) 
 			{
 				if (!CheckFlag)
 				{
@@ -52,5 +50,54 @@ bool AKing::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 			}
 		}
 	}
+
+	AChess_GameMode* GMode = nullptr;
+	AGameField* GField = nullptr;
+	AManagePiece* ManagerPiece = nullptr;
+
+	if (!FGameRef::GetGameRef(this, GMode, GField, ManagerPiece, "King"))
+		return false;
+
+	FMarked Obj;
+
+	// Arrocco
+	if (Board.Field.Contains(FVector2D(HUMAN_KING_POSITION.X, HUMAN_KING_POSITION.Y + 1)))
+		Obj.Tile = Board.Field[FVector2D(HUMAN_KING_POSITION.X, HUMAN_KING_POSITION.Y + 1)];
+
+	if (ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj) && NeverMoved)
+		Castling(Board, FVector2D(HUMAN_ROOK_POSITION2.X, HUMAN_ROOK_POSITION2.Y - 1), HUMAN_ROOK_POSITION2, PlayerNumber, MarkedForward);
+
+	// Arrocco Lungo
+	if (Board.Field.Contains(FVector2D(HUMAN_KING_POSITION.X, HUMAN_KING_POSITION.Y - 1)))
+		Obj.Tile = Board.Field[FVector2D(HUMAN_KING_POSITION.X, HUMAN_KING_POSITION.Y - 1)];
+
+	if (ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj) && NeverMoved)
+	{
+		if (Board.Field.Contains(FVector2D(HUMAN_ROOK_POSITION1.X, HUMAN_ROOK_POSITION1.Y + 1)))
+			if (Board.Field[FVector2D(HUMAN_ROOK_POSITION1.X, HUMAN_ROOK_POSITION1.Y + 1)]->GetTileStatus() == ETileStatus::EMPTY)
+				Castling(Board, FVector2D(HUMAN_ROOK_POSITION1.X, HUMAN_ROOK_POSITION1.Y + 2), HUMAN_ROOK_POSITION1, PlayerNumber, MarkedForward);
+	}
+
+	// Arrocco Nemico
+	if (Board.Field.Contains(FVector2D(AI_KING_POSITION.X, AI_KING_POSITION.Y + 1)))
+		Obj.Tile = Board.Field[FVector2D(AI_KING_POSITION.X, AI_KING_POSITION.Y + 1)];
+
+
+	if (ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj) && NeverMoved)
+	{
+		Castling(Board, FVector2D(AI_ROOK_POSITION2.X, AI_ROOK_POSITION2.Y - 1), AI_ROOK_POSITION2, PlayerNumber, MarkedForward);
+	}
+
+	// Arrocco Lungo nemico
+	if (Board.Field.Contains(FVector2D(AI_KING_POSITION.X, HUMAN_KING_POSITION.Y - 1)))
+		Obj.Tile = Board.Field[FVector2D(AI_KING_POSITION.X, HUMAN_KING_POSITION.Y - 1)];
+
+	if (ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj) && NeverMoved)
+	{
+		if (Board.Field.Contains(FVector2D(AI_ROOK_POSITION1.X, AI_ROOK_POSITION1.Y + 1)))
+			if (Board.Field[FVector2D(AI_ROOK_POSITION1.X, AI_ROOK_POSITION1.Y + 1)]->GetTileStatus() == ETileStatus::EMPTY)
+				Castling(Board, FVector2D(AI_ROOK_POSITION1.X, AI_ROOK_POSITION1.Y + 2), AI_ROOK_POSITION1, PlayerNumber, MarkedForward);
+	}
+		
 	return false;
 }

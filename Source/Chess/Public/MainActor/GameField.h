@@ -10,8 +10,6 @@
 #include "Containers/Map.h"
 #include "GameField.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnReset);
-
 USTRUCT()
 struct FBoard
 {
@@ -42,9 +40,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float NormalizedCellPadding;
 
-	UPROPERTY(BlueprintAssignable)
-	FOnReset OnResetEvent;
-
 	// size of field
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int32 Size;
@@ -61,9 +56,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float TileSize;
 
-	FString Direction = "";
-
-	int32 Cont = 0;
+	int32 PieceIndexValue;
 
 	// Sets default values for this actor's properties
 	AGameField();
@@ -76,8 +69,6 @@ public:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	virtual void BeginDestroy() override;
 
 	// generate an empty game field
 	void GenerateField();

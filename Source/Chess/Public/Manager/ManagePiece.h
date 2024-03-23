@@ -52,6 +52,11 @@ public:
 	// Sets default values for this actor's properties
 	AManagePiece();
 
+	FTimerHandle TimerHandle;
+
+	UFUNCTION(BlueprintCallable)
+	void DeleteTime();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -72,13 +77,13 @@ public:
 
 	bool IsGameOver;
 
-	int32 Count;
+	int32 MoveCounter;
 
-	int32 ButtonValue = 0;
+	int32 ButtonValue;
 
-	bool Visible = true;
+	bool Visible;
 
-	bool IsBotPlayed = true;
+	bool IsBotPlayed;
 
 	UPROPERTY(Transient)
 	TArray<AChessPieces*> CapturedPieces;
@@ -97,6 +102,8 @@ public:
 	void MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition);
 
 	void CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord);
+
+	void ResetData();
 
 	UFUNCTION(BlueprintCallable)
 	void Replay();
@@ -117,7 +124,7 @@ public:
 	bool GetVisibleValue() { return Visible; }
 
 	UFUNCTION(BlueprintCallable, Category = "Button Category")
-	bool GetIsBotPlayed() { return Visible; }
+	bool GetIsBotPlayed() { return IsBotPlayed; }
 
 protected:
 

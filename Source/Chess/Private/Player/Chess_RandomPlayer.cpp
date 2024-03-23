@@ -25,18 +25,6 @@ void AChess_RandomPlayer::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AChess_RandomPlayer::BeginDestroy()
-{
-	Super::BeginDestroy();
-
-	/*
-	if (GetWorldTimerManager().IsTimerActive(TimerHandle))
-	{
-		GetWorldTimerManager().ClearTimer(TimerHandle);
-	}
-	*/
-}
-
 // Called every frame
 void AChess_RandomPlayer::Tick(float DeltaTime)
 {
@@ -53,9 +41,15 @@ void AChess_RandomPlayer::OnTurn()
 {
 	GameInstance->SetTurnMessage(TEXT("AI (Random) Turn"));
 
-	FTimerHandle TimerHandle;
+	//FTimerHandle TimerHandle;
+	AChess_GameMode* GMode = nullptr;
+	AGameField* Field = nullptr;
+	AManagePiece* ManagerPiece = nullptr;
 
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
+	if (!FGameRef::GetGameRef(this, GMode, Field, ManagerPiece, "RandomPlayer"))
+		return;
+
+	GetWorld()->GetTimerManager().SetTimer(ManagerPiece->TimerHandle, [&]()
 		{
 			AChess_GameMode* GMode = nullptr;
 			AGameField* Field = nullptr;
