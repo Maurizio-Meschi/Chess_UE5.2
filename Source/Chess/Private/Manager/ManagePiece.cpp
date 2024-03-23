@@ -29,6 +29,40 @@ void AManagePiece::BeginPlay()
 	Super::BeginPlay();
 }
 
+TArray<TArray<FMarked>>& AManagePiece::GetAllLegalMoveByPlayer(FBoard& Board, int8 Player)
+{
+	AGameField* GField = nullptr;
+
+	if (FGameRef::GetGameField(this, GField, "ManagePiece"))
+	{
+		auto PiecesArray = (Player == Player::HUMAN ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
+
+		for (auto Piece : PiecesArray)
+		{
+			if (!Board.CapturedPieces.Contains(Piece))
+				Piece->LegalMove(Board, Player, false);
+		}
+	}
+
+	return LegalMoveArray;
+}
+
+TArray<FMarked>& AManagePiece::GetLegalMoveByPiece(FBoard& Board, int32 Player, AChessPieces* Piece)
+{
+	LegalMoveArray[Piece->IndexArray].Empty();
+
+	Piece->LegalMove(Board, Player, false);
+
+	return LegalMoveArray[Piece->IndexArray];
+}
+
+void AManagePiece::ResetLegalMoveArray()
+{
+	for (int32 i = 0; i < LegalMoveArray.Num(); i++)
+		LegalMoveArray[i].Empty();
+}
+
+
 void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition)
 {
 	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
@@ -132,7 +166,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 		Obj.Position = Piece->GetGridPosition();
 		Obj.Capture = false;
 		ArrayOfPlays.Add(Obj);
-		CheckWinAndGoNextPlayer(PlayerNumber);
+		CheckWinAndGoNextPlayer();
 	}
 }
 
@@ -212,7 +246,7 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 	Capture = "x";
 }
 
-void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
+void AManagePiece::CheckWinAndGoNextPlayer()
 {
 	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
 	AGameField* Field = nullptr;
@@ -220,23 +254,21 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 	if (!GMode || !FGameRef::GetGameField(this, Field, "ManagePiece"))
 		return;
 	
-	for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)
-		TileMarkedForPiece[i].Empty();
+	for (int32 i = 0; i < LegalMoveArray.Num(); i++)
+		LegalMoveArray[i].Empty();
 
 	// Prima di andare al prossimo turno devo vedere se il prossimo giocatore ha mosse disponibili
-	auto PiecesArray = GMode->CurrentPlayer == Player::AI ? Field->GetHumanPlayerPieces() : Field->GetBotPieces();
-
 	FBoard Board;
 	Board.Field = Field->GetTileMap();
 	Board.Pieces = Field->GetPiecesMap();
 
-	for (auto Piece : PiecesArray)
-		Piece->LegalMove(Board, GMode->CurrentPlayer == 0? 1:0, false);
 
+	auto TileMarked = GetAllLegalMoveByPlayer(Board, GMode->CurrentPlayer == Player::AI ? Player::HUMAN : Player::AI);
+	
 	int32 Cont = 0;
-	for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)
+	for (int32 i = 0; i < TileMarked.Num(); i++)
 	{
-		if (TileMarkedForPiece[i].Num() > 0)
+		if (TileMarked[i].Num() > 0)
 			break;
 		else
 			Cont++;
@@ -255,13 +287,18 @@ void AManagePiece::CheckWinAndGoNextPlayer(const int32 PlayerNumber)
 	}
 	DisableButtonEvent.Broadcast();
 
-	if (Cont == TileMarkedForPiece.Num())
+	
+	if (Cont == TileMarked.Num())
 	{
 		IsGameOver = true;
 		GMode->Players[GMode->CurrentPlayer]->OnWin();
+		Visible = true;
+		IsBotPlayed = true;
+		DisableButtonEvent.Broadcast();
 		return;
 	}
 
+	UE_LOG(LogTemp, Error, TEXT(" "))
 	GMode->TurnNextPlayer();
 }
 
@@ -330,19 +367,6 @@ void AManagePiece::BackToPlay()
 	auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	if (PlayerController)
 		PlayerController->EnableInput(PlayerController);
-}
-
-void AManagePiece::HandlePromotionCompleted()
-{
-	auto GMode = FGameRef::GetGameMode(this);
-	if (!GMode)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Game mode null in ManagePiece"));
-		return;
-	}
-
-	int32 CurrPlayer = GMode->CurrentPlayer;
-	CheckWinAndGoNextPlayer(CurrPlayer);
 }
 
 void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
@@ -415,6 +439,6 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	}
 	PieceToPromote = nullptr;
 
-	HandlePromotionCompleted();
+	CheckWinAndGoNextPlayer();
 }
 

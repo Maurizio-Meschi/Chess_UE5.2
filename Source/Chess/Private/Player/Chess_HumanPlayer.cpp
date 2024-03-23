@@ -44,7 +44,7 @@ AChess_HumanPlayer::AChess_HumanPlayer()
 	GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
 	//default value
-	PlayerNumber = -1;
+	PlayerNumber = 0;
 	PieceColor = EPieceColor::BLACK;
 	PieceChoose = false;
 	CurrPiece = nullptr;
@@ -146,11 +146,11 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 	// marks the tiles where the player can move his piece
 	//CurrPiece->LegalMove(PlayerNumber, false);
 
-	auto TileMarked = ManagerPiece->TileMarkedForPiece[CurrPiece->IndexArray];
+	auto TileMarked = ManagerPiece->LegalMoveArray[CurrPiece->IndexArray];
 
 	// sets that the player has chosen the piece to move
 	PieceChoose = true;
-	UE_LOG(LogTemp, Error, TEXT("Pezzo scelto, ha index = %d e l'array marked ha dim: %d"), CurrPiece->IndexArray, TileMarked.Num());
+	//UE_LOG(LogTemp, Error, TEXT("Pezzo scelto, ha index = %d e l'array marked ha dim: %d"), CurrPiece->IndexArray, TileMarked.Num());
 
 	// if the selected piece cannot move, do nothing
 	if (TileMarked.Num() == 0)
@@ -188,7 +188,7 @@ void AChess_HumanPlayer::ManageClickTile(AActor* HitActor, FString ClassName)
 		return;
 
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	auto TileMarked = ManagerPiece->TileMarkedForPiece;
+	auto TileMarked = ManagerPiece->LegalMoveArray;
 
 	PieceChoose = false;
 
@@ -237,8 +237,10 @@ void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
 	
 	// Before moving the piece, set the current tile status to EMPTY
 	if (TileMap.Contains(CurrPiece->GetGridPosition()))
-		TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+		TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(-1, ETileStatus::EMPTY);
 	
+	ResetMarkStatus();
+
 	PieceManager->MovePiece(PlayerNumber, CurrPiece, Coord, CurrPiece->GetGridPosition());
 
 	MyTurn = false;
@@ -274,6 +276,7 @@ void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
 	if (TileMap.Contains(CurrPiece->GetGridPosition()))
 		TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
 	
+	ResetMarkStatus();
 	// move the piece
 	PieceManager->MovePiece(PlayerNumber, CurrPiece, Coord, CurrPosition);
 	

@@ -122,18 +122,11 @@ int32 AChess_Minimax::EvaluateGrid(FBoard& Board)
 	// 2) Devo considerare il numero di legal move disponibili per aumentare il valore 
 	//    (Se il nemico ha poche legal move probabilmente è sotto scacco -> valore alto). Se io ho tante legalmove anche valore alto 
 	//     Posso inglobarlo nel controllo se è checkmate (zero legal move nemico -> valore 10000, poche legal move nemico -> x punti etc) 
-	
-	PiecesArray = (Board.IsMax ? GField->GetBotPieces() : GField->GetHumanPlayerPieces());
-	for (auto Piece : PiecesArray)
-	{
-		if (!Board.CapturedPieces.Contains(Piece))
-			Piece->LegalMove(Board, Board.IsMax ? Player::AI : Player::HUMAN, false);
-	}
 
-	auto TileMarkedForPiece = PieceManager->TileMarkedForPiece;
+	auto LegalMoveArray = PieceManager->GetAllLegalMoveByPlayer(Board, Board.IsMax ? Player::AI : Player::HUMAN);;
 
 	int32 MoveCount = 0;
-	for (auto TileMarked : TileMarkedForPiece)
+	for (auto TileMarked : LegalMoveArray)
 	{
 		for (auto Tile : TileMarked)
 		{
@@ -157,26 +150,20 @@ int32 AChess_Minimax::EvaluateGrid(FBoard& Board)
 		Score += (Board.IsMax ? 10 : -10);
 	
 
-	PiecesArray = (!Board.IsMax ? GField->GetBotPieces() : GField->GetHumanPlayerPieces());
-	for (auto Piece : PiecesArray)
-	{
-		if (!Board.CapturedPieces.Contains(Piece))
-			Piece->LegalMove(Board, !Board.IsMax ? Player::AI : Player::HUMAN, false);
-	}
-	TileMarkedForPiece = PieceManager->TileMarkedForPiece;
+	LegalMoveArray = PieceManager->GetAllLegalMoveByPlayer(Board, !Board.IsMax ? Player::AI : Player::HUMAN);
 
 	// se non ci sono più legal move restituisco direttamente il minimo valore (ho perso)
 	int32 Cont = 0;
 
-	for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)
+	for (int32 i = 0; i < LegalMoveArray.Num(); i++)
 	{
-		if (TileMarkedForPiece[i].Num() > 0)
+		if (LegalMoveArray[i].Num() > 0)
 			break;
 		else
 			Cont++;
 	}
 
-	if (Cont == TileMarkedForPiece.Num())
+	if (Cont == LegalMoveArray.Num())
 		return (Board.IsMax ? 10000 : -10000);
 	
 	return Score;
@@ -190,7 +177,7 @@ bool AChess_Minimax::FindTileBetweenP1P2(AChessPieces* Piece, const FVector2D& P
 	if (!FGameRef::GetGameRef(this, GMode, GField, PieceManager, "Minimax") || !Piece)
 		return false;
 
-	auto TileMarked = PieceManager->TileMarkedForPiece[Piece->IndexArray];
+	auto TileMarked = PieceManager->LegalMoveArray[Piece->IndexArray];
 
 	int32 deltaX = P2.X - P1.X;
 	int32 deltaY = P2.Y - P1.Y;
@@ -268,11 +255,10 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 	if (!FGameRef::GetGameRef(this, GMode, GField, PieceManager, "Minimax"))
 		return 0;
 
-	auto TileMarkedForPiece = PieceManager->TileMarkedForPiece;
+	//auto LegalMoveArray = PieceManager->LegalMoveArray;
 
 	// Pulisco tutte le legalMove
-	for (int32 i = 0; i < TileMarkedForPiece.Num(); i++)
-		TileMarkedForPiece[i].Empty();
+	PieceManager->ResetLegalMoveArray();
 
 	// If this maximizer's move
 	if (IsMax)
@@ -286,12 +272,14 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 
 		for (auto Piece : PlayerArray)
 		{
-			PieceManager->TileMarkedForPiece[Piece->IndexArray].Empty();
+			//PieceManager->LegalMoveArray[Piece->IndexArray].Empty();
+			TArray<FMarked> TileMarked;
 
 			if (!Board.CapturedPieces.Contains(Piece))
-				Piece->LegalMove(Board, Player::AI, false);
+				TileMarked = PieceManager->GetLegalMoveByPiece(Board, Player::AI, Piece);
+				//Piece->LegalMove(Board, Player::AI, false);
 
-			auto TileMarked = PieceManager->TileMarkedForPiece[Piece->IndexArray];
+			//auto TileMarked = PieceManager->LegalMoveArray[Piece->IndexArray];
 
 			// Se il pezzo non ha legal move oppure è stato catturato vado al prossimo pezzo
 			if (TileMarked.Num() == 0 || Board.CapturedPieces.Contains(Piece))
@@ -374,12 +362,11 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 
 		for (auto Piece : PlayerArray)
 		{
-			PieceManager->TileMarkedForPiece[Piece->IndexArray].Empty();
-			if (!Board.CapturedPieces.Contains(Piece))
-				Piece->LegalMove(Board, Player::HUMAN, false);
+			TArray<FMarked> TileMarked;
 
-			
-			auto TileMarked = PieceManager->TileMarkedForPiece[Piece->IndexArray];
+			if (!Board.CapturedPieces.Contains(Piece))
+				TileMarked = PieceManager->GetLegalMoveByPiece(Board, Player::HUMAN, Piece);
+
 			// Se il pezzo non ha legal move oppure è stato catturato vado al prossimo pezzo
 			if (TileMarked.Num() == 0)// || Board.CapturedPieces.Contains(Piece))
 				continue;
@@ -462,18 +449,16 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 	Board.IsMax = true;
 
 	// Pulisco tutte le legalMove
-	for (int32 i = 0; i < PieceManager->TileMarkedForPiece.Num(); i++)
-		PieceManager->TileMarkedForPiece[i].Empty();
+	PieceManager->ResetLegalMoveArray();
 
 	auto PlayerArray = GField->GetBotPieces();
 
 	for (auto Piece : PlayerArray)
 	{
-		PieceManager->TileMarkedForPiece[Piece->IndexArray].Empty();
-		if (!Board.CapturedPieces.Contains(Piece))
-			Piece->LegalMove(Board, Player::AI, false);
+		TArray<FMarked> TileMarked;
 
-		auto TileMarked = PieceManager->TileMarkedForPiece[Piece->IndexArray];
+		if (!Board.CapturedPieces.Contains(Piece))
+			TileMarked = PieceManager->GetLegalMoveByPiece(Board, Player::AI, Piece);
 
 		// Se il pezzo non ha legal move oppure è stato catturato vado al prossimo pezzo
 		if (TileMarked.Num() == 0)

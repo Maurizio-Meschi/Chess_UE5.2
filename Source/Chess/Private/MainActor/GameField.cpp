@@ -47,9 +47,9 @@ void AGameField::ResetField()
 		}
 		ManagerPiece->ArrayOfPlays.Empty();
 
-		for (int32 i = 0; i < ManagerPiece->TileMarkedForPiece.Num(); i++)
-			ManagerPiece->TileMarkedForPiece[i].Empty();
-		ManagerPiece->TileMarkedForPiece.Empty();
+		for (int32 i = 0; i < ManagerPiece->LegalMoveArray.Num(); i++)
+			ManagerPiece->LegalMoveArray[i].Empty();
+		ManagerPiece->LegalMoveArray.Empty();
 
 		ManagerPiece->Count = 1;
 	}
@@ -211,7 +211,7 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	if (ManagerPiece)
 	{
 		ManagerPiece->ArrayOfPlays.Add(NewObj);
-		ManagerPiece->TileMarkedForPiece.SetNum(Cont);
+		ManagerPiece->LegalMoveArray.SetNum(Cont);
 	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("Manager Piece null in GameField"));

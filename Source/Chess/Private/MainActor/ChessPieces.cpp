@@ -76,6 +76,7 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 	if (Board.Field.Contains(this->GetGridPosition()))
 		CurrTile = Board.Field[this->GetGridPosition()];
 
+
 	if (SelectedTile && CurrTile)
 	{
 		if (SelectedTile->GetTileStatus() == ETileStatus::EMPTY)
@@ -83,6 +84,10 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 			//UE_LOG(LogTemp, Error, TEXT("Tile x=%d y=%d is empty"), x, y);
 			if (this->IsA<AChessPawn>() && Cast<AChessPawn>(this)->CaptureSituation)
 				return;
+
+			if (this->IsA<AKing>() && this->Color == EPieceColor::BLACK)
+				UE_LOG(LogTemp, Error, TEXT("%s ha marcato la tile x=%f y=%f"), *this->GetName(), SelectedTile->GetGridPosition().X, SelectedTile->GetGridPosition().Y);
+
 
 			// Metto l'attuale tile vuota e quella selezionata occupata
 			SelectedTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
@@ -106,12 +111,12 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 			FMarked Obj;
 			Obj.Tile = SelectedTile;
 			Obj.Capture = false;
-			ManagerPiece->TileMarkedForPiece[this->IndexArray].Add(Obj);
+			ManagerPiece->LegalMoveArray[this->IndexArray].Add(Obj);
 
 			// Arrocco
 			if (IsA<AKing>() && x == 0 && y == 5 && Cast<AKing>(this)->NeverMoved)
 			{
-				Castling(Board, FVector2D(0, 6), FVector2D(0, 7), PlayerNumber, Marked);
+				Castling(Board, FVector2D(0, 6), HUMAN_ROOK_POSITION2, PlayerNumber, Marked);
 			}
 
 			// Arrocco Lungo
@@ -121,13 +126,13 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 					if (Board.Field[FVector2D(0, 1)]->GetTileStatus() != ETileStatus::EMPTY)
 						return;
 
-				Castling(Board, FVector2D(0, 2), FVector2D(0, 0), PlayerNumber, Marked);
+				Castling(Board, FVector2D(0, 2), HUMAN_ROOK_POSITION1, PlayerNumber, Marked);
 			}
 
 			// Arrocco nemico
 			if (IsA<AKing>() && x == 7 && y == 5 && Cast<AKing>(this)->NeverMoved)
 			{
-				Castling(Board, FVector2D(7, 6), FVector2D(7, 7), PlayerNumber, Marked);
+				Castling(Board, FVector2D(7, 6), AI_ROOK_POSITION2, PlayerNumber, Marked);
 			}
 
 			// Arrocco Lungo nemico
@@ -137,7 +142,7 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 					if (Board.Field[FVector2D(7, 1)]->GetTileStatus() != ETileStatus::EMPTY)
 						return;
 
-				Castling(Board, FVector2D(7, 2), FVector2D(7, 0), PlayerNumber, Marked);
+				Castling(Board, FVector2D(7, 2), AI_ROOK_POSITION1, PlayerNumber, Marked);
 			}
 		}
 		else if (SelectedTile->GetTileStatus() == ETileStatus::OCCUPIED)
@@ -151,7 +156,7 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 			if (Board.Pieces.Contains(SelectedTile->GetGridPosition()))
 			{
 				auto Piece = Board.Pieces[SelectedTile->GetGridPosition()];
-				if (this->Color == Piece->Color)
+				if (Piece->IsA<AKing>())
 				{
 					Marked = true;
 					return;
@@ -181,7 +186,7 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 				FMarked Obj;
 				Obj.Tile = SelectedTile;
 				Obj.Capture = true;
-				ManagerPiece->TileMarkedForPiece[this->IndexArray].Add(Obj);
+				ManagerPiece->LegalMoveArray[this->IndexArray].Add(Obj);
 			}
 			Marked = true;
 		}
@@ -216,7 +221,7 @@ void AChessPieces::Castling(FBoard& Board, FVector2D TilePosition, FVector2D Roo
 			if (Rook->IsA<ARook>() && Cast<ARook>(Rook)->NeverMoved)
 			{
 				MarkTile(Board, TilePosition.X, TilePosition.Y, PlayerNumber, Marked);
-				auto TileMarked = ManagerPiece->TileMarkedForPiece[this->IndexArray];
+				auto TileMarked = ManagerPiece->LegalMoveArray[this->IndexArray];
 				for (auto Element : TileMarked)
 				{
 					if (Element.Tile->GetGridPosition() == TilePosition)
@@ -262,9 +267,10 @@ bool AChessPieces::TestCheck(FBoard& Board, int32 x, int32 y, int32 PlayerNumber
 		{
 			if (this->IsA<AChessPawn>() && !Cast<AChessPawn>(this)->CaptureSituation)
 				return false;
-
+			
 			if (SelectedTile->GetVirtaulStatus() == EVirtualOccupied::VIRTUAL_OCCUPIED_BY_KING)
 			{
+				//UE_LOG(LogTemp, Error, TEXT("La tile x=%f y=%f e' vista da %s"), SelectedTile->GetGridPosition().X, SelectedTile->GetGridPosition().Y, *this->GetName());
 				return true;
 			}
 			else if (SelectedTile->GetVirtaulStatus() == EVirtualOccupied::VIRTUAL_OCCUPIED)
@@ -286,6 +292,7 @@ bool AChessPieces::TestCheck(FBoard& Board, int32 x, int32 y, int32 PlayerNumber
 
 				if (Piece->IsA<AKing>() && SelectedTile->GetOwner() != PlayerNumber) //Piece->Color == (PlayerNumber == 0 ? EPieceColor::BLACK : EPieceColor::WHITE))
 				{
+					//UE_LOG(LogTemp, Error, TEXT("La tile x=%f y=%f e' vista da %s"), SelectedTile->GetGridPosition().X, SelectedTile->GetGridPosition().Y, *this->GetName());
 					return true;
 				}
 				else

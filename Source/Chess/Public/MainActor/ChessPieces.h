@@ -28,6 +28,11 @@ public:
 	// Sets default values for this actor's properties
 	AChessPieces();
 
+	const FVector2D HUMAN_ROOK_POSITION1 = FVector2D(0, 0);
+	const FVector2D HUMAN_ROOK_POSITION2 = FVector2D(0, 7);
+	const FVector2D AI_ROOK_POSITION1	 = FVector2D(7, 0);
+	const FVector2D AI_ROOK_POSITION2	 = FVector2D(7, 7);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

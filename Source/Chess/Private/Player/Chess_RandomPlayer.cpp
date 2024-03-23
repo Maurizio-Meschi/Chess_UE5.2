@@ -15,12 +15,26 @@ AChess_RandomPlayer::AChess_RandomPlayer()
 
 	GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	PieceColor = EPieceColor::BLACK;
+
+	PlayerNumber = 1;
 }
 
 // Called when the game starts or when spawned
 void AChess_RandomPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AChess_RandomPlayer::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	/*
+	if (GetWorldTimerManager().IsTimerActive(TimerHandle))
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandle);
+	}
+	*/
 }
 
 // Called every frame
@@ -70,10 +84,7 @@ void AChess_RandomPlayer::OnTurn()
 				AChessPieces* CurrPiece = PiecesArray[RIndex];
 				auto CurrPosition = CurrPiece->GetGridPosition();
 
-				// check the possible move
-				//CurrPiece->LegalMove(PlayerNumber, false);
-
-				auto TileMarked = ManagerPiece->TileMarkedForPiece[CurrPiece->IndexArray];
+				auto TileMarked = ManagerPiece->LegalMoveArray[CurrPiece->IndexArray];
 
 				if (TileMarked.Num() == 0)
 					continue;
@@ -108,7 +119,7 @@ void AChess_RandomPlayer::OnTurn()
 
 			} while (!PieceIsPossibleToMove);
 
-		}, 0.5, false);
+		}, 1.5, false);
 }
 
 void AChess_RandomPlayer::OnWin()

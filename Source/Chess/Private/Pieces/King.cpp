@@ -26,89 +26,31 @@ bool AKing::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
 
-	if (CheckCoord(x + XMove, y + YMove) && !MarkedForward)
+	for (int32 i = 0; i < 3; ++i)
 	{
-		if (!CheckFlag)
-			MarkTile(Board, x + XMove, y + YMove, PlayerNumber, MarkedForward);
-		else
-			if (TestCheck(Board, x + XMove, y + YMove, PlayerNumber, MarkedForward))
-				return true;
-	}
+		for (int32 j = 0; j < 3; ++j)
+		{
+			if (i == 1 && j == 1)
+				continue;
+			XMove = i - 1;
+			YMove = j - 1;
 
-	if (CheckCoord(x - XMove, y - YMove) && !MarkedBackwards)
-	{
-		if (!CheckFlag)
-			MarkTile(Board, x - XMove, y - YMove, PlayerNumber, MarkedBackwards);
-		else
-			if (TestCheck(Board, x - XMove, y - YMove, PlayerNumber, MarkedBackwards))
-				return true;
-	}
+			
 
-	XMove = IsHumanPlayer ? 1 : -1;
-	YMove = IsHumanPlayer ? 1 : -1;
-	MarkedForward = false;
-	MarkedBackwards = false;
 
-	if (CheckCoord(x + XMove, y - YMove) && !MarkedForward)
-	{
-		if (!CheckFlag)
-			MarkTile(Board, x + XMove, y - YMove, PlayerNumber, MarkedForward);
-		else
-			if (TestCheck(Board, x + XMove, y - YMove, PlayerNumber, MarkedForward))
-				return true;
-	}
-
-	if (CheckCoord(x - XMove, y + YMove) && !MarkedBackwards)
-	{
-		if (!CheckFlag)
-			MarkTile(Board, x - XMove, y + YMove, PlayerNumber, MarkedBackwards);
-		else
-			if (TestCheck(Board, x - XMove, y + YMove, PlayerNumber, MarkedBackwards))
-				return true;
-	}
-
-	XMove = IsHumanPlayer ? 1 : -1;
-	MarkedForward = false;
-	MarkedBackwards = false;
-
-	if (CheckCoord(x + XMove, y) && !MarkedForward)
-	{
-		if (!CheckFlag)
-			MarkTile(Board, x + XMove, y, PlayerNumber, MarkedForward);
-		else
-			if (TestCheck(Board, x + XMove, y, PlayerNumber, MarkedForward))
-				return true;
-	}
-
-	if (CheckCoord(x - XMove, y) && !MarkedBackwards)
-	{
-		if (!CheckFlag)
-			MarkTile(Board, x - XMove, y, PlayerNumber, MarkedBackwards);
-		else
-			if (TestCheck(Board, x - XMove, y, PlayerNumber, MarkedBackwards))
-				return true;
-	}
-	
-	YMove = IsHumanPlayer ? 1 : -1;
-	MarkedForward = false;
-	MarkedBackwards = false;
-
-	if (CheckCoord(x, y + YMove) && !MarkedForward)
-	{
-		if (!CheckFlag)
-			MarkTile(Board, x, y + YMove, PlayerNumber, MarkedForward);
-		else
-			if (TestCheck(Board, x, y + YMove, PlayerNumber, MarkedForward))
-				return true;
-	}
-
-	if (CheckCoord(x, y - YMove) && !MarkedBackwards)
-	{
-		if (!CheckFlag)
-			MarkTile(Board, x, y - YMove, PlayerNumber, MarkedBackwards);
-		else
-			if (TestCheck(Board, x, y - YMove, PlayerNumber, MarkedBackwards))
-				return true;
+			if (CheckCoord(x + XMove, y + YMove)) //&& !MarkedForward)
+			{
+				if (!CheckFlag)
+				{
+					if (Color == EPieceColor::BLACK && !CheckFlag)
+						UE_LOG(LogTemp, Error, TEXT("Controllo x=%d y=%d"), x + XMove, y + YMove);
+					MarkTile(Board, x + XMove, y + YMove, PlayerNumber, MarkedForward);
+				}
+				else
+					if (TestCheck(Board, x + XMove, y + YMove, PlayerNumber, MarkedForward))
+						return true;
+			}
+		}
 	}
 	return false;
 }

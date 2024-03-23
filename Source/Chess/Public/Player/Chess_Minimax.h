@@ -35,6 +35,7 @@ public:
 	virtual void OnWin() override;
 	virtual void OnLose() override;
 
+private:
 	int32 EvaluateGrid(FBoard& Board);
 	bool FindTileBetweenP1P2(AChessPieces* Piece, const FVector2D& P1, const FVector2D& P2, FBoard& Board);
 	int32 MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 beta, bool IsMax);

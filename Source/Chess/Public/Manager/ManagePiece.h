@@ -86,7 +86,13 @@ public:
 	UPROPERTY(Transient)
 	TArray<AChessPieces*> PromotePieces;
 
-	TArray<TArray<FMarked>> TileMarkedForPiece;
+	TArray<TArray<FMarked>> LegalMoveArray;
+
+	TArray<TArray<FMarked>>& GetAllLegalMoveByPlayer(FBoard& Board, int8 Player);
+
+	TArray<FMarked>& GetLegalMoveByPiece(FBoard& Board, int32 Player, AChessPieces* Piece);
+
+	void ResetLegalMoveArray();
 
 	void MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition);
 
@@ -100,9 +106,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	AChessPieces* GetPieceToPromote() { return PawnToPromote; }
-
-	UFUNCTION(BlueprintCallable)
-	void HandlePromotionCompleted();
 
 	UFUNCTION(BlueprintCallable, Category = "Button Category")
 	void SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece);
@@ -118,7 +121,7 @@ public:
 
 protected:
 
-	void CheckWinAndGoNextPlayer(const int32 PlayerNumber);
+	void CheckWinAndGoNextPlayer();
 
 	void RewindManager(int32 MoveNumber);
 
