@@ -26,8 +26,6 @@ void AChess_GameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//MoveCounter = 0;
-
 	AChess_HumanPlayer* HumanPlayer = Cast<AChess_HumanPlayer>(*TActorIterator<AChess_HumanPlayer>(GetWorld()));
 
 	if (ManagerClass)
@@ -48,15 +46,15 @@ void AChess_GameMode::BeginPlay()
 	}
 
 	float CameraPosX = ((GField->TileSize * (FieldSize + ((FieldSize - 1) * GField->NormalizedCellPadding) - (FieldSize - 1))) / 2) - (GField->TileSize / 2);
+
 	FVector CameraPos(CameraPosX, CameraPosX, 1000.0f);
+
 	HumanPlayer->SetActorLocationAndRotation(CameraPos, FRotationMatrix::MakeFromX(FVector(0, 0, -1)).Rotator());
 
 	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
 	Players.Add(HumanPlayer);
-	// Random Player
-	//auto* AI = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
-
+	
 	// MiniMax Player
 	if (GameInstance->ChooseAiPlayer == "Hard")
 	{
@@ -80,10 +78,15 @@ void AChess_GameMode::BeginDestroy()
 	FGameRef::ResetCachedGameMode();
 }
 
+
+/*
+* @param: none
+* @return: none
+* @note: assigns the initial turn to the human, 
+*        calculates its legal moves and begins the game
+*/
 void AChess_GameMode::ChoosePlayerAndStartGame()
 {
-	
-	//CurrentPlayer = FMath::RandRange(0, Players.Num() - 1);
 	Manager->IsGameOver = false;
 
 	CurrentPlayer = Player::HUMAN;
@@ -99,11 +102,11 @@ void AChess_GameMode::ChoosePlayerAndStartGame()
 	Board.Pieces = GField->GetPiecesMap();
 
 
-	auto PiecesArray = CurrentPlayer == Player::HUMAN ? GField->GetHumanPlayerPieces() : GField->GetBotPieces();
-	for (auto Piece : PiecesArray)
-		Piece->LegalMove(Board,CurrentPlayer, false);
+	auto PiecesArray = GField->GetHumanPlayerPieces();
 
-	//MoveCounter += 1;
+	for (auto Piece : PiecesArray)
+		Piece->LegalMove(Board, Player::HUMAN, false);
+
 	Players[CurrentPlayer]->OnTurn();
 }
 
@@ -118,10 +121,11 @@ int32 AChess_GameMode::GetNextPlayer(int32 Player)
 
 void AChess_GameMode::TurnNextPlayer()
 {
-	//MoveCounter += 1;
 	CurrentPlayer = GetNextPlayer(CurrentPlayer);
 	Players[CurrentPlayer]->OnTurn();
 }
+
+
 
 AChess_GameMode* FGameRef::CachedGameMode = nullptr;
 
@@ -166,6 +170,22 @@ bool FGameRef::GetGameField(UObject* WorldContextObject, AGameField*& Field, FSt
 	{
 		Field = GMode->GField;
 		if (!Field)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Game Field null in %s"), *Source);
+			return false;
+		}
+		return true;
+	}
+	return false;
+}
+
+bool FGameRef::GetManagePiece(UObject* WorldContextObject, AManagePiece*& ManagePiece, FString Source)
+{
+	auto GMode = FGameRef::GetGameMode(WorldContextObject);
+	if (GMode)
+	{
+		ManagePiece = GMode->Manager;
+		if (!ManagePiece)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Game Field null in %s"), *Source);
 			return false;

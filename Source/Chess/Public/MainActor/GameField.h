@@ -37,10 +37,13 @@ class CHESS_API AGameField : public AElementsToManageField
 	static constexpr int32 LAST_ROW_FIELD = 8;
 
 public:
+	// Sets default values for this actor's properties
+	AGameField();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float NormalizedCellPadding;
 
-	// size of field
+	// Size of field
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int32 Size;
 
@@ -48,19 +51,18 @@ public:
 	UPROPERTY(EditAnywhere)
 	FGFieldTSubClass GameFieldSubClass;
 
-	// tile padding dimension
+	// Tile padding dimension
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float CellPadding;
 
-	// tile size
+	// Tile size
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float TileSize;
 
+	// Each piece has an index value that represents its position in the legalmove array
 	int32 PieceIndexValue;
 
-	// Sets default values for this actor's properties
-	AGameField();
-
+	// Reset the field to start new game
 	UFUNCTION(BlueprintCallable)
 	void ResetField();
 
@@ -70,17 +72,14 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// generate an empty game field
+	// Generate an empty game field
 	void GenerateField();
 
-	// Generrate the tile in x,y coordinates
+	// Generate the tile in x,y coordinates
 	void GenerateTileInXYPosition(int32 x, int32 y, TSubclassOf<ATile> TileClass);
 
-	// Generrate the chess piece in x,y coordinates
+	// Generate the chess piece in x,y coordinates
 	void GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AChessPieces> TileClass, EPieceColor color);
-
-	// return a (x,y) position given a hit (click) on a field tile
-	FVector2D GetPosition(const FHitResult& Hit);
 
 	// return a relative position given (x,y) position
 	FVector GetRelativeLocationByXYPosition(const int32 InX, const int32 InY) const;

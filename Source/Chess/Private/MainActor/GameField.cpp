@@ -19,6 +19,12 @@ AGameField::AGameField()
 	PieceIndexValue = 0;
 }
 
+
+/*
+* @param: none
+* @return: none
+* @note: reset all data structures and restart the game
+*/
 void AGameField::ResetField()
 {
 	auto GMode = FGameRef::GetGameMode(this);
@@ -48,15 +54,24 @@ void AGameField::OnConstruction(const FTransform& Transform)
 	NormalizedCellPadding = FMath::RoundToDouble(((TileSize + CellPadding) / TileSize) * 100) / 100;
 }
 
-// Called when the game starts or when spawned
+
 void AGameField::BeginPlay()
 {
 	Super::BeginPlay();
 	GenerateField();
 }
 
+/*
+* @param: none
+* @return: none
+* @note: Manages the chessboard spawn in three steps:
+*          1.) spawn tiles
+*          2.) spawn white pieces
+*		   3.) spawn black pieces
+*/
 void AGameField::GenerateField()
 {
+	// 1.) Spawn tiles
 	int32 i = 0;
 	for (int32 x = 0; x < Size; x++)
 	{
@@ -70,7 +85,7 @@ void AGameField::GenerateField()
 		x%2 ? i = 0 : i = 1;
 	}
 
-	// Spawn chess pieces human player
+	// 
 	int k = 0;
 	int normalized_row = 0;
 
@@ -83,6 +98,8 @@ void AGameField::GenerateField()
 															GameFieldSubClass.ChessBishop[1], GameFieldSubClass.ChessQueen[1], 
 															GameFieldSubClass.ChessKing[1], GameFieldSubClass.ChessBishop[1],
 															GameFieldSubClass.ChessKnight[1],GameFieldSubClass.ChessRook[1] };
+
+	// 2.) Spawn chess pieces human player (white)
 	for (int32 x = 0; x < SECOND_ROW_FIELD; x++)
 	{
 		for (int32 y = 0; y < Size; y++)
@@ -90,19 +107,19 @@ void AGameField::GenerateField()
 			k = y + normalized_row;
 			if (k < 8) 
 			{
-				// generate the chess pieces in the first row
+				// Generate the chess pieces in the first row
 				GenerateChessPieceInXYPosition(x, y, WHITE_PIECE[y], EPieceColor::WHITE);
 			}
 			else
 			{
-				// generate the chess pieces in the second row
+				// Generate the chess pieces in the second row
 				GenerateChessPieceInXYPosition(x, y, GameFieldSubClass.ChessPawn[Player::HUMAN], EPieceColor::WHITE);
 			}
 		}
 		normalized_row = 8;
 	}
 
-	// Spawn chess pieces bot palyer
+	// 2.) Spawn chess pieces AI player (balck)
 	k = 0;
 	normalized_row = 16;
 	
@@ -113,12 +130,12 @@ void AGameField::GenerateField()
 			k = y + normalized_row;
 			if (k < 24)
 			{
-				// generate the chess pieces in the first row
+				// Generate the chess pieces in the first row
 				GenerateChessPieceInXYPosition(x, y, GameFieldSubClass.ChessPawn[Player::AI], EPieceColor::BLACK);
 			}
 			else
 			{
-				// generate the chess pieces in the second row
+				// Generate the chess pieces in the second row
 				GenerateChessPieceInXYPosition(x, y, BLACK_PIECE[y], EPieceColor::BLACK);
 			}
 		}
@@ -126,9 +143,18 @@ void AGameField::GenerateField()
 	}
 }
 
-// generate the tile 
+/*
+* @param: 1.) X position
+*         2.) Y position
+*         3.) Tile class
+* 
+* @return: none
+* 
+* @note: spawn the tile, sets its values and add it in the tile map
+*/
 void AGameField::GenerateTileInXYPosition(int32 x, int32 y, TSubclassOf<ATile> Class)
 {
+	// The y position of the tile is encoded with a letter on the board
 	TArray<FString> IntToChar = { "a", "b", "c", "d", "e", "f", "g", "h" };
 
 	FVector Location = AGameField::GetRelativeLocationByXYPosition(x, y);
@@ -141,7 +167,17 @@ void AGameField::GenerateTileInXYPosition(int32 x, int32 y, TSubclassOf<ATile> C
 	TileMap.Add(FVector2D(x, y), Obj);
 }
 
-// generate the chess piece 
+
+/*
+* @param: 1.) X position
+*         2.) Y position
+*         3.) Piece class
+*         4.) Piece Color
+*
+* @return: none
+*
+* @note: spawn the piece, sets its values and add it in data structures
+*/
 void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AChessPieces> Class, EPieceColor color)
 {
 	FVector Location = AGameField::GetRelativeLocationByXYPosition(x, y);
@@ -160,6 +196,7 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 		color == EPieceColor::BLACK ? CurrTile->SetTileStatus(1, ETileStatus::OCCUPIED) : CurrTile->SetTileStatus(0, ETileStatus::OCCUPIED);
 
 	PiecesMap.Add(FVector2D(x, y), Obj);
+
 	if (color == EPieceColor::BLACK)
 		BotPieces.Add(Obj);
 	else
@@ -170,6 +207,7 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	if (Class == GameFieldSubClass.ChessKing[1])
 		KingArray.Add(Cast<AKing>(Obj));
 
+	// Add the starting move to the ArrayOfPlays
 	FRewind NewObj;
 	NewObj.PieceToRewind = Obj;
 	NewObj.Position = Obj->GetGridPosition();
@@ -189,11 +227,6 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("Manager Piece null in GameField"));
-}
-
-FVector2D AGameField::GetPosition(const FHitResult& Hit)
-{
-	return Cast<ATile>(Hit.GetActor())->GetGridPosition();
 }
 
 FVector AGameField::GetRelativeLocationByXYPosition(const int32 InX, const int32 InY) const

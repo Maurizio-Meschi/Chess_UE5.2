@@ -151,7 +151,7 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 				FMarked Obj;
 				Obj.Tile = SelectedTile;
 				Obj.Capture = true;
-				ManagerPiece->LegalMoveArray[this->IndexArray].Add(Obj);
+				ManagerPiece->LegalMoveArray[this->IndexArray].Insert(Obj, 0);
 			}
 			Marked = true;
 		}

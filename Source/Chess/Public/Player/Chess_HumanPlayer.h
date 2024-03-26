@@ -35,9 +35,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool MyTurn = false;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool PieceChoose;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -50,8 +51,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// Starts the human player's turn
 	virtual void OnTurn() override;
+	// Signals the victory of the human
 	virtual void OnWin() override;
+	// Signals the defeat of the human
 	virtual void OnLose() override;
 
 	// called on left mouse click (binding)
@@ -61,13 +65,15 @@ public:
 protected:
 	void ResetMarkStatus();
 
-	bool FindPiece(FString ClassName);
-	bool FindTile(FString ClassName);
-	bool FindPieceToCapture(FString ClassName);
-
+	// Manage the click on the tile
 	void ManageClickTile(AActor* HitActor, FString ClassName);
-	void ManageClickPiece(AActor* HitActor, FString ClassName);
+	// Handle clicking on a human piece
+	void ManageClickPiece(AActor* HitActor);
 
-	void ManageMovingInEmptyTile(ATile* TileActor);
-	void ManageCaptureInEnemyTile(ATile* EnemyTile);
+	// checks if a piece of the human has been selected
+	bool FindPiece(FString ClassName);
+	// checks if a tile has been selected
+	bool FindTile(FString ClassName);
+	// checks if a enemy piece has been selected
+	bool FindPieceToCapture(FString ClassName);
 };

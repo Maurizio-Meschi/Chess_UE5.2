@@ -14,6 +14,8 @@ AChess_RandomPlayer::AChess_RandomPlayer()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+	// AI player has black pieces
 	PieceColor = EPieceColor::BLACK;
 
 	PlayerNumber = 1;
@@ -37,11 +39,18 @@ void AChess_RandomPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+/*
+* @param: none
+* @return: none
+* @note: Sets a timer and when the time runs out 
+*        he randomly chooses the piece to move 
+*        and one of his possible legal moves and carries out the move
+*/
 void AChess_RandomPlayer::OnTurn()
 {
 	GameInstance->SetTurnMessage(TEXT("AI (Random) Turn"));
 
-	//FTimerHandle TimerHandle;
+	// Get reference to game mode, game field and Piece manager
 	AChess_GameMode* GMode = nullptr;
 	AGameField* Field = nullptr;
 	AManagePiece* ManagerPiece = nullptr;
@@ -49,6 +58,7 @@ void AChess_RandomPlayer::OnTurn()
 	if (!FGameRef::GetGameRef(this, GMode, Field, ManagerPiece, "RandomPlayer"))
 		return;
 
+	// Set timer
 	GetWorld()->GetTimerManager().SetTimer(ManagerPiece->TimerHandle, [&]()
 		{
 			AChess_GameMode* GMode = nullptr;
@@ -65,10 +75,10 @@ void AChess_RandomPlayer::OnTurn()
 
 			bool PieceIsPossibleToMove = false;
 			int32 RIndex;
-			//Field->ResetTileMarked();
 
+			// Iterate until a possible piece to move has been chosen
 			do{
-				// select random piece
+				// Select random piece
 				if (PiecesArray.Num() == 0)
 				{
 					UE_LOG(LogTemp, Error, TEXT("No piece RandomPlayer"));
@@ -78,24 +88,26 @@ void AChess_RandomPlayer::OnTurn()
 				AChessPieces* CurrPiece = PiecesArray[RIndex];
 				auto CurrPosition = CurrPiece->GetGridPosition();
 
+				// Get the array of legal moves for the chosen piece
 				auto TileMarked = ManagerPiece->LegalMoveArray[CurrPiece->IndexArray];
 
+				// Check if piece is possible to move
 				if (TileMarked.Num() == 0)
 					continue;
 
 				PieceIsPossibleToMove = true;
 
-				// select the marked tile to move
+				// Select the tile to move piece
 				int32 RIndexToMovePiece = FMath::Rand() % TileMarked.Num();
-
-				// take the tile where move the piece
 				ATile* TileActor = TileMarked[RIndexToMovePiece].Tile;
 				bool Capture = TileMarked[RIndexToMovePiece].Capture;
 
+				// Get the coordinates where to move the piece
 				FVector2D Coord = TileActor->GetGridPosition();
 
 				TileActor->SetTileStatus(Player::AI, ETileStatus::OCCUPIED);
-				// check if possible to capture an enemy piece
+
+				// Check if possible to capture an enemy piece
 				if (Capture)
 				{
 					AChessPieces* PieceToCapture = nullptr;
@@ -105,7 +117,7 @@ void AChess_RandomPlayer::OnTurn()
 					ManagerPiece->CapturePiece(PieceToCapture, Coord);
 				}
 
-				// Before moving the piece, set the current tile to be empty
+				// Before moving the piece, set the current tile empty
 				if (TileMap.Contains(CurrPiece->GetGridPosition()))
 					TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(-1, ETileStatus::EMPTY);
 				
@@ -118,12 +130,10 @@ void AChess_RandomPlayer::OnTurn()
 
 void AChess_RandomPlayer::OnWin()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AI (Random) Wins!"));
 	GameInstance->SetTurnMessage(TEXT("AI Wins!"));
 }
 
 void AChess_RandomPlayer::OnLose()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AI (Random) Loses!"));
 	GameInstance->SetTurnMessage(TEXT("AI Loses!"));
 }

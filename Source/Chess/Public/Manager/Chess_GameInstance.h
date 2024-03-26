@@ -19,7 +19,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	FString Info;
 
-	// message to show every turn
+	// Message to show every turn
 	UPROPERTY(EditAnywhere)
 	FString CurrentTurnMessage = "Current Player";
 
@@ -27,21 +27,22 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	FString ChooseAiPlayer;
 
+	// Get from the main menu whether to choose random player or minimax
 	UFUNCTION(BlueprintCallable)
 	void SetChooseAiPlayer(FString name) { ChooseAiPlayer = name; }
 	
-	// increment the score for human player
+	// Set info about the move
 	void SetInfo(FString Message);
 
-	// get the score for human player
+	// Get info about the move
 	UFUNCTION(BlueprintCallable)
 	FString GetInfo();
 
-	// get the current turn message
+	// Get the current turn message
 	UFUNCTION(BlueprintCallable)
 	FString GetTurnMessage();
 
-	// set the turn message
+	// Set the turn message
 	UFUNCTION(BlueprintCallable)
 	void SetTurnMessage(FString Message);
 };

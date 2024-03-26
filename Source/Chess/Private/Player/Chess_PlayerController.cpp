@@ -25,14 +25,14 @@ void AChess_PlayerController::BeginPlay()
 		Subsystem->AddMappingContext(ChessContext, 0);
 	}
 
-	
+	// Get widget reference
 	if (IsLocalPlayerController())
 	{
-		if (InventoryWidgetClass)
+		if (WidgetPawnPromotionClass)
 		{
-			if (!InventoryWidget)
+			if (!WidgetPawnPromotion)
 			{
-				InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
+				WidgetPawnPromotion = CreateWidget<UUserWidget>(this, WidgetPawnPromotionClass);
 			}
 		}
 		else
@@ -44,12 +44,11 @@ void AChess_PlayerController::BeginDestroy()
 {
 	Super::BeginDestroy();
 
-	if (InventoryWidget && InventoryWidget->IsInViewport())
+	// if present remove the widget from the viewport when the object is destroyed
+	if (WidgetPawnPromotion && WidgetPawnPromotion->IsInViewport())
 	{
-		InventoryWidget->RemoveFromParent();
+		WidgetPawnPromotion->RemoveFromParent();
 	}
-
-	//InventoryWidget = nullptr;
 }
 
 void AChess_PlayerController::SetupInputComponent()
@@ -63,34 +62,46 @@ void AChess_PlayerController::SetupInputComponent()
 	}
 }
 
-void AChess_PlayerController::AddInventoryWidgetToViewport()
+/*
+* @param: none
+* @return: none
+* @note: if there is no reference to the widget, 
+*        it is taken and added to the viewport
+*/
+void AChess_PlayerController::AddWidgetPawnPromotionToViewport()
 {
-	if (!InventoryWidget)
+	if (!WidgetPawnPromotion)
 	{
-		if (InventoryWidgetClass)
+		if (WidgetPawnPromotionClass)
 		{
-				InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
+				WidgetPawnPromotion = CreateWidget<UUserWidget>(this, WidgetPawnPromotionClass);
 		}
 		else
 			UE_LOG(LogTemp, Error, TEXT("No BP found in controller"));
 	}
-	if (!InventoryWidget->IsInViewport())
-		InventoryWidget->AddToViewport();
+	if (!WidgetPawnPromotion->IsInViewport())
+		WidgetPawnPromotion->AddToViewport();
 }
 
-void AChess_PlayerController::RemoveInventoryWidgetToViewport()
+/*
+* @param: none
+* @return: none
+* @note: if there is no reference to the widget,
+*        it is taken and removed to the viewport
+*/
+void AChess_PlayerController::RemoveWidgetPawnPromotionToViewport()
 {
-	if (!InventoryWidget)
+	if (!WidgetPawnPromotion)
 	{
-		if (InventoryWidgetClass)
+		if (WidgetPawnPromotionClass)
 		{
-			InventoryWidget = CreateWidget<UUserWidget>(this, InventoryWidgetClass);
+			WidgetPawnPromotion = CreateWidget<UUserWidget>(this, WidgetPawnPromotionClass);
 		}
 		else
 			UE_LOG(LogTemp, Error, TEXT("No BP found in controller"));
 	}
-	if (InventoryWidget && InventoryWidget->IsInViewport())
-		InventoryWidget->RemoveFromParent();
+	if (WidgetPawnPromotion && WidgetPawnPromotion->IsInViewport())
+		WidgetPawnPromotion->RemoveFromParent();
 }
 
 void AChess_PlayerController::ClickOnGrid()

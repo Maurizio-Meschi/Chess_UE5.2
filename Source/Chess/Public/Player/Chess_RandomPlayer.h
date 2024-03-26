@@ -32,8 +32,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// Look for the AI move
 	virtual void OnTurn() override;
+	// Signals the victory of the AI
 	virtual void OnWin() override;
+	// Signals the defeat of the AI
 	virtual void OnLose() override;
 
 };

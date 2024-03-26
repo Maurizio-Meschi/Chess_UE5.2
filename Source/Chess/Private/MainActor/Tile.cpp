@@ -27,7 +27,6 @@ ATile::ATile()
 void ATile::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ATile::SetTileStatus(const int32 TileOwner, const ETileStatus TileStatus)
@@ -41,7 +40,6 @@ void ATile::SetVirtualStatus(const EVirtualOccupied TileStatus)
 	VirtualStatus = TileStatus;
 }
 
-
 ETileStatus ATile::GetTileStatus()
 {
 	return Status;
@@ -51,7 +49,6 @@ EVirtualOccupied ATile::GetVirtaulStatus()
 {
 	return VirtualStatus;
 }
-
 
 int32 ATile::GetOwner()
 {
@@ -67,12 +64,3 @@ FVector2D ATile::GetGridPosition()
 {
 	return TileGridPosition;
 }
-
-/* Called every frame
-void ATile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-*/
-

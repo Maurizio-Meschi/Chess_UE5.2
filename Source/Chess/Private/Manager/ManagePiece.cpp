@@ -32,15 +32,15 @@ void AManagePiece::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AManagePiece::DeleteTime()
-{
-	if (GetWorldTimerManager().IsTimerActive(TimerHandle))
-	{
-		GetWorldTimerManager().ClearTimer(TimerHandle);
-	}
-}
 
-
+/*
+* @param: 1.) Reference to the chessboard
+*         2.) Player whose legal moves you want to calculate
+*
+* @return: two-dimensional array of legal moves
+*
+* @note: none
+*/
 TArray<TArray<FMarked>>& AManagePiece::GetAllLegalMoveByPlayer(FBoard& Board, int8 Player)
 {
 	AGameField* GField = nullptr;
@@ -59,6 +59,16 @@ TArray<TArray<FMarked>>& AManagePiece::GetAllLegalMoveByPlayer(FBoard& Board, in
 	return LegalMoveArray;
 }
 
+
+/*
+* @param: 1.) Reference to the chessboard
+*         2.) Player to whom the piece belongs
+*         3.) Piece on which to calculate the legal moves
+*
+* @return: array of legal moves of the piece
+*
+* @note: none
+*/
 TArray<FMarked>& AManagePiece::GetLegalMoveByPiece(FBoard& Board, int32 Player, AChessPieces* Piece)
 {
 	LegalMoveArray[Piece->IndexArray].Empty();
@@ -68,6 +78,7 @@ TArray<FMarked>& AManagePiece::GetLegalMoveByPiece(FBoard& Board, int32 Player, 
 	return LegalMoveArray[Piece->IndexArray];
 }
 
+
 void AManagePiece::ResetLegalMoveArray()
 {
 	for (int32 i = 0; i < LegalMoveArray.Num(); i++)
@@ -75,6 +86,58 @@ void AManagePiece::ResetLegalMoveArray()
 }
 
 
+/*
+* @param: none
+* @return: true if is checkmate, false otherwise
+* @note: calculates the legal moves of the opposing player 
+*        and if there are none available it is checkmate
+*/
+bool AManagePiece::IsCheckMate()
+{
+	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
+	AGameField* Field = nullptr;
+
+	if (!GMode || !FGameRef::GetGameField(this, Field, "ManagePiece"))
+		return false;
+
+	ResetLegalMoveArray();
+
+	// Prima di andare al prossimo turno devo vedere se il prossimo giocatore ha mosse disponibili
+	FBoard Board;
+	Board.Field = Field->GetTileMap();
+	Board.Pieces = Field->GetPiecesMap();
+
+
+	auto TileMarked = GetAllLegalMoveByPlayer(Board, GMode->CurrentPlayer == Player::AI ? Player::HUMAN : Player::AI);
+
+	int32 Cont = 0;
+	for (int32 i = 0; i < TileMarked.Num(); i++)
+	{
+		if (TileMarked[i].Num() > 0)
+			break;
+		else
+			Cont++;
+	}
+
+	if (Cont == TileMarked.Num())
+		return true;
+
+	return false;
+}
+
+/*
+* @param: 1.) Player
+*         2.) Piece to move
+*         3.) Position to move the piece to
+*         4.) Position where the piece was located
+*
+* @return: none
+*
+* @note: The method deals with moving the piece by managing:
+*           1.) Castling
+*           2.) The promotion of the pawn
+*           3.) Nomenclature
+*/
 void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition)
 {
 	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
@@ -88,27 +151,28 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 		return;
 	}
 
-	//Arrocco
+	// Castling for the human
 	if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(0, 6))
 	{
 		CastlingManager(FVector2D(0, 7), FVector2D(0, 5), Coord, Piece);
 	}
-	//Arrocco lungo
+	// Long castling for human
 	else if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(0, 2))
 	{
 		CastlingManager(FVector2D(0, 0), FVector2D(0, 3), Coord, Piece);
 	}
-
+	// Castling for the AI
 	if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(7, 6))
 	{
 		CastlingManager(FVector2D(7, 7), FVector2D(7, 5), Coord, Piece);
 	}
+	// Long castling for the AI
 	else if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(7, 2))
 	{
 		CastlingManager(FVector2D(7, 0), FVector2D(7, 3), Coord, Piece);
 	}
 
-	//std case
+	// Std case
 	else
 	{
 		if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved)
@@ -119,6 +183,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 
 		FVector NewLocation = GField->GetRelativeLocationByXYPosition(Coord.X, Coord.Y);
 
+		// Update data structures and move the piece
 		GField->PiecesMapRemove(Piece->GetGridPosition());
 		Piece->SetGridPosition(Coord.X, Coord.Y);
 
@@ -129,8 +194,11 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 	if (AManagePiece::Castling)
 		AManagePiece::Castling = false;
 
+
+	/// Manage move nomenclature
 	auto TileMap = GField->GetTileMap();
 
+	// Get the tile where the piece moves to get name information
 	ATile* Tile = nullptr;
 	if (TileMap.Contains(Coord))
 		Tile = TileMap[Coord];
@@ -138,44 +206,52 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GameInstance && Tile)
 	{
+		// Manage pawn capture nomenclature
 		if (Piece->IsA<AChessPawn>())
 		{
 			if (TileMap.Contains(Coord) && Capture == "x")
 				Capture = TileMap[StartPosition]->Name.Left(1) + "x";
 		}
 
+		// Manage check/checkmate nomenclature
 		FBoard Board;
 		Board.Field = GField->GetTileMap();
 		Board.Pieces = GField->GetPiecesMap();
 		FString CheckNotation;
 
-		if (Piece->LegalMove(Board, GMode->CurrentPlayer, true))
+		if (IsCheckMate())
+			CheckNotation = "#";
+
+		else if (Piece->LegalMove(Board, GMode->CurrentPlayer, true))
 			CheckNotation = "+";
 		else 
 			CheckNotation = "";
 		
 
 		GameInstance->SetInfo(FString::FromInt(MoveCounter) + TEXT(". ") + Piece->Name + Capture + Tile->Name + CheckNotation);
-		//MoveCounter++;
+		
 		Capture = "";
 		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
+		// Broadcast event for the button spawn with the set text
 		if (PlayerController)
 			PlayerController->Event.Broadcast();
 		else
 			UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
 	}
 
-	//Gestire la grafica che dice lo spostamento della pedina
+	// Manage pawn promotion for human player
 	if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::WHITE && (Piece->GetGridPosition().X == 7.0))
 	{
 		PawnToPromote = Piece;
 		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+
 		if (PlayerController)
-			PlayerController->AddInventoryWidgetToViewport();
+			PlayerController->AddWidgetPawnPromotionToViewport();
 		else
 			UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
 	}
+	// Manage pawn promotion for AI player
 	else if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::BLACK && (Piece->GetGridPosition().X == 0.0))
 	{
 		TArray<FString> Class = { "Queen", "Rook", "Bishop", "Knight" };
@@ -184,16 +260,29 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 	}
 	else 
 	{
-		// Add the piece reference in the current played 
+		// Save the move to the array
 		FRewind Obj;
 		Obj.PieceToRewind = Piece;
 		Obj.Position = Piece->GetGridPosition();
 		Obj.Capture = false;
+
 		ArrayOfPlays.Add(Obj);
+
 		CheckWinAndGoNextPlayer();
 	}
 }
 
+
+/*
+* @param: 1.) Start rook position
+*         2.) New rook position
+*         3.) New King position
+*         4.) Pointer to the king
+*
+* @return: none
+*
+* @note: moves king and rook according to the rules of castling
+*/
 void AManagePiece::CastlingManager(FVector2D StartRookCoord, FVector2d NewRookCoord, FVector2D Coord, AChessPieces* Piece)
 {
 	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
@@ -211,12 +300,15 @@ void AManagePiece::CastlingManager(FVector2D StartRookCoord, FVector2d NewRookCo
 		Rook = PiecesMap[StartRookCoord];
 		if (Rook->IsA<ARook>() && Cast<ARook>(Rook)->NeverMoved)
 		{
+			// Set the tile status where the rook was located empty
 			if (TileMap.Contains(StartRookCoord))
 				TileMap[StartRookCoord]->SetTileStatus(-1, ETileStatus::EMPTY);
 
+			// Set the tile status where the rook moves occupied
 			if (TileMap.Contains(NewRookCoord))
 				TileMap[NewRookCoord]->SetTileStatus(GMode->CurrentPlayer, ETileStatus::OCCUPIED);
 
+			// Update data structures and move the piece
 			GField->PiecesMapRemove(Piece->GetGridPosition());
 			GField->PiecesMapRemove(Rook->GetGridPosition());
 
@@ -232,16 +324,27 @@ void AManagePiece::CastlingManager(FVector2D StartRookCoord, FVector2d NewRookCo
 			Piece->SetActorLocation(PiecePosition);
 			Rook->SetActorLocation(RookPosition);
 
+			// Save the move to the array
 			FRewind Obj;
 			Obj.PieceToRewind = Rook;
 			Obj.Position = Rook->GetGridPosition();
 			Obj.Capture = false;
 			Obj.Castling = true;
+
 			ArrayOfPlays.Add(Obj);
 		}
 	}
 }
 
+
+/*
+* @param: 1.) Pointer to the piece to capture
+*         2.) Position of the piece to capture
+*
+* @return: none
+*
+* @note: none
+*/
 void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 {
 	AGameField* GField = nullptr;
@@ -249,7 +352,7 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 	if (!FGameRef::GetGameField(this, GField, "ManagePiece"))
 		return;
 
-	
+	// Update data structures
 	GField->PiecesMapRemove(Coord);
 	CapturedPieces.Add(PieceToCapture);
 	
@@ -258,18 +361,26 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 	else
 		GField->HumanPlayerPiecesRemove(PieceToCapture);
 	
-
 	PieceToCapture->SetActorHiddenInGame(true);
 	PieceToCapture->SetActorEnableCollision(false);
+
+	// The actor is not destroyed to ensure the replay works correctly
 	FRewind Obj;
 	Obj.PieceToRewind = PieceToCapture;
 	Obj.Position = PieceToCapture->GetGridPosition();
 	Obj.Capture = true;
+
 	ArrayOfPlays.Add(Obj);
 
 	Capture = "x";
 }
 
+
+/*
+* @param: none
+* @return: none
+* @note: destroys all references from arrays and cleans it
+*/
 void AManagePiece::ResetData()
 {
 	for (int32 i = 0; i < CapturedPieces.Num(); i++)
@@ -300,6 +411,27 @@ void AManagePiece::ResetData()
 	IsBotPlayed = true;
 }
 
+
+/*
+* @param: none
+* @return: none
+* @note: remove the timer if set to avoid crashes when resetting or quitting the game
+*/
+void AManagePiece::DeleteTime()
+{
+	if (GetWorldTimerManager().IsTimerActive(TimerHandle))
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandle);
+	}
+}
+
+
+/*
+* @param: none
+* @return: none
+* @note: handles the buttons disable event during the AI's turn, 
+*        checks the checkmate and goes to the next player's turn
+*/
 void AManagePiece::CheckWinAndGoNextPlayer()
 {
 	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
@@ -307,26 +439,6 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 
 	if (!GMode || !FGameRef::GetGameField(this, Field, "ManagePiece"))
 		return;
-	
-	for (int32 i = 0; i < LegalMoveArray.Num(); i++)
-		LegalMoveArray[i].Empty();
-
-	// Prima di andare al prossimo turno devo vedere se il prossimo giocatore ha mosse disponibili
-	FBoard Board;
-	Board.Field = Field->GetTileMap();
-	Board.Pieces = Field->GetPiecesMap();
-
-
-	auto TileMarked = GetAllLegalMoveByPlayer(Board, GMode->CurrentPlayer == Player::AI ? Player::HUMAN : Player::AI);
-	
-	int32 Cont = 0;
-	for (int32 i = 0; i < TileMarked.Num(); i++)
-	{
-		if (TileMarked[i].Num() > 0)
-			break;
-		else
-			Cont++;
-	}
 
 	if (GMode->CurrentPlayer == Player::AI)
 	{
@@ -342,7 +454,7 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 	DisableButtonEvent.Broadcast();
 
 	
-	if (Cont == TileMarked.Num())
+	if (IsCheckMate())
 	{
 		IsGameOver = true;
 		GMode->Players[GMode->CurrentPlayer]->OnWin();
@@ -352,10 +464,17 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 		return;
 	}
 
-	UE_LOG(LogTemp, Error, TEXT(" "))
 	GMode->TurnNextPlayer();
 }
 
+
+/*
+* @param: move number
+* @return: none
+* @note: Set all the captured and promoted pieces hidden. 
+*        Then retrace all the plays up to the move counter
+*        and make the pieces visible/hidden based on promotions and captures
+*/
 void AManagePiece::RewindManager(int32 MoveNumber)
 {
 	AGameField* Field = nullptr;
@@ -405,6 +524,7 @@ void AManagePiece::RewindManager(int32 MoveNumber)
 	}
 }
 
+// Disable input and call RewindManager
 void AManagePiece::Replay()
 {
 	auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
@@ -414,15 +534,26 @@ void AManagePiece::Replay()
 	RewindManager(ButtonValue + 1);
 }
 
+// Call RewindManager to backup the last move and enable input
 void AManagePiece::BackToPlay()
 {
 	RewindManager(ArrayOfPlays.Num());
 
 	auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+
 	if (PlayerController)
 		PlayerController->EnableInput(PlayerController);
 }
 
+
+/*
+* @param: 1.) Pointer to the piece to promote
+*         2.) String representing the new class of the piece
+* 
+* @return: none
+* 
+* @note: remove the pawn and spawn the new piece represented by the string
+*/
 void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 {
 	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
@@ -434,6 +565,7 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 	TSubclassOf<AChessPieces> PieceClass;
 
+	// Remove the pawn
 	auto Position = PieceToPromote->GetGridPosition();
 	PieceToPromote->SetActorHiddenInGame(true);
 	PieceToPromote->SetActorEnableCollision(false);
@@ -444,7 +576,6 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	Obj.Capture = true;
 	ArrayOfPlays.Add(Obj);
 
-	//PieceToPromote->SetActorLocation(FVector(0, 0, 0));
 	int32 Player = GMode->CurrentPlayer;
 	
 	Field->PiecesMapRemove(Position);
@@ -473,6 +604,7 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	}
 
 	EPieceColor Color = EPieceColor::WHITE;
+
 	if (Player == Player::AI)
 		Color = EPieceColor::BLACK;
 	
@@ -482,12 +614,13 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	if (PiecesMap.Contains(Position))
 		PromotePieces.Add(PiecesMap[Position]);
 
+	// If it is the human player, the widget representing the piece choice must be removed
 	if (Player == Player::HUMAN)
 	{
 		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
 		if (PlayerController)
-			PlayerController->RemoveInventoryWidgetToViewport();
+			PlayerController->RemoveWidgetPawnPromotionToViewport();
 		else
 			UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
 	}

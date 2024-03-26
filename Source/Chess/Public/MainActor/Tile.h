@@ -32,25 +32,28 @@ public:
 	// Sets default values for this actor's properties
 	ATile();
 
-	// set the player owner and the status of a tile
+	// Set the player owner and the status of a tile
 	void SetTileStatus(const int32 TileOwner, const ETileStatus TileStatus);
 
+	// Set the virtual status of a tile
 	void SetVirtualStatus(const EVirtualOccupied TileStatus);
 
-	// set the (x, y) position
+	// Set the (x, y) position
 	void SetGridPosition(const double InX, const double InY);
 
-	// get the tile status
+	// Get the tile status
 	ETileStatus GetTileStatus();
 
+	// Get the tile virtual status
 	EVirtualOccupied GetVirtaulStatus();
 
-	// get the tile owner
+	// Get the tile owner
 	int32 GetOwner();
 
-	// get the (x, y) position
+	// Get the (x, y) position
 	FVector2D GetGridPosition();
 
+	// Name of the tile
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FString Name;
 

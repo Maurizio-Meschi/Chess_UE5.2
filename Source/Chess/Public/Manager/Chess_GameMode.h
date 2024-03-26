@@ -32,7 +32,7 @@ public:
 
 	int32 CurrentPlayer;
 
-	// array of player interfaces
+	// Array of player interfaces
 	TArray<IChess_PlayerInterface*> Players;
 
 	// TSubclassOf is a template class that provides UClass type safety.
@@ -42,14 +42,15 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AManagePiece> ManagerClass;
 
-	// field size
+	// Field size
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int32 FieldSize;
 
-	// reference to a GameField object
+	// Reference to a GameField object
 	UPROPERTY(VisibleAnywhere)
 	AGameField* GField;
 
+	// Reference to a ManagePiece object
 	UPROPERTY(VisibleAnywhere)
 	AManagePiece* Manager;
 
@@ -58,13 +59,13 @@ public:
 
 	virtual void BeginDestroy() override;
 
-	// called at the start of the game
+	// Called at the start of the game
 	void ChoosePlayerAndStartGame();
 
-	// get the next player index
+	// Get the next player index
 	int32 GetNextPlayer(int32 Player);
 
-	// called at the end of the game turn
+	// Called at the end of the game turn
 	void TurnNextPlayer();
 };
 
@@ -77,8 +78,13 @@ private:
 public:
 	static void ResetCachedGameMode() { CachedGameMode = nullptr; }
 
+	// Get game mode reference
 	static AChess_GameMode* GetGameMode(UObject* WorldContextObject);
 
+	// Get all game reference
 	static bool GetGameRef(UObject* WorldContextObject, AChess_GameMode*& GMode, AGameField*& Field, AManagePiece*& PieceManager, FString Source);
+	// Get game field reference
 	static bool GetGameField(UObject* WorldContextObject, AGameField*& Field, FString Source);
+	// Get piece manager reference
+	static bool GetManagePiece(UObject* WorldContextObject, AManagePiece*& ManagePiece, FString Source);
 };

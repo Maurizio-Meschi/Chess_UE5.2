@@ -33,8 +33,10 @@ void AChess_HumanPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 AChess_HumanPlayer::AChess_HumanPlayer() 
 {
 	PrimaryActorTick.bCanEverTick = true;
+
 	// Set this pawn to be controlled by the lowest-numbered player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
 	// create a camera component
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
@@ -68,6 +70,11 @@ void AChess_HumanPlayer::OnLose()
 	GameInstance->SetTurnMessage(TEXT("Human Loses!"));
 }
 
+/*
+* @param: none
+* @return: none
+* @note: private method for restoring the state of tiles that were marked
+*/
 void AChess_HumanPlayer::ResetMarkStatus()
 {
 	AGameField* Field = nullptr;
@@ -87,6 +94,14 @@ void AChess_HumanPlayer::ResetMarkStatus()
 	}
 }
 
+
+/*
+* @param: none
+* @return: none
+* @note: Method that manages the player's click.
+*        It takes care of checking that a piece of the human is selected 
+*		 and that it is moved to a marked tile
+*/
 void AChess_HumanPlayer::OnClick()
 {
 	//Structure containing information about one hit of a trace, such as point of impact and surface normal at that point
@@ -104,13 +119,15 @@ void AChess_HumanPlayer::OnClick()
 				return;
 
 			FString ClassName = HitActor->GetClass()->GetName();
+
+			// Clicking on another piece removes the old suggested moves
 			Field->TileMarkedDestroy();
 			
 			// look for the piece to move
 			if (FindPiece(ClassName))
 			{
 				ResetMarkStatus();
-				ManageClickPiece(HitActor, ClassName);
+				ManageClickPiece(HitActor);
 				return;
 			}
 
@@ -125,7 +142,14 @@ void AChess_HumanPlayer::OnClick()
 	}
 }
 
-void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
+/*
+* @param: Actor selected by click
+* @return: none
+* @note: private method that manages the click on a piece of the human. 
+*        In particular, it marks the tiles in which the piece can move and 
+*        managing the graphics of the possible moves
+*/
+void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor)
 {
 	AChess_GameMode* GMode = nullptr;
 	AGameField* Field = nullptr;
@@ -133,32 +157,23 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 
 	if (!FGameRef::GetGameRef(this, GMode, Field, ManagerPiece, "HumanPlayer"))
 		return;
-	// every time the player clicks on a piece, the reachable tiles are reset
-	//Field->ResetTileMarked();
 
-	// get the piece
+	// Get the piece
 	CurrPiece = Cast<AChessPieces>(HitActor);
 
 	// If Chess Piece is black means it is enemy piece
 	if (CurrPiece->Color == EPieceColor::BLACK)
 		return;
 
-	// marks the tiles where the player can move his piece
-	//CurrPiece->LegalMove(PlayerNumber, false);
-
 	auto TileMarked = ManagerPiece->LegalMoveArray[CurrPiece->IndexArray];
 
-	// sets that the player has chosen the piece to move
+	// Sets that the player has chosen the piece to move
 	PieceChoose = true;
-	//UE_LOG(LogTemp, Error, TEXT("Pezzo scelto, ha index = %d e l'array marked ha dim: %d"), CurrPiece->IndexArray, TileMarked.Num());
 
 	// if the selected piece cannot move, do nothing
 	if (TileMarked.Num() == 0)
 		return;
-		
 
-	// spawn marked tile where i can move my piece
-	// Togliere gli stati di mark, mettere una bool per l'oggetto e settarlo true se cattuare, false altrimenti
 	for (int32 k = 0; k < TileMarked.Num(); k++) {
 		if (TileMarked[k].Capture)
 			TileMarked[k].Tile->SetTileStatus(Player::HUMAN, ETileStatus::MARKED_TO_CAPTURE);
@@ -169,6 +184,7 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 		int32 y = TileMarked[k].Tile->GetGridPosition().Y;
 		FVector Location = Field->GetRelativeLocationByXYPosition(x, y);
 		TSubclassOf<ATile> Class = (TileMarked[k].Tile->GetTileStatus() == ETileStatus::MARKED) ? Field->GameFieldSubClass.TileClassMarked : Field->GameFieldSubClass.TileClassPieceToCapture;
+
 		ATile* Obj = GetWorld()->SpawnActor<ATile>(Class, Location, FRotator(0.0f, 0.0f, 0.0f));
 		// spawn the marked tile
 		const float TileScale = Field->TileSize / 100;
@@ -178,6 +194,17 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor, FString ClassName)
 	}
 }
 
+/*
+* @param: 1.) Actor selected by click
+*         2.) String corresponding to the class of the clicked object. 
+*             The ClassName should be the class of the tile or the class of the piece to capture
+* 
+* @return: none
+* 
+* @note: Private method that handles clicking on a tile. 
+*        If the tile in which to move the piece is occupied then capture the enemy piece, 
+*        otherwise simply move the human's piece
+*/
 void AChess_HumanPlayer::ManageClickTile(AActor* HitActor, FString ClassName)
 {
 	AChess_GameMode* GMode = nullptr;
@@ -192,13 +219,27 @@ void AChess_HumanPlayer::ManageClickTile(AActor* HitActor, FString ClassName)
 
 	PieceChoose = false;
 
-	// handle the case when accessing an empty tile
+	// Handle the case when accessing an empty tile
 	if (FindTile(ClassName))
 	{
 		ATile* TileActor = Cast<ATile>(HitActor);
 
 		if (TileActor->GetTileStatus() == ETileStatus::MARKED)
-			ManageMovingInEmptyTile(TileActor);
+		{
+			TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+
+			FVector2D Coord = TileActor->GetGridPosition();
+
+			// Before moving the piece, set the current tile status to EMPTY
+			if (TileMap.Contains(CurrPiece->GetGridPosition()))
+				TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(-1, ETileStatus::EMPTY);
+
+			ResetMarkStatus();
+
+			ManagerPiece->MovePiece(PlayerNumber, CurrPiece, Coord, CurrPiece->GetGridPosition());
+
+			MyTurn = false;
+		}
 		return;
 	}
 
@@ -214,75 +255,43 @@ void AChess_HumanPlayer::ManageClickTile(AActor* HitActor, FString ClassName)
 		
 
 		if (EnemyTile && EnemyTile->GetTileStatus() == ETileStatus::MARKED_TO_CAPTURE)
-			ManageCaptureInEnemyTile(EnemyTile);
+		{
+			EnemyTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
+
+			FVector2D Coord = EnemyTile->GetGridPosition();
+			auto CurrPosition = CurrPiece->GetGridPosition();
+
+			TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
+
+			AChessPieces* PieceToCapture = nullptr;
+
+			// reference to the piece to be captured
+			if (PiecesMap.Contains(Coord))
+				PieceToCapture = PiecesMap[(Coord)];
+
+			ManagerPiece->CapturePiece(PieceToCapture, Coord);
+
+			// Before moving the piece, set the current tile to be empty
+			if (TileMap.Contains(CurrPiece->GetGridPosition()))
+				TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+
+			ResetMarkStatus();
+
+			ManagerPiece->MovePiece(PlayerNumber, CurrPiece, Coord, CurrPosition);
+
+			MyTurn = false;
+		}
 	}
 }
 
-void AChess_HumanPlayer::ManageMovingInEmptyTile(ATile* TileActor)
-{
-	AChess_GameMode* GMode = nullptr;
-	AGameField* Field = nullptr;
-	AManagePiece* PieceManager = nullptr;
-
-	if (!FGameRef::GetGameRef(this, GMode, Field, PieceManager, "HumanPlayer"))
-		return;
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-
-	// Set the tile status to OCCUPIED where the piece will be placed
-	TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
-
-	FVector2D Coord = TileActor->GetGridPosition();
-
-	
-	// Before moving the piece, set the current tile status to EMPTY
-	if (TileMap.Contains(CurrPiece->GetGridPosition()))
-		TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(-1, ETileStatus::EMPTY);
-	
-	ResetMarkStatus();
-
-	PieceManager->MovePiece(PlayerNumber, CurrPiece, Coord, CurrPiece->GetGridPosition());
-
-	MyTurn = false;
-}
-
-void AChess_HumanPlayer::ManageCaptureInEnemyTile(ATile* EnemyTile)
-{
-	AChess_GameMode* GMode = nullptr;
-	AGameField* Field = nullptr;
-	AManagePiece* PieceManager = nullptr;
-
-	if (!FGameRef::GetGameRef(this, GMode, Field, PieceManager, "HumanPlayer"))
-		return;
-
-	TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
-	TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
-
-	// Set the tile status to OCCUPIED where the piece will be placed
-	EnemyTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
-
-	FVector2D Coord = EnemyTile->GetGridPosition();
-	auto CurrPosition = CurrPiece->GetGridPosition();
-
-	AChessPieces* PieceToCapture = nullptr;
-	
-	// reference to the piece to be captured
-	if (PiecesMap.Contains(Coord))
-		PieceToCapture = PiecesMap[(Coord)];
-	
-	PieceManager->CapturePiece(PieceToCapture, Coord);
-	
-	// Before moving the piece, set the current tile to be empty
-	if (TileMap.Contains(CurrPiece->GetGridPosition()))
-		TileMap[CurrPiece->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
-	
-	ResetMarkStatus();
-	// move the piece
-	PieceManager->MovePiece(PlayerNumber, CurrPiece, Coord, CurrPosition);
-	
-	MyTurn = false;
-}
-
+/*
+* @param: String corresponding to the class of the clicked object.
+*         The ClassName should be the class of a human piece
+*
+* @return: True if I clicked on a human piece, false otherwise
+*
+* @note: none
+*/
 bool AChess_HumanPlayer::FindPiece(FString ClassName)
 {
 	for (int32 i = 0; i < 6; i++)
@@ -295,6 +304,14 @@ bool AChess_HumanPlayer::FindPiece(FString ClassName)
 	return false;
 }
 
+/*
+* @param: String corresponding to the class of the clicked object.
+*         The ClassName should be the class of the tile
+*
+* @return: True if I clicked on a chessboard tile, false otherwise
+*
+* @note: none
+*/
 bool AChess_HumanPlayer::FindTile(FString ClassName)
 {
 	for (int32 i = 0; i < 2; i++)
@@ -305,6 +322,14 @@ bool AChess_HumanPlayer::FindTile(FString ClassName)
 	return false;
 }
 
+/*
+* @param: String corresponding to the class of the clicked object.
+*         The ClassName should be the class of a enemy piece
+*
+* @return: True if I clicked on a enemy piece, false otherwise
+*
+* @note: none
+*/
 bool AChess_HumanPlayer::FindPieceToCapture(FString ClassName)
 {
 	for (int32 i = 0; i < 6; i++)

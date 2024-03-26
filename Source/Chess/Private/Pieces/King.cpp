@@ -39,11 +39,7 @@ bool AKing::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 			if (CheckCoord(x + XMove, y + YMove)) 
 			{
 				if (!CheckFlag)
-				{
-					if (Color == EPieceColor::BLACK && !CheckFlag)
-						UE_LOG(LogTemp, Error, TEXT("Controllo x=%d y=%d"), x + XMove, y + YMove);
 					MarkTile(Board, x + XMove, y + YMove, PlayerNumber, MarkedForward);
-				}
 				else
 					if (TestCheck(Board, x + XMove, y + YMove, PlayerNumber, MarkedForward))
 						return true;
