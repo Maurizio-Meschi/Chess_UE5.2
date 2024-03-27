@@ -13,19 +13,16 @@ AKing::AKing()
 
 bool AKing::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 {
-	FVector2D ChessPawnXYposition = PieceGridPosition;
-	int32 x = ChessPawnXYposition.X;
+	// Get the coordinates of the king
+	int32 x = PieceGridPosition.X;
 	int32 XMove = 0;
-	int32 y = ChessPawnXYposition.Y;
+	int32 y = PieceGridPosition.Y;
 	int32 YMove = 0;
 	bool MarkedForward = false;
-	bool MarkedBackwards = false;
+	
+	bool IsHumanPlayer = PlayerNumber == Player::HUMAN ? true : false;
 
-	bool IsHumanPlayer = PlayerNumber == 0 ? true : false;
-
-	XMove = IsHumanPlayer ? 1 : -1;
-	YMove = IsHumanPlayer ? 1 : -1;
-
+	// Calculate the king's legal moves
 	for (int32 i = 0; i < 3; ++i)
 	{
 		for (int32 j = 0; j < 3; ++j)
@@ -56,14 +53,14 @@ bool AKing::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 
 	FMarked Obj;
 
-	// Arrocco
+	// Human castling
 	if (Board.Field.Contains(FVector2D(HUMAN_KING_POSITION.X, HUMAN_KING_POSITION.Y + 1)))
 		Obj.Tile = Board.Field[FVector2D(HUMAN_KING_POSITION.X, HUMAN_KING_POSITION.Y + 1)];
 
 	if (ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj) && NeverMoved)
 		Castling(Board, FVector2D(HUMAN_ROOK_POSITION2.X, HUMAN_ROOK_POSITION2.Y - 1), HUMAN_ROOK_POSITION2, PlayerNumber, MarkedForward);
 
-	// Arrocco Lungo
+	// Long human castling
 	if (Board.Field.Contains(FVector2D(HUMAN_KING_POSITION.X, HUMAN_KING_POSITION.Y - 1)))
 		Obj.Tile = Board.Field[FVector2D(HUMAN_KING_POSITION.X, HUMAN_KING_POSITION.Y - 1)];
 
@@ -74,7 +71,7 @@ bool AKing::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 				Castling(Board, FVector2D(HUMAN_ROOK_POSITION1.X, HUMAN_ROOK_POSITION1.Y + 2), HUMAN_ROOK_POSITION1, PlayerNumber, MarkedForward);
 	}
 
-	// Arrocco Nemico
+	// AI castling
 	if (Board.Field.Contains(FVector2D(AI_KING_POSITION.X, AI_KING_POSITION.Y + 1)))
 		Obj.Tile = Board.Field[FVector2D(AI_KING_POSITION.X, AI_KING_POSITION.Y + 1)];
 
@@ -84,7 +81,7 @@ bool AKing::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 		Castling(Board, FVector2D(AI_ROOK_POSITION2.X, AI_ROOK_POSITION2.Y - 1), AI_ROOK_POSITION2, PlayerNumber, MarkedForward);
 	}
 
-	// Arrocco Lungo nemico
+	// Long AI castling
 	if (Board.Field.Contains(FVector2D(AI_KING_POSITION.X, HUMAN_KING_POSITION.Y - 1)))
 		Obj.Tile = Board.Field[FVector2D(AI_KING_POSITION.X, HUMAN_KING_POSITION.Y - 1)];
 

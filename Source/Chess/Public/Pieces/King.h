@@ -18,6 +18,5 @@ public:
 
 	bool NeverMoved = true;
 
-	// defines the movements of the piece
 	bool LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag) override;
 };

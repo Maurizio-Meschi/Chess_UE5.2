@@ -12,10 +12,9 @@ ABishop::ABishop()
 
 bool ABishop::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 {
-	FVector2D ChessPawnXYposition = PieceGridPosition;
-	int32 x = ChessPawnXYposition.X;
+	int32 x = PieceGridPosition.X;
 	int32 XMove = 0;
-	int32 y = ChessPawnXYposition.Y;
+	int32 y = PieceGridPosition.Y;
 	int32 YMove = 0;
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
@@ -25,6 +24,7 @@ bool ABishop::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
 
+	// Calculation of legal moves along the line x = y
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x + XMove, y + YMove) && !MarkedForward)
@@ -58,6 +58,7 @@ bool ABishop::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 	MarkedForward = false;
 	MarkedBackwards = false;
 
+	// Calculation of legal moves along the line x = -y
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x + XMove, y - YMove) && !MarkedForward)

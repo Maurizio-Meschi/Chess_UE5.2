@@ -13,19 +13,20 @@ AQueen::AQueen()
 
 bool AQueen::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 {
-	FVector2D ChessPawnXYposition = PieceGridPosition;
-	int32 x = ChessPawnXYposition.X;
+	// Get the coordinates of the Queen
+	int32 x = PieceGridPosition.X;
 	int32 XMove = 0;
-	int32 y = ChessPawnXYposition.Y;
+	int32 y = PieceGridPosition.Y;
 	int32 YMove = 0;
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
 
-	bool IsHumanPlayer = PlayerNumber == 0 ? true : false;
+	bool IsHumanPlayer = PlayerNumber == Player::HUMAN ? true : false;
 
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;
 
+	// Calculation of legal moves along the line x = y
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x + XMove, y + YMove) && !MarkedForward)
@@ -55,7 +56,7 @@ bool AQueen::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 	MarkedForward = false;
 	MarkedBackwards = false;
 
-	
+	// Calculation of legal moves along the line x = -y
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x + XMove, y - YMove) && !MarkedForward)
@@ -81,12 +82,11 @@ bool AQueen::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 	}
 
 
-
 	XMove = IsHumanPlayer ? 1 : -1;
 	MarkedForward = false;
 	MarkedBackwards = false;
 
-
+	// Calculation of vertical moves
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x + XMove, y) && !MarkedForward)
@@ -115,7 +115,7 @@ bool AQueen::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 	MarkedForward = false;
 	MarkedBackwards = false;
 
-
+	// calculation of horizontal moves
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x, y + YMove) && !MarkedForward)

@@ -13,10 +13,10 @@ AKnight::AKnight()
 
 bool AKnight ::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 {
-	FVector2D ChessPawnXYposition = PieceGridPosition;
-	int32 x = ChessPawnXYposition.X;
+	// Get the coordinates of the knight
+	int32 x = PieceGridPosition.X;
 	int32 XMove = 0;
-	int32 y = ChessPawnXYposition.Y;
+	int32 y = PieceGridPosition.Y;
 	int32 YMove = 0;
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;

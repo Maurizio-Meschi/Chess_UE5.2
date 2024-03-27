@@ -13,10 +13,10 @@ ARook::ARook()
 
 bool ARook::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 {
-	FVector2D ChessPawnXYposition = PieceGridPosition;
-	int32 x = ChessPawnXYposition.X;
+	// Get the coordinates of the rook
+	int32 x = PieceGridPosition.X;
 	int32 XMove = 0;
-	int32 y = ChessPawnXYposition.Y;
+	int32 y = PieceGridPosition.Y;
 	int32 YMove = 0;
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
@@ -25,6 +25,7 @@ bool ARook::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 
 	XMove   = IsHumanPlayer ? 1 : -1;
 
+	// Calculation of vertical moves
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x + XMove, y) && !MarkedForward)
@@ -52,6 +53,7 @@ bool ARook::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 	MarkedForward = false;
 	MarkedBackwards = false;
 
+	// Calculation of horizontal moves
 	for (int32 k = 0; k < 8; k++)
 	{
 		if (CheckCoord(x, y + YMove) && !MarkedForward)

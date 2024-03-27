@@ -16,6 +16,5 @@ class CHESS_API ABishop : public AChessPieces
 public:
 	ABishop();
 
-	// defines the movements of the piece
 	bool LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag) override;
 };

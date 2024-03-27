@@ -13,19 +13,17 @@ AChessPawn::AChessPawn()
 
 bool AChessPawn::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 {
-	// get the coordinates of the pawn
-	FVector2D ChessPawnXYposition = PieceGridPosition;
-	int32 x = ChessPawnXYposition.X;
+	// Get the coordinates of the pawn
+	int32 x = PieceGridPosition.X;
 	int32 XMove = 0;
-	int32 y = ChessPawnXYposition.Y;
+	int32 y = PieceGridPosition.Y;
 	int32 YMove = 0;
 
 	bool MarkedForward = false;
 
 	bool IsHumanPlayer = PlayerNumber == 0 ? true : false;
-	//UE_LOG(LogTemp, Error, TEXT("Prima chiamata alla legalmove di %s con CheckFalg = %s"), *this->GetName(), CheckFlag ? TEXT("TRUE") : TEXT("FALSE"));
-
-	// check if the next first vertical tile is empty and if true, mark the tile
+	
+	// Check if the next first vertical tile is empty and if true, mark the tile
 	XMove = IsHumanPlayer ? 1 : -1;
 	if (CheckCoord(x + XMove, y))
 	{
@@ -38,7 +36,8 @@ bool AChessPawn::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 				return true;
 	}
 
-	// check if the next second vertical tile is empty and if true, mark the tile
+	// Check if the next second vertical tile is empty and if true, mark the tile 
+	// (only for the first play)
 	if (x == (IsHumanPlayer? 1:6))
 	{
 		CaptureSituation = false;
@@ -54,7 +53,7 @@ bool AChessPawn::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 		}
 	}
 
-	// check if it is possible to capture an enemy piece
+	// Check if it is possible to capture an enemy piece
 	int32 i = 1;
 	for (int32 k = 0; k < 2; k++)
 	{

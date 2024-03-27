@@ -3,8 +3,8 @@
 #pragma once
 
 #include "../MainActor/ChessPieces.h"
-//#include "Queen.generated.h"
 #include "Queen.generated.h"
+
 
 
 struct FBoard;
@@ -18,6 +18,5 @@ class CHESS_API AQueen : public AChessPieces
 public:
 	AQueen();
 
-	// defines the movements of the piece
 	bool LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag) override;
 };
