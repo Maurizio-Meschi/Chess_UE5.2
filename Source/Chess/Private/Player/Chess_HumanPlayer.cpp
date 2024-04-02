@@ -190,7 +190,7 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor)
 		const float TileScale = Field->TileSize / 100;
 		Obj->SetActorScale3D(FVector(TileScale, TileScale, 0.2));
 		Obj->SetGridPosition(x, y);
-		Field->AddTileMarkedSpawn(Obj);
+		Field->AddTileMarked(Obj);
 	}
 }
 

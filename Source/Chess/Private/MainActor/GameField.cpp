@@ -43,7 +43,11 @@ void AGameField::ResetField()
 
 	GenerateField();
 	
-	
+	auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+
+	if (PlayerController)
+		PlayerController->EnableInput(PlayerController);
+
 	GMode->ChoosePlayerAndStartGame();
 }
 

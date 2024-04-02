@@ -4,21 +4,21 @@
 
 void AElementsToManageField::TileMarkedDestroy()
 {
-	for (int32 i = 0; i < TileMarkedSpawn.Num(); i++)
+	for (int32 i = 0; i < TileMarked.Num(); i++)
 	{
-		TileMarkedSpawn[i]->Destroy();
+		TileMarked[i]->Destroy();
 	}
-	TileMarkedSpawn.Empty();
+	TileMarked.Empty();
 }
 
 void AElementsToManageField::ResetFieldData()
 {
-	for (int32 i = 0; i < TileMarkedSpawn.Num(); i++)
+	for (int32 i = 0; i < TileMarked.Num(); i++)
 	{
-		TileMarkedSpawn[i]->Destroy();
+		TileMarked[i]->Destroy();
 	}
 
-	TileMarkedSpawn.Empty();
+	TileMarked.Empty();
 	KingArray.Empty();
 	HumanPlayerPieces.Empty();
 	BotPieces.Empty();

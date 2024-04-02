@@ -39,20 +39,12 @@ public:
 	virtual void OnLose() override;
 
 private:
-	// Boolean that tells if the piece to move has been found
-	bool IsPieceChoosen = false;
-
-	// Piece and tile where to move it
-	AChessPieces* PieceToMove;
-	FMarked TileToMove;
-
 	// Calculate the score of the board
 	int32 EvaluateGrid(FBoard& Board);
+	// Calculates whether the opponent is in checkmate
+	bool Checkmate(FBoard& Board);
 	// MiniMax algorithm
 	int32 MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 beta, bool IsMax);
 	// Find the best play for the AI
 	FMarked FindBestMove(FBoard& Board);
-
-	// Responsible for moving the piece
-	void MovePiece();
 };

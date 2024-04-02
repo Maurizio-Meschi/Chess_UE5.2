@@ -43,7 +43,7 @@ void AChess_RandomPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInput
 * @param: none
 * @return: none
 * @note: Sets a timer and when the time runs out 
-*        he randomly chooses the piece to move 
+*        it randomly chooses the piece to move 
 *        and one of his possible legal moves and carries out the move
 */
 void AChess_RandomPlayer::OnTurn()
@@ -51,11 +51,9 @@ void AChess_RandomPlayer::OnTurn()
 	GameInstance->SetTurnMessage(TEXT("AI (Random) Turn"));
 
 	// Get reference to game mode, game field and Piece manager
-	AChess_GameMode* GMode = nullptr;
-	AGameField* Field = nullptr;
 	AManagePiece* ManagerPiece = nullptr;
 
-	if (!FGameRef::GetGameRef(this, GMode, Field, ManagerPiece, "RandomPlayer"))
+	if (!FGameRef::GetManagePiece(this, ManagerPiece, "RandomPlayer"))
 		return;
 
 	// Set timer
@@ -125,7 +123,7 @@ void AChess_RandomPlayer::OnTurn()
 
 			} while (!PieceIsPossibleToMove);
 
-		}, 1.5, false);
+		}, 2, false);
 }
 
 void AChess_RandomPlayer::OnWin()

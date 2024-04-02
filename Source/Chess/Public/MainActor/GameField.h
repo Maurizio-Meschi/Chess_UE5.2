@@ -28,7 +28,7 @@ public:
 };
 
 UCLASS()
-class CHESS_API AGameField : public AElementsToManageField
+class CHESS_API AGameField : public AActor, public AElementsToManageField
 {
 	GENERATED_BODY()
 

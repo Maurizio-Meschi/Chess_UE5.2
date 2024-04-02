@@ -54,42 +54,42 @@ bool AKing::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 	FMarked Obj;
 
 	// Human castling
-	if (Board.Field.Contains(FVector2D(HUMAN_KING_POSITION.X, HUMAN_KING_POSITION.Y + 1)))
-		Obj.Tile = Board.Field[FVector2D(HUMAN_KING_POSITION.X, HUMAN_KING_POSITION.Y + 1)];
+	if (Board.Field.Contains(FVector2D(HK_POSITION.X,HK_POSITION.Y + 1)))
+		Obj.Tile = Board.Field[FVector2D(HK_POSITION.X,HK_POSITION.Y + 1)];
 
 	if (ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj) && NeverMoved)
-		Castling(Board, FVector2D(HUMAN_ROOK_POSITION2.X, HUMAN_ROOK_POSITION2.Y - 1), HUMAN_ROOK_POSITION2, PlayerNumber, MarkedForward);
+		Castling(Board, FVector2D(HR2_POSITION.X, HR2_POSITION.Y - 1), HR2_POSITION, PlayerNumber, MarkedForward);
 
 	// Long human castling
-	if (Board.Field.Contains(FVector2D(HUMAN_KING_POSITION.X, HUMAN_KING_POSITION.Y - 1)))
-		Obj.Tile = Board.Field[FVector2D(HUMAN_KING_POSITION.X, HUMAN_KING_POSITION.Y - 1)];
+	if (Board.Field.Contains(FVector2D(HK_POSITION.X,HK_POSITION.Y - 1)))
+		Obj.Tile = Board.Field[FVector2D(HK_POSITION.X,HK_POSITION.Y - 1)];
 
 	if (ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj) && NeverMoved)
 	{
-		if (Board.Field.Contains(FVector2D(HUMAN_ROOK_POSITION1.X, HUMAN_ROOK_POSITION1.Y + 1)))
-			if (Board.Field[FVector2D(HUMAN_ROOK_POSITION1.X, HUMAN_ROOK_POSITION1.Y + 1)]->GetTileStatus() == ETileStatus::EMPTY)
-				Castling(Board, FVector2D(HUMAN_ROOK_POSITION1.X, HUMAN_ROOK_POSITION1.Y + 2), HUMAN_ROOK_POSITION1, PlayerNumber, MarkedForward);
+		if (Board.Field.Contains(FVector2D(HR1_POSITION.X, HR1_POSITION.Y + 1)))
+			if (Board.Field[FVector2D(HR1_POSITION.X, HR1_POSITION.Y + 1)]->GetTileStatus() == ETileStatus::EMPTY)
+				Castling(Board, FVector2D(HR1_POSITION.X, HR1_POSITION.Y + 2), HR1_POSITION, PlayerNumber, MarkedForward);
 	}
 
 	// AI castling
-	if (Board.Field.Contains(FVector2D(AI_KING_POSITION.X, AI_KING_POSITION.Y + 1)))
-		Obj.Tile = Board.Field[FVector2D(AI_KING_POSITION.X, AI_KING_POSITION.Y + 1)];
+	if (Board.Field.Contains(FVector2D(AIK_POSITION.X, AIK_POSITION.Y + 1)))
+		Obj.Tile = Board.Field[FVector2D(AIK_POSITION.X, AIK_POSITION.Y + 1)];
 
 
 	if (ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj) && NeverMoved)
 	{
-		Castling(Board, FVector2D(AI_ROOK_POSITION2.X, AI_ROOK_POSITION2.Y - 1), AI_ROOK_POSITION2, PlayerNumber, MarkedForward);
+		Castling(Board, FVector2D(AIR2_POSITION.X, AIR2_POSITION.Y - 1), AIR2_POSITION, PlayerNumber, MarkedForward);
 	}
 
 	// Long AI castling
-	if (Board.Field.Contains(FVector2D(AI_KING_POSITION.X, HUMAN_KING_POSITION.Y - 1)))
-		Obj.Tile = Board.Field[FVector2D(AI_KING_POSITION.X, HUMAN_KING_POSITION.Y - 1)];
+	if (Board.Field.Contains(FVector2D(AIK_POSITION.X,HK_POSITION.Y - 1)))
+		Obj.Tile = Board.Field[FVector2D(AIK_POSITION.X,HK_POSITION.Y - 1)];
 
 	if (ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj) && NeverMoved)
 	{
-		if (Board.Field.Contains(FVector2D(AI_ROOK_POSITION1.X, AI_ROOK_POSITION1.Y + 1)))
-			if (Board.Field[FVector2D(AI_ROOK_POSITION1.X, AI_ROOK_POSITION1.Y + 1)]->GetTileStatus() == ETileStatus::EMPTY)
-				Castling(Board, FVector2D(AI_ROOK_POSITION1.X, AI_ROOK_POSITION1.Y + 2), AI_ROOK_POSITION1, PlayerNumber, MarkedForward);
+		if (Board.Field.Contains(FVector2D(AIR1_POSITION.X, AIR1_POSITION.Y + 1)))
+			if (Board.Field[FVector2D(AIR1_POSITION.X, AIR1_POSITION.Y + 1)]->GetTileStatus() == ETileStatus::EMPTY)
+				Castling(Board, FVector2D(AIR1_POSITION.X, AIR1_POSITION.Y + 2), AIR1_POSITION, PlayerNumber, MarkedForward);
 	}
 		
 	return false;
