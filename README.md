@@ -23,17 +23,17 @@ Unreal Engine 5.2
 4) Open *Chess.uproject*
 
 ### Menu
-<img width="1080" alt="Immagine 2024-04-02 155658" src="https://github.com/Maurizio-Meschi/Chess_UE5.2/assets/132054537/6bda8b3d-79ae-48e8-befe-2860142b84f2">
+![Menu](./Readme_Img/Menu.png)
 <hr>
 
 ### Game
-![Screenshot 2024-04-02 155245](https://github.com/Maurizio-Meschi/Chess_UE5.2/assets/132054537/183e2872-56bc-46f5-8545-6f18302fcbc3)
+![Game](./Readme_Img/Game1.png)
 
-![Screenshot 2024-04-02 155526](https://github.com/Maurizio-Meschi/Chess_UE5.2/assets/132054537/0c8b1783-bd45-434b-beda-ce0702ef154c)
+![Game](./Readme_Img/Game2.png)
 <hr>
 
 ### Replay
-![Screenshot 2024-04-02 160252](https://github.com/Maurizio-Meschi/Chess_UE5.2/assets/132054537/0067bb7c-c7ee-45ea-beca-fe7c3cfda211)
+![Replay](./Readme_Img/Replay.png)
 
 
 
