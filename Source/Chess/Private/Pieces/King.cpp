@@ -51,6 +51,14 @@ bool AKing::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 	if (!FGameRef::GetGameRef(this, GMode, GField, ManagerPiece, "King"))
 		return false;
 
+	// Before considering castling, check that the king is not in check
+	auto Pieces = IsHumanPlayer ? GField->GetBotPieces() : GField->GetHumanPlayerPieces();
+	for (auto Piece : Pieces)
+	{
+		if (!Piece->IsA<AKing>() && Piece->LegalMove(Board, IsHumanPlayer ? Player::AI : Player::HUMAN, true))
+			return false;
+	}
+
 	FMarked Obj;
 
 	// Human castling
