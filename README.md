@@ -22,6 +22,10 @@ Unreal Engine 5.2
 3) Compile the project
 4) Open *Chess.uproject*
 
+### UML
+![UML](./Readme_Img/UML.jpeg)
+<hr>
+
 ### Menu
 ![Menu](./Readme_Img/Menu.png)
 <hr>
