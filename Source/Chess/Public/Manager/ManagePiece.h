@@ -59,6 +59,15 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Starting position of the left white rook
+	const FVector2D HR1_POSITION = FVector2D(0, 0);
+	// Starting position of the right white rook
+	const FVector2D HR2_POSITION = FVector2D(0, 7);
+	// Starting position of the left black rook
+	const FVector2D AIR1_POSITION = FVector2D(7, 0);
+	// Starting position of the right balck rook
+	const FVector2D AIR2_POSITION = FVector2D(7, 7);
+
 public:	
 
 	// Timer Handle for the AI player

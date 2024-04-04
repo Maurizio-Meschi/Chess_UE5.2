@@ -135,8 +135,8 @@ bool AManagePiece::IsCheckMate()
 *
 * @note: The method deals with moving the piece by managing:
 *           1.) Castling
-*           2.) The promotion of the pawn
-*           3.) Nomenclature
+*			2.) Nomenclature
+*           3.) The promotion of the pawn
 */
 void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition)
 {
@@ -151,29 +151,34 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 		return;
 	}
 
-	// Castling for the human
-	if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(0, 6))
+	// 1.) Castling
+
+	bool IsCastling = false;
+	auto LeftRookPos = PlayerNumber == Player::HUMAN ? HR1_POSITION : AIR1_POSITION;
+	FVector2D CastlingTilePos(LeftRookPos.X, LeftRookPos.Y + 2);
+	
+	// Long castling
+	if (Piece->IsA<AKing>() && AManagePiece::Castling && Coord == CastlingTilePos)
 	{
-		CastlingManager(FVector2D(0, 7), FVector2D(0, 5), Coord, Piece);
+		CastlingTilePos.Y += 1;
+		CastlingManager(LeftRookPos, CastlingTilePos, Coord, Piece);
+		IsCastling = true;
 	}
-	// Long castling for human
-	else if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(0, 2))
+
+	auto RightRookPos = PlayerNumber == Player::HUMAN ? HR2_POSITION : AIR2_POSITION;
+	CastlingTilePos.X = RightRookPos.X;
+	CastlingTilePos.Y = RightRookPos.Y - 1;
+
+	// Castling
+	if (Piece->IsA<AKing>() && AManagePiece::Castling && Coord == CastlingTilePos)
 	{
-		CastlingManager(FVector2D(0, 0), FVector2D(0, 3), Coord, Piece);
-	}
-	// Castling for the AI
-	if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(7, 6))
-	{
-		CastlingManager(FVector2D(7, 7), FVector2D(7, 5), Coord, Piece);
-	}
-	// Long castling for the AI
-	else if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved && AManagePiece::Castling && Coord == FVector2D(7, 2))
-	{
-		CastlingManager(FVector2D(7, 0), FVector2D(7, 3), Coord, Piece);
+		CastlingTilePos.Y -= 1;
+		CastlingManager(RightRookPos, CastlingTilePos, Coord, Piece);
+		IsCastling = true;
 	}
 
 	// Std case
-	else
+	if (!IsCastling)
 	{
 		if (Piece->IsA<AKing>() && Cast<AKing>(Piece)->NeverMoved)
 			Cast<AKing>(Piece)->NeverMoved = false;
@@ -194,8 +199,8 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 	if (AManagePiece::Castling)
 		AManagePiece::Castling = false;
 
+	// 2.) Nomenclature
 
-	/// Manage move nomenclature
 	auto TileMap = GField->GetTileMap();
 
 	// Get the tile where the piece moves to get name information
@@ -239,6 +244,8 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 		else
 			UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
 	}
+
+	// 3.) Promotion
 
 	// Manage pawn promotion for human player
 	if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::WHITE && (Piece->GetGridPosition().X == 7.0))

@@ -29,17 +29,17 @@ public:
 	AChessPieces();
 
 	// Starting position of the left white rook
-	const FVector2D HR1_POSITION  = FVector2D(0, 0);
+	const FVector2D LEFT_HR_POSITION = FVector2D(0, 0);
 	// Starting position of the right white rook
-	const FVector2D HR2_POSITION  = FVector2D(0, 7);
+	const FVector2D RIGHT_HR_POSITION = FVector2D(0, 7);
 	// Starting position of the left black rook
-	const FVector2D AIR1_POSITION  = FVector2D(7, 0);
+	const FVector2D LEFT_AIR_POSITION = FVector2D(7, 0);
 	// Starting position of the right balck rook
-	const FVector2D AIR2_POSITION = FVector2D(7, 7);
+	const FVector2D RIGHT_AIR_POSITION = FVector2D(7, 7);
 	// Starting position of the white king
-	const FVector2D HK_POSITION   = FVector2D(0, 4);
+	const FVector2D HK_POSITION = FVector2D(0, 4);
 	// Starting position of the black king
-	const FVector2D AIK_POSITION  = FVector2D(7, 4);
+	const FVector2D AIK_POSITION = FVector2D(7, 4);
 
 
 protected:

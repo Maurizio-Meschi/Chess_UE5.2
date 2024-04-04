@@ -61,44 +61,48 @@ bool AKing::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 
 	FMarked Obj;
 
-	// Human castling
-	if (Board.Field.Contains(FVector2D(HK_POSITION.X,HK_POSITION.Y + 1)))
-		Obj.Tile = Board.Field[FVector2D(HK_POSITION.X,HK_POSITION.Y + 1)];
+	// Long castling
+	auto LeftRookPos = IsHumanPlayer ? LEFT_HR_POSITION : LEFT_AIR_POSITION;
+	FVector2D CastlingTilePos(LeftRookPos.X, LeftRookPos.Y + 1);
+	FVector2D KingPos = IsHumanPlayer ? HK_POSITION : AIK_POSITION;
+	FVector2D TileNextToKing(KingPos.X, KingPos.Y - 1);
 
-	if (ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj) && NeverMoved)
-		Castling(Board, FVector2D(HR2_POSITION.X, HR2_POSITION.Y - 1), HR2_POSITION, PlayerNumber, MarkedForward);
+	// Check if the tile left to the king is a legal move. Otherwise long castling is not possible
+	if (Board.Field.Contains(TileNextToKing))
+		Obj.Tile = Board.Field[TileNextToKing];
 
-	// Long human castling
-	if (Board.Field.Contains(FVector2D(HK_POSITION.X,HK_POSITION.Y - 1)))
-		Obj.Tile = Board.Field[FVector2D(HK_POSITION.X,HK_POSITION.Y - 1)];
-
-	if (ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj) && NeverMoved)
+	if (NeverMoved && ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj))
 	{
-		if (Board.Field.Contains(FVector2D(HR1_POSITION.X, HR1_POSITION.Y + 1)))
-			if (Board.Field[FVector2D(HR1_POSITION.X, HR1_POSITION.Y + 1)]->GetTileStatus() == ETileStatus::EMPTY)
-				Castling(Board, FVector2D(HR1_POSITION.X, HR1_POSITION.Y + 2), HR1_POSITION, PlayerNumber, MarkedForward);
+		if (Board.Field.Contains(CastlingTilePos))
+		{
+			if (Board.Field[CastlingTilePos]->GetTileStatus() == ETileStatus::EMPTY)
+			{
+				CastlingTilePos.Y += 1;
+				Castling(Board, CastlingTilePos, LeftRookPos, PlayerNumber, MarkedForward);
+			}
+		}
 	}
 
-	// AI castling
-	if (Board.Field.Contains(FVector2D(AIK_POSITION.X, AIK_POSITION.Y + 1)))
-		Obj.Tile = Board.Field[FVector2D(AIK_POSITION.X, AIK_POSITION.Y + 1)];
+	// Castling
+	auto RightRookPos = IsHumanPlayer ? RIGHT_HR_POSITION : RIGHT_AIR_POSITION;
+	CastlingTilePos.X = RightRookPos.X;
+	CastlingTilePos.Y = RightRookPos.Y - 1;
+	TileNextToKing.Y = KingPos.Y + 1;
 
+	// Check if the tile right to the king is a legal move. Otherwise castling is not possible
+	if (Board.Field.Contains(TileNextToKing))
+		Obj.Tile = Board.Field[TileNextToKing];
 
-	if (ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj) && NeverMoved)
+	if (NeverMoved && ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj))
 	{
-		Castling(Board, FVector2D(AIR2_POSITION.X, AIR2_POSITION.Y - 1), AIR2_POSITION, PlayerNumber, MarkedForward);
+		if (Board.Field.Contains(CastlingTilePos))
+		{
+			if (Board.Field[CastlingTilePos]->GetTileStatus() == ETileStatus::EMPTY)
+			{
+				Castling(Board, CastlingTilePos, RightRookPos, PlayerNumber, MarkedForward);
+			}
+		}
 	}
 
-	// Long AI castling
-	if (Board.Field.Contains(FVector2D(AIK_POSITION.X,HK_POSITION.Y - 1)))
-		Obj.Tile = Board.Field[FVector2D(AIK_POSITION.X,HK_POSITION.Y - 1)];
-
-	if (ManagerPiece->LegalMoveArray[IndexArray].Contains(Obj) && NeverMoved)
-	{
-		if (Board.Field.Contains(FVector2D(AIR1_POSITION.X, AIR1_POSITION.Y + 1)))
-			if (Board.Field[FVector2D(AIR1_POSITION.X, AIR1_POSITION.Y + 1)]->GetTileStatus() == ETileStatus::EMPTY)
-				Castling(Board, FVector2D(AIR1_POSITION.X, AIR1_POSITION.Y + 2), AIR1_POSITION, PlayerNumber, MarkedForward);
-	}
-		
 	return false;
 }
