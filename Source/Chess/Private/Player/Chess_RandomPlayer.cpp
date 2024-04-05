@@ -16,7 +16,7 @@ AChess_RandomPlayer::AChess_RandomPlayer()
 	GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
 	// AI player has black pieces
-	PieceColor = EPieceColor::BLACK;
+	//PieceColor = EPieceColor::BLACK;
 
 	PlayerNumber = 1;
 }
@@ -50,6 +50,8 @@ void AChess_RandomPlayer::OnTurn()
 {
 	GameInstance->SetTurnMessage(TEXT("AI (Random) Turn"));
 
+	UE_LOG(LogTemp, Error, TEXT("Player %d"), PlayerNumber);
+
 	// Get reference to game mode, game field and Piece manager
 	AManagePiece* ManagerPiece = nullptr;
 
@@ -69,7 +71,7 @@ void AChess_RandomPlayer::OnTurn()
 			TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 			TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
-			auto PiecesArray = Field->GetBotPieces();
+			auto PiecesArray = PlayerNumber == Player::Player1 ? Field->GetHumanPlayerPieces() : Field->GetBotPieces();
 
 			bool PieceIsPossibleToMove = false;
 			int32 RIndex;
@@ -103,7 +105,7 @@ void AChess_RandomPlayer::OnTurn()
 				// Get the coordinates where to move the piece
 				FVector2D Coord = TileActor->GetGridPosition();
 
-				TileActor->SetTileStatus(Player::AI, ETileStatus::OCCUPIED);
+				TileActor->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
 				// Check if possible to capture an enemy piece
 				if (Capture)
@@ -123,7 +125,7 @@ void AChess_RandomPlayer::OnTurn()
 
 			} while (!PieceIsPossibleToMove);
 
-		}, 2, false);
+		}, 0.1, false);
 }
 
 void AChess_RandomPlayer::OnWin()

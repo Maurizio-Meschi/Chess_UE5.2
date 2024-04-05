@@ -52,22 +52,46 @@ void AChess_GameMode::BeginPlay()
 	HumanPlayer->SetActorLocationAndRotation(CameraPos, FRotationMatrix::MakeFromX(FVector(0, 0, -1)).Rotator());
 
 	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-
-	Players.Add(HumanPlayer);
 	
 	// MiniMax Player
 	if (GameInstance->ChooseAiPlayer == "Hard")
 	{
 		auto* AI = GetWorld()->SpawnActor<AChess_Minimax>(FVector(), FRotator());
+		Players.Add(HumanPlayer);
 		Players.Add(AI);
 	}
 	// Random Player
-	else
+	else if (GameInstance->ChooseAiPlayer == "Easy")
 	{
 		auto* AI = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
+		Players.Add(HumanPlayer);
 		Players.Add(AI);
 	}
-	
+	else if (GameInstance->ChooseAiPlayer == "Random-Random")
+	{
+		auto* Player1 = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
+		auto* AI = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
+
+		Players.Add(Player1);
+		Players.Add(AI);
+	}
+	else if (GameInstance->ChooseAiPlayer == "Random-Minimax")
+	{
+		auto* Player1 = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
+		auto* AI = GetWorld()->SpawnActor<AChess_Minimax>(FVector(), FRotator());
+
+		Players.Add(Player1);
+		Players.Add(AI);
+	}
+	else if (GameInstance->ChooseAiPlayer == "Minimax-Minimax")
+	{
+		auto* Player1 = GetWorld()->SpawnActor<AChess_Minimax>(FVector(), FRotator());
+		auto* AI = GetWorld()->SpawnActor<AChess_Minimax>(FVector(), FRotator());
+
+		Players.Add(Player1);
+		Players.Add(AI);
+	}
+
 	this->ChoosePlayerAndStartGame();
 }
 
@@ -89,12 +113,12 @@ void AChess_GameMode::ChoosePlayerAndStartGame()
 {
 	Manager->IsGameOver = false;
 
-	CurrentPlayer = Player::HUMAN;
+	CurrentPlayer = Player::Player1;
 
 	for (int32 i = 0; i < Players.Num(); i++)
 	{
 		Players[i]->PlayerNumber = i;
-		Players[i]->PieceColor = i == i == CurrentPlayer ? EPieceColor::WHITE : EPieceColor::BLACK;
+		Players[i]->PieceColor = CurrentPlayer ? EPieceColor::WHITE : EPieceColor::BLACK;
 	}
 
 	FBoard Board;
@@ -105,7 +129,7 @@ void AChess_GameMode::ChoosePlayerAndStartGame()
 	auto PiecesArray = GField->GetHumanPlayerPieces();
 
 	for (auto Piece : PiecesArray)
-		Piece->LegalMove(Board, Player::HUMAN, false);
+		Piece->LegalMove(Board, Player::Player1, false);
 
 	Players[CurrentPlayer]->OnTurn();
 }
@@ -115,7 +139,7 @@ int32 AChess_GameMode::GetNextPlayer(int32 Player)
 	Player++;
 	MoveCounter++;
 	if (!Players.IsValidIndex(Player))
-		Player = Player::HUMAN;
+		Player = Player::Player1;
 	return Player;
 }
 

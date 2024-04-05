@@ -12,7 +12,7 @@
 
 struct Player
 {
-	static constexpr int8 HUMAN = 0;
+	static constexpr int8 Player1 = 0;
 	static constexpr int8 AI = 1;
 };
 

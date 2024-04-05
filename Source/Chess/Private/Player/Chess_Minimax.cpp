@@ -10,7 +10,7 @@ AChess_Minimax::AChess_Minimax()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	PieceColor = EPieceColor::BLACK;
+	//PieceColor = EPieceColor::BLACK;
 }
 
 // Called when the game starts or when spawned
@@ -82,10 +82,10 @@ void AChess_Minimax::OnTurn()
 
 			// Before moving the piece, set the current tile to be empty
 			if (GField->GetTileMap().Contains(PieceToMove->GetGridPosition()))
-				GField->GetTileMap()[PieceToMove->GetGridPosition()]->SetTileStatus(PlayerNumber, ETileStatus::EMPTY);
+				GField->GetTileMap()[PieceToMove->GetGridPosition()]->SetTileStatus(-1, ETileStatus::EMPTY);
 
-			PieceManager->MovePiece(GMode->CurrentPlayer, PieceToMove, Position, PieceToMove->GetGridPosition());
-		}, 1.5, false);
+			PieceManager->MovePiece(PlayerNumber, PieceToMove, Position, PieceToMove->GetGridPosition());
+		}, 0.1, false);
 }
 
 /*
@@ -115,10 +115,20 @@ int32 AChess_Minimax::EvaluateGrid(FBoard& Board)
 	for (auto Element : Board.Pieces)
 	{
 		auto Piece = Element.Value;
-		if (Piece->Color == (Board.IsMax ? EPieceColor::WHITE : EPieceColor::BLACK))
-			Score -= Piece->Value;
+		if (PieceColor == EPieceColor::BLACK)
+		{
+			if (Piece->Color == (Board.IsMax ? EPieceColor::WHITE : EPieceColor::BLACK))
+				Score -= Piece->Value;
+			else
+				Score += Piece->Value;
+		}
 		else
-			Score += Piece->Value;
+		{ 
+			if (Piece->Color == (Board.IsMax ? EPieceColor::BLACK : EPieceColor::WHITE))
+				Score -= Piece->Value;
+			else
+				Score += Piece->Value;
+		}
 	}
 
 	// 2) Check if the opponent's king is in check
@@ -128,7 +138,8 @@ int32 AChess_Minimax::EvaluateGrid(FBoard& Board)
 	{
 		if (!Board.CapturedPieces.Contains(Piece))
 		{
-			if (Piece->LegalMove(Board, Board.IsMax ? Player::AI : Player::HUMAN, true))
+			int32 EnemyPlayer = PlayerNumber == Player::Player1 ? Player::AI : Player::Player1;
+			if (Piece->LegalMove(Board, Board.IsMax ? PlayerNumber : EnemyPlayer, true))
 				Score += (Board.IsMax ? 7 : -7);
 		}
 	}
@@ -149,8 +160,8 @@ bool AChess_Minimax::Checkmate(FBoard& Board)
 	AManagePiece* PieceManager = nullptr;
 	if (!FGameRef::GetManagePiece(this, PieceManager, "minimax"))
 		return false;
-
-	auto LegalMoveArray = PieceManager->GetAllLegalMoveByPlayer(Board, !Board.IsMax ? Player::AI : Player::HUMAN);
+	int32 EnemyPlayer = PlayerNumber == Player::Player1 ? Player::AI : Player::Player1;
+	auto LegalMoveArray = PieceManager->GetAllLegalMoveByPlayer(Board, !Board.IsMax ? PlayerNumber : EnemyPlayer);
 
 	int32 Cont = 0;
 
@@ -205,7 +216,7 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 
 		Board.IsMax = true;
 
-		auto PlayerArray = GField->GetBotPieces();
+		auto PlayerArray = PlayerNumber == Player::Player1 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces();
 		// Iterate for each piece of the AI
 		for (auto Piece : PlayerArray)
 		{
@@ -213,7 +224,7 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 
 			// Get the array of legal moves for the piece
 			if (!Board.CapturedPieces.Contains(Piece))
-				TileMarked = PieceManager->GetLegalMoveByPiece(Board, Player::AI, Piece);
+				TileMarked = PieceManager->GetLegalMoveByPiece(Board, PlayerNumber, Piece);
 
 			// If the piece has no legal moves or has been captured, go to the next piece
 			if (TileMarked.Num() == 0 || Board.CapturedPieces.Contains(Piece))
@@ -248,7 +259,7 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 				}
 
 				// Sets the tile the piece moves to occupied by the AI
-				Marked.Tile->SetTileStatus(Player::AI, ETileStatus::OCCUPIED);
+				Marked.Tile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
 				// Move the piece
 				Board.Pieces.Add(Marked.Tile->GetGridPosition(), Piece);
@@ -260,7 +271,7 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 				/// Restore data structures.
 				
 				// Set the current tile occupied
-				CurrTile->SetTileStatus(Player::AI, ETileStatus::OCCUPIED);
+				CurrTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
 				Board.Pieces.Add(CurrTile->GetGridPosition(), Piece);
 
@@ -270,12 +281,12 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 				Board.Pieces.Remove(Marked.Tile->GetGridPosition());
 				Piece->SetGridPosition(CurrTile->GetGridPosition().X, CurrTile->GetGridPosition().Y);
 
-				// If an enemy piece had been captured, set the tile status occupied by the human
+				// If an enemy piece had been captured, set the tile status occupied by the enemy
 				if (PieceToCapture)
 				{
 					Board.CapturedPieces.Remove(PieceToCapture);
 					Board.Pieces.Add(PieceToCapture->GetGridPosition(), PieceToCapture);
-					Marked.Tile->SetTileStatus(Player::HUMAN, ETileStatus::OCCUPIED);
+					Marked.Tile->SetTileStatus(PlayerNumber == Player::AI ? Player::Player1 : Player::AI, ETileStatus::OCCUPIED);
 				}
 				
 				alpha = FMath::Max(alpha, best);
@@ -295,16 +306,17 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 
 		Board.IsMax = false;
 
-		auto PlayerArray = GField->GetHumanPlayerPieces();
+		auto PlayerArray = PlayerNumber == Player::Player1 ? GField->GetBotPieces() : GField->GetHumanPlayerPieces();
 
 		// Iterate for each piece of the Human player
 		for (auto Piece : PlayerArray)
 		{
 			TArray<FMarked> TileMarked;
+			int32 EnemyPieces = PlayerNumber == Player::AI ? Player::Player1 : Player::AI;
 
 			// Get the array of legal moves for the piece
 			if (!Board.CapturedPieces.Contains(Piece))
-				TileMarked = PieceManager->GetLegalMoveByPiece(Board, Player::HUMAN, Piece);
+				TileMarked = PieceManager->GetLegalMoveByPiece(Board, EnemyPieces, Piece);
 
 			// If the piece has no legal moves or has been captured, go to the next piece
 			if (TileMarked.Num() == 0 || Board.CapturedPieces.Contains(Piece))
@@ -335,8 +347,8 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 						UE_LOG(LogTemp, Error, TEXT("PieceToCapture null minmax"));
 				}
 
-				// Sets the tile the piece moves to occupied by the Human
-				Marked.Tile->SetTileStatus(Player::HUMAN, ETileStatus::OCCUPIED);
+				// Sets the tile the piece moves to occupied by the enemy
+				Marked.Tile->SetTileStatus(EnemyPieces, ETileStatus::OCCUPIED);
 
 				Board.Pieces.Add(Marked.Tile->GetGridPosition(), Piece);
 				Piece->SetGridPosition(Marked.Tile->GetGridPosition().X, Marked.Tile->GetGridPosition().Y);
@@ -347,7 +359,7 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 				/// Restore data structures.
 
 				// Set the current tile occupied
-				CurrTile->SetTileStatus(Player::HUMAN, ETileStatus::OCCUPIED);
+				CurrTile->SetTileStatus(EnemyPieces, ETileStatus::OCCUPIED);
 
 				Board.Pieces.Add(CurrTile->GetGridPosition(), Piece);
 
@@ -357,12 +369,12 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 				Board.Pieces.Remove(Marked.Tile->GetGridPosition());
 				Piece->SetGridPosition(CurrTile->GetGridPosition().X, CurrTile->GetGridPosition().Y);
 
-				// If an enemy piece had been captured, set the tile status occupied by the AI
+				// If an enemy piece had been captured, set the tile status occupied by the player
 				if (PieceToCapture)
 				{
 					Board.CapturedPieces.Remove(PieceToCapture);
 					Board.Pieces.Add(Marked.Tile->GetGridPosition(), PieceToCapture);
-					Marked.Tile->SetTileStatus(Player::AI, ETileStatus::OCCUPIED);
+					Marked.Tile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 				}
 				
 				beta = FMath::Min(beta, best);
@@ -394,14 +406,14 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 	FGameRef::GetGameRef(this, GMode, GField, PieceManager, "Minimax");
 
 	int32 bestVal = -1000;
-	FMarked TileToMovePiece;
+	FMarked TileToMovePiece{};
 
 	Board.IsMax = true;
 
 	// Reset legalMove
 	PieceManager->ResetLegalMoveArray();
 
-	auto PlayerArray = GField->GetBotPieces();
+	auto PlayerArray = PlayerNumber == Player::AI ? GField->GetBotPieces() : GField->GetHumanPlayerPieces();
 
 	// Iterate for each piece of AI
 	for (auto Piece : PlayerArray)
@@ -409,7 +421,7 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 		TArray<FMarked> TileMarked;
 
 		if (!Board.CapturedPieces.Contains(Piece))
-			TileMarked = PieceManager->GetLegalMoveByPiece(Board, Player::AI, Piece);
+			TileMarked = PieceManager->GetLegalMoveByPiece(Board, PlayerNumber, Piece);
 
 		if (TileMarked.Num() == 0)
 			continue;
@@ -438,7 +450,7 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 					UE_LOG(LogTemp, Error, TEXT("PieceToCapture null bestmove"));
 			}
 
-			Marked.Tile->SetTileStatus(Player::AI, ETileStatus::OCCUPIED);
+			Marked.Tile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
 			Board.Pieces.Add(Marked.Tile->GetGridPosition(), Piece);
 			Piece->SetGridPosition(Marked.Tile->GetGridPosition().X, Marked.Tile->GetGridPosition().Y);
@@ -448,7 +460,7 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 
 			/// Restore data structures.
 
-			CurrTile->SetTileStatus(Player::AI, ETileStatus::OCCUPIED);
+			CurrTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
 			Board.Pieces.Add(CurrTile->GetGridPosition(), Piece);
 
@@ -460,7 +472,7 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 			{
 				Board.CapturedPieces.Remove(PieceToCapture);
 				Board.Pieces.Add(Marked.Tile->GetGridPosition(), PieceToCapture);
-				Marked.Tile->SetTileStatus(Player::HUMAN, ETileStatus::OCCUPIED);
+				Marked.Tile->SetTileStatus(PlayerNumber == Player::AI ? Player::Player1 : Player::AI, ETileStatus::OCCUPIED);
 			}
 
 			// Check if it's the best move

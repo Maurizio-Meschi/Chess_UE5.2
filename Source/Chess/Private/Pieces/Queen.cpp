@@ -21,7 +21,7 @@ bool AQueen::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 	bool MarkedForward = false;
 	bool MarkedBackwards = false;
 
-	bool IsHumanPlayer = PlayerNumber == Player::HUMAN ? true : false;
+	bool IsHumanPlayer = PlayerNumber == Player::Player1 ? true : false;
 
 	XMove = IsHumanPlayer ? 1 : -1;
 	YMove = IsHumanPlayer ? 1 : -1;

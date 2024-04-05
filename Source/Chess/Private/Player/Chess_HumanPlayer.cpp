@@ -176,9 +176,9 @@ void AChess_HumanPlayer::ManageClickPiece(AActor* HitActor)
 
 	for (int32 k = 0; k < TileMarked.Num(); k++) {
 		if (TileMarked[k].Capture)
-			TileMarked[k].Tile->SetTileStatus(Player::HUMAN, ETileStatus::MARKED_TO_CAPTURE);
+			TileMarked[k].Tile->SetTileStatus(Player::Player1, ETileStatus::MARKED_TO_CAPTURE);
 		else
-			TileMarked[k].Tile->SetTileStatus(Player::HUMAN, ETileStatus::MARKED);
+			TileMarked[k].Tile->SetTileStatus(Player::Player1, ETileStatus::MARKED);
 		// get x,y position
 		int32 x = TileMarked[k].Tile->GetGridPosition().X;
 		int32 y = TileMarked[k].Tile->GetGridPosition().Y;
