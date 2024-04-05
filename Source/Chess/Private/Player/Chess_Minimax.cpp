@@ -463,8 +463,9 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 				Marked.Tile->SetTileStatus(Player::HUMAN, ETileStatus::OCCUPIED);
 			}
 
-			// check if it's the best move
-			if (moveVal > bestVal)
+			// Check if it's the best move
+			// If several moves have the same value, it randomly chooses among them
+			if (moveVal > bestVal || (moveVal == bestVal && FMath::Rand() % 2 != 0))
 			{
 				TileToMovePiece = Marked;
 				Board.PieceToMove = Piece;

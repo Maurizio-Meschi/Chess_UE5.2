@@ -3,8 +3,8 @@
 #pragma once
 
 #include "Tile.h"
-#include "GFieldElement/ManageField.h"
-#include "GFieldElement/GFieldSubClass.h"
+#include "FieldElement/ManageField.h"
+#include "FieldElement/GFieldSubClass.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Containers/Map.h"

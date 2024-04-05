@@ -34,10 +34,4 @@ Unreal Engine 5.2
 ![Game](./Readme_Img/Game1.png)
 
 ![Game](./Readme_Img/Game2.png)
-<hr>
-
-### Replay
-![Replay](./Readme_Img/Replay.png)
-
-
 
