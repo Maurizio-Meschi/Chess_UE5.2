@@ -47,7 +47,7 @@ AChess_HumanPlayer::AChess_HumanPlayer()
 
 	//default value
 	PlayerNumber = 0;
-	PieceColor = EPieceColor::BLACK;
+	//PieceColor = EPieceColor::BLACK;
 	PieceChoose = false;
 	CurrPiece = nullptr;
 }

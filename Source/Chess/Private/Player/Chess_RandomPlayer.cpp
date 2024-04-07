@@ -50,8 +50,6 @@ void AChess_RandomPlayer::OnTurn()
 {
 	GameInstance->SetTurnMessage(TEXT("AI (Random) Turn"));
 
-	UE_LOG(LogTemp, Error, TEXT("Player %d"), PlayerNumber);
-
 	// Get reference to game mode, game field and Piece manager
 	AManagePiece* ManagerPiece = nullptr;
 
@@ -136,4 +134,9 @@ void AChess_RandomPlayer::OnWin()
 void AChess_RandomPlayer::OnLose()
 {
 	GameInstance->SetTurnMessage(TEXT("AI Loses!"));
+}
+
+void AChess_RandomPlayer::OnDraw()
+{
+	GameInstance->SetTurnMessage(TEXT("Draw!"));
 }

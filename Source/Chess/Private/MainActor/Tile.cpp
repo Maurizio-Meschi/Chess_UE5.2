@@ -20,7 +20,6 @@ ATile::ATile()
 	VirtualStatus = EVirtualOccupied::VIRTUAL_EMPTY;
 	PlayerOwner = -1;
 	TileGridPosition = FVector2D(0, 0);
-
 }
 
 // Called when the game starts or when spawned

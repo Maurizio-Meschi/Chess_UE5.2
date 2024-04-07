@@ -22,6 +22,8 @@ AManagePiece::AManagePiece()
 	ButtonValue = 0;
 
 	Capture = "";
+
+	//TFR = CreateDefaultSubobject<UTFR>(TEXT("TFR"));
 }
 
 bool AManagePiece::Castling = false;
@@ -248,18 +250,17 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 	// 3.) Promotion
 
 	// Manage pawn promotion for human player
-	if (GameInstance->ChooseAiPlayer == "Hard" || GameInstance->ChooseAiPlayer == "Easy")
+	
+	if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::WHITE && (Piece->GetGridPosition().X == 7.0)
+		&& (GameInstance->ChooseAiPlayer == "Hard" || GameInstance->ChooseAiPlayer == "Easy"))
 	{
-		if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::WHITE && (Piece->GetGridPosition().X == 7.0))
-		{
-			PawnToPromote = Piece;
-			auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+		PawnToPromote = Piece;
+		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 
-			if (PlayerController)
-				PlayerController->AddWidgetPawnPromotionToViewport();
-			else
-				UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
-		}
+		if (PlayerController)
+			PlayerController->AddWidgetPawnPromotionToViewport();
+		else
+			UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
 	}
 	// Manage pawn promotion for AI player
 	else if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::BLACK && (Piece->GetGridPosition().X == 0.0))
@@ -456,6 +457,11 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 
 	if (!GMode || !FGameRef::GetGameField(this, Field, "ManagePiece"))
 		return;
+	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+	FString CSVFilePath = FPaths::ProjectContentDir() + GameInstance->ChooseAiPlayer + ".csv";
+
+	FString ExistingContent;
 
 	if (GMode->CurrentPlayer == Player::AI)
 	{
@@ -470,14 +476,83 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 	}
 	DisableButtonEvent.Broadcast();
 
-	
-	if (IsCheckMate())
+	FBoard Board;
+	Board.Field = Field->GetTileMap();
+	Board.Pieces = Field->GetPiecesMap();
+
+	if (Field->GetPiecesMap().Num() == 2 || GMode->IsDraw(Board))
 	{
 		IsGameOver = true;
-		GMode->Players[GMode->CurrentPlayer]->OnWin();
 		Visible = true;
 		IsBotPlayed = true;
 		DisableButtonEvent.Broadcast();
+
+		GMode->Players[GMode->CurrentPlayer]->OnDraw();
+
+		FFileHelper::LoadFileToString(ExistingContent, *CSVFilePath);
+
+		TArray<FString> FileLines;
+		ExistingContent.ParseIntoArrayLines(FileLines); FileLines.Num();
+
+		ExistingContent += FString::Printf(TEXT("%d"), FileLines.Num());
+		ExistingContent += ",Draw,Draw,";
+		ExistingContent += FString::Printf(TEXT("%s\n"), *FString::FromInt(MoveCounter));
+		FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
+
+		Field->ResetField();
+
+		return;
+	}
+	
+
+	
+	if (IsCheckMate())
+	{
+		FFileHelper::LoadFileToString(ExistingContent, *CSVFilePath);
+
+		TArray<FString> FileLines;
+		ExistingContent.ParseIntoArrayLines(FileLines); FileLines.Num();
+
+		FString Player1= GMode->CurrentPlayer == Player::Player1 ? "Win" : "Lose";
+		FString Player2 = GMode->CurrentPlayer == Player::AI ? "Win" : "Lose";
+		
+
+		IsGameOver = true;
+		Visible = true;
+		IsBotPlayed = true;
+		DisableButtonEvent.Broadcast();
+
+		ResetLegalMoveArray();
+
+		//FBoard Board;
+		//Board.Field = Field->GetTileMap();
+		//Board.Pieces = Field->GetPiecesMap();
+
+		auto Pieces = GMode->CurrentPlayer == Player::AI ? Field->GetBotPieces() : Field->GetHumanPlayerPieces();
+		for (auto Piece : Pieces)
+		{
+			if (Piece->LegalMove(Board, GMode->CurrentPlayer, true))
+			{
+				GMode->Players[GMode->CurrentPlayer]->OnWin();
+
+				ExistingContent += FString::Printf(TEXT("%d,%s,%s,%s\n"), FileLines.Num(), *Player1, *Player2, *FString::FromInt(MoveCounter));
+				FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
+
+				Field->ResetField();
+
+				return;
+			}		
+		}
+
+		GMode->Players[GMode->CurrentPlayer]->OnDraw();
+
+		ExistingContent += FString::Printf(TEXT("%d"), FileLines.Num());
+		ExistingContent += ",Draw,Draw,";
+		ExistingContent += FString::Printf(TEXT("%s\n"), *FString::FromInt(MoveCounter));
+		FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
+		
+		Field->ResetField();
+
 		return;
 	}
 

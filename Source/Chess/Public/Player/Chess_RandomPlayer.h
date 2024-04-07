@@ -39,4 +39,6 @@ public:
 	// Signals the defeat of the AI
 	virtual void OnLose() override;
 
+	virtual void OnDraw() override;
+
 };

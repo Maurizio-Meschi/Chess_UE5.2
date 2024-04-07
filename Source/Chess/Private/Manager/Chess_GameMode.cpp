@@ -60,13 +60,6 @@ void AChess_GameMode::BeginPlay()
 		Players.Add(HumanPlayer);
 		Players.Add(AI);
 	}
-	// Random Player
-	else if (GameInstance->ChooseAiPlayer == "Easy")
-	{
-		auto* AI = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
-		Players.Add(HumanPlayer);
-		Players.Add(AI);
-	}
 	else if (GameInstance->ChooseAiPlayer == "Random-Random")
 	{
 		auto* Player1 = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
@@ -79,7 +72,7 @@ void AChess_GameMode::BeginPlay()
 	{
 		auto* Player1 = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
 		auto* AI = GetWorld()->SpawnActor<AChess_Minimax>(FVector(), FRotator());
-
+		
 		Players.Add(Player1);
 		Players.Add(AI);
 	}
@@ -89,6 +82,12 @@ void AChess_GameMode::BeginPlay()
 		auto* AI = GetWorld()->SpawnActor<AChess_Minimax>(FVector(), FRotator());
 
 		Players.Add(Player1);
+		Players.Add(AI);
+	}
+	else
+	{
+		auto* AI = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
+		Players.Add(HumanPlayer);
 		Players.Add(AI);
 	}
 
@@ -118,7 +117,7 @@ void AChess_GameMode::ChoosePlayerAndStartGame()
 	for (int32 i = 0; i < Players.Num(); i++)
 	{
 		Players[i]->PlayerNumber = i;
-		Players[i]->PieceColor = CurrentPlayer ? EPieceColor::WHITE : EPieceColor::BLACK;
+		Players[i]->PieceColor = CurrentPlayer == Player::Player1 ? EPieceColor::WHITE : EPieceColor::BLACK;
 	}
 
 	FBoard Board;
@@ -147,6 +146,132 @@ void AChess_GameMode::TurnNextPlayer()
 {
 	CurrentPlayer = GetNextPlayer(CurrentPlayer);
 	Players[CurrentPlayer]->OnTurn();
+}
+
+
+
+FString AChess_GameMode::Tokenizer(AChessPieces* Piece)
+{
+	if (Piece->IsA<ABishop>())
+	{
+		if (Piece->Color == EPieceColor::BLACK)
+			return "b";
+		else
+			return "B";
+	}
+	else if (Piece->IsA<AChessPawn>())
+	{
+		if (Piece->Color == EPieceColor::BLACK)
+			return "p";
+		else
+			return "P";
+	}
+	else if (Piece->IsA<AKing>())
+	{
+		if (Piece->Color == EPieceColor::BLACK)
+			return "k";
+		else
+			return "K";
+	}
+	else if (Piece->IsA<AKnight>())
+	{
+		if (Piece->Color == EPieceColor::BLACK)
+			return "n";
+		else
+			return "N";
+	}
+	else if (Piece->IsA<AQueen>())
+	{
+		if (Piece->Color == EPieceColor::BLACK)
+			return "q";
+		else
+			return "Q";
+	}
+	else if (Piece->IsA<ARook>())
+	{
+		if (Piece->Color == EPieceColor::BLACK)
+			return "r";
+		else
+			return "R";
+	}
+	else
+		return "";
+}
+
+FString AChess_GameMode::GenerateString(const FBoard& Board)
+{
+	FString tmp;
+	int32 x = 0;
+	int32 Cont = 0;
+	int32  Normalization = 1;
+
+	auto FieldMap = Board.Field;//GField->GetTileMap();
+	auto PiecesMap = Board.Pieces;//GField->GetPiecesMap();
+
+	for (auto Element : FieldMap)
+	{
+		ATile* Tile = Element.Value;
+		auto TilePosition = Tile->GetGridPosition();
+
+		if (PiecesMap.Contains(TilePosition))
+		{
+			AChessPieces* Piece = PiecesMap[TilePosition];
+			if (Cont != 0)
+				tmp += (FString::FromInt(Cont) + Tokenizer(Piece));
+			else
+				tmp += Tokenizer(Piece);
+			Cont = 0;
+		}
+		else
+			++Cont;
+
+		x++;
+
+		if (Cont == 8)
+		{
+			tmp += "8";
+			Cont = 0;
+		}
+
+		if (x == Normalization * 8)
+		{
+			if (Cont != 0)
+			{
+				tmp += (FString::FromInt(Cont) + "/");
+				Cont = 0;
+			}
+			else
+				tmp += "/";
+
+			Normalization++;
+		}
+	}
+	return tmp;
+}
+
+bool AChess_GameMode::IsDraw(const FBoard& Board)
+{
+	FString tmp = GenerateString(Board);
+
+	//UE_LOG(LogTemp, Error, TEXT("%s"), *tmp);
+
+	FEN_Array.Add(tmp);
+	//UE_LOG(LogTemp, Error, TEXT("%d"), FEN_Array.Num());
+
+	int Occurrences = 0;
+
+	// Attraversa l'array di stringhe e controlla ogni elemento
+	for (auto String : FEN_Array)
+	{
+		//UE_LOG(LogTemp, Error, TEXT("%d"), FEN_Array.Num());
+		if (String == tmp)
+		{
+			Occurrences++;
+		}
+	}
+	//UE_LOG(LogTemp, Error, TEXT("\n"));
+	//UE_LOG(LogTemp, Error, TEXT("%d"), Occurrences);
+	return Occurrences >= 3;
 }
 
 

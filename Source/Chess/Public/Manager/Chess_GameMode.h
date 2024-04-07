@@ -28,7 +28,10 @@ private:
 
 	AChess_GameMode();
 
+	FString Tokenizer(AChessPieces* Piece);
+
 public:
+	TArray<FString> FEN_Array;
 
 	int32 CurrentPlayer;
 
@@ -67,6 +70,10 @@ public:
 
 	// Called at the end of the game turn
 	void TurnNextPlayer();
+
+	FString GenerateString(const FBoard& Board);
+
+	bool IsDraw(const FBoard& Board);
 };
 
 

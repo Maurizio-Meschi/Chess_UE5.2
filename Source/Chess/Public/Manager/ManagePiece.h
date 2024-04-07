@@ -8,6 +8,7 @@
 #include "ManagePiece.generated.h"
 
 
+
 class AChess_GameMode;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDisableButtonDelegate);
@@ -158,6 +159,8 @@ protected:
 	// Booleans used to manage button graphics in the editor
 	bool Visible;
 	bool IsBotPlayed;
+
+	//UTFR* TFR;
 
 	// Check if it's checkmate. if it is not, it moves on to the next player's turn
 	void CheckWinAndGoNextPlayer();
