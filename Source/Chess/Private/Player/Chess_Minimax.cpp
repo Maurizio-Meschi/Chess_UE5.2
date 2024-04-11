@@ -57,16 +57,12 @@ void AChess_Minimax::OnTurn()
 			if (!FGameRef::GetGameRef(this, GMode, GField, PieceManager, "Minimax"))
 				return;
 
-			//auto tmp = GMode->FEN_Array;
-
 			FBoard Board;
 			Board.Field = GField->GetTileMap();
 			Board.Pieces = GField->GetPiecesMap();
 
 			FMarked TileToMove = FindBestMove(Board);
-			//UE_LOG(LogTemp, Error, TEXT("%d"), GMode->FEN_Array.Num());
-
-			//GMode->FEN_Array = tmp;
+			
 			AChessPieces* PieceToMove = Board.PieceToMove;
 
 			if (!PieceToMove || !TileToMove.Tile)
@@ -210,20 +206,25 @@ bool AChess_Minimax::Checkmate(FBoard& Board)
 */
 int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 beta, bool IsMax)
 {
-	if (Depth == 2)
-		return EvaluateGrid(Board);
-
-	if (Checkmate(Board))
-		return (Board.IsMax ? 10000 : -10000);
-
 	AChess_GameMode* GMode = nullptr;
 	AGameField* GField = nullptr;
 	AManagePiece* PieceManager = nullptr;
 	if (!FGameRef::GetGameRef(this, GMode, GField, PieceManager, "Minimax"))
 		return 0;
 
+	if (Depth == 2)
+	{
+		if (Checkmate(Board))
+			return (Board.IsMax ? 10000 : -10000);
+		else
+			return EvaluateGrid(Board);
+	}
+
+	if (Checkmate(Board))
+		return (Board.IsMax ? 10000 : -10000);
+
 	if (GMode->IsDraw(Board))
-		return 0;
+		return (Board.IsMax ? -100 : 100);
 
 	GMode->FEN_Array.RemoveAt(GMode->FEN_Array.Num() - 1);
 
@@ -255,7 +256,6 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 			for (auto Marked : TileMarked)
 			{
 				ATile* CurrTile = nullptr;
-				//FVector2D StartPosition = Piece->GetGridPosition();
 
 				if (Board.Field.Contains(Piece->GetGridPosition()))
 					CurrTile = Board.Field[Piece->GetGridPosition()];
@@ -286,21 +286,17 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 				Board.Pieces.Add(Marked.Tile->GetGridPosition(), Piece);
 				Piece->SetGridPosition(Marked.Tile->GetGridPosition().X, Marked.Tile->GetGridPosition().Y);
 
-				//GMode->FEN_Array.Add(GMode->GenerateString());
-
 				// Call the minimax recursively
 				best = FMath::Max(best, MiniMax(Board, Depth + 1, alpha, beta, !IsMax));
 
 				/// Restore data structures.
 
-				//GMode->FEN_Array.RemoveAt(GMode->FEN_Array.Num() - 1);
-				
 				// Set the current tile occupied
 				CurrTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
 				Board.Pieces.Add(CurrTile->GetGridPosition(), Piece);
 
-				//Set empty the tile where the piece had moved
+				// Set empty the tile where the piece had moved
 				Marked.Tile->SetTileStatus(-1, ETileStatus::EMPTY);
 
 				Board.Pieces.Remove(Marked.Tile->GetGridPosition());
@@ -378,21 +374,17 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 				Board.Pieces.Add(Marked.Tile->GetGridPosition(), Piece);
 				Piece->SetGridPosition(Marked.Tile->GetGridPosition().X, Marked.Tile->GetGridPosition().Y);
 
-				//GMode->FEN_Array.Add(GMode->GenerateString());
-
 				// Call the minimax recursively
 				best = FMath::Min(best, MiniMax(Board, Depth + 1, alpha, beta, !IsMax));
 
 				/// Restore data structures.
-
-				//GMode->FEN_Array.RemoveAt(GMode->FEN_Array.Num() - 1);
 
 				// Set the current tile occupied
 				CurrTile->SetTileStatus(EnemyPieces, ETileStatus::OCCUPIED);
 
 				Board.Pieces.Add(CurrTile->GetGridPosition(), Piece);
 
-				//Set empty the tile where the piece had moved
+				// Set empty the tile where the piece had moved
 				Marked.Tile->SetTileStatus(-1, ETileStatus::EMPTY);
 
 				Board.Pieces.Remove(Marked.Tile->GetGridPosition());
@@ -409,7 +401,6 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 				beta = FMath::Min(beta, best);
 				if (beta <= alpha)
 				{
-					//UE_LOG(LogTemp, Error, TEXT("Poto nel min"));
 					break;
 				}
 			}
@@ -434,7 +425,7 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 	AManagePiece* PieceManager = nullptr;
 	FGameRef::GetGameRef(this, GMode, GField, PieceManager, "Minimax");
 
-	int32 bestVal = -1000;
+	int32 bestVal = -100000;
 	FMarked TileToMovePiece{};
 
 	Board.IsMax = true;
@@ -484,14 +475,10 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 			Board.Pieces.Add(Marked.Tile->GetGridPosition(), Piece);
 			Piece->SetGridPosition(Marked.Tile->GetGridPosition().X, Marked.Tile->GetGridPosition().Y);
 
-			//GMode->FEN_Array.Add(GMode->GenerateString());
-
 			// Call the minimax algorithm
 			int32 moveVal = MiniMax(Board, 0, -1000, 1000, false);
 
 			/// Restore data structures.
-
-			//GMode->FEN_Array.RemoveAt(GMode->FEN_Array.Num() - 1);
 
 			CurrTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
 
@@ -510,23 +497,15 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 
 			// Check if it's the best move
 			// If several moves have the same value, it randomly chooses among them
-			if (moveVal > bestVal)
+			if (moveVal > bestVal || (moveVal == bestVal && FMath::Rand() % 2 != 0))
 			{
 				TileToMovePiece = Marked;
 				Board.PieceToMove = Piece;
 				bestVal = moveVal;
-			}
-
-			if (moveVal == bestVal && FMath::Rand() % 2 != 0)
-			{
-				TileToMovePiece = Marked;
-				Board.PieceToMove = Piece;
-				bestVal = moveVal;
-			}
-			
+			}	
 		}
 	}
-	//UE_LOG(LogTemp, Error, TEXT("Dim playerArray %d"), PlayerArray.Num());
+	
 	return TileToMovePiece;
 }
 

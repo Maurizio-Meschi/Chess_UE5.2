@@ -28,9 +28,14 @@ private:
 
 	AChess_GameMode();
 
+	// Generate the piece name
 	FString Tokenizer(AChessPieces* Piece);
 
+	// Generate the FEN (Forsyth-Edwards Notation) string
+	FString GenerateString(const FBoard& Board);
+
 public:
+	// Array of strings to keep track of the state of the chessboard
 	TArray<FString> FEN_Array;
 
 	int32 CurrentPlayer;
@@ -71,8 +76,7 @@ public:
 	// Called at the end of the game turn
 	void TurnNextPlayer();
 
-	FString GenerateString(const FBoard& Board);
-
+	// Check if is draw
 	bool IsDraw(const FBoard& Board);
 };
 

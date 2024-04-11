@@ -22,8 +22,6 @@ AManagePiece::AManagePiece()
 	ButtonValue = 0;
 
 	Capture = "";
-
-	//TFR = CreateDefaultSubobject<UTFR>(TEXT("TFR"));
 }
 
 bool AManagePiece::Castling = false;
@@ -234,8 +232,11 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 		else 
 			CheckNotation = "";
 		
+		FString PieceName = "";
+		if (!Piece->IsA<AChessPawn>())
+			PieceName = Piece->Name;
 
-		GameInstance->SetInfo(FString::FromInt(MoveCounter) + TEXT(". ") + Piece->Name + Capture + Tile->Name + CheckNotation);
+		GameInstance->SetInfo(FString::FromInt(MoveCounter) + TEXT(". ") + PieceName + Capture + Tile->Name + CheckNotation);
 		
 		Capture = "";
 		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
@@ -447,8 +448,9 @@ void AManagePiece::DeleteTime()
 /*
 * @param: none
 * @return: none
-* @note: handles the buttons disable event during the AI's turn, 
-*        checks the checkmate and goes to the next player's turn
+* @note: handles the button disabling event during the AI's turn, 
+*        controls checkmate and draw, and moves on to the next player's turn.
+*		 At the end of the game the result is written to a file
 */
 void AManagePiece::CheckWinAndGoNextPlayer()
 {
@@ -459,7 +461,7 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 		return;
 	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
-	FString CSVFilePath = FPaths::ProjectContentDir() + GameInstance->ChooseAiPlayer + ".csv";
+	FString CSVFilePath = FPaths::ProjectDir() + "Game_Data/CSV/" + GameInstance->ChooseAiPlayer + ".csv";
 
 	FString ExistingContent;
 
@@ -489,33 +491,29 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 
 		GMode->Players[GMode->CurrentPlayer]->OnDraw();
 
+		// Add match information to the file
 		FFileHelper::LoadFileToString(ExistingContent, *CSVFilePath);
 
 		TArray<FString> FileLines;
-		ExistingContent.ParseIntoArrayLines(FileLines); FileLines.Num();
+		ExistingContent.ParseIntoArrayLines(FileLines);
 
 		ExistingContent += FString::Printf(TEXT("%d"), FileLines.Num());
 		ExistingContent += ",Draw,Draw,";
 		ExistingContent += FString::Printf(TEXT("%s\n"), *FString::FromInt(MoveCounter));
 		FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
 
-		Field->ResetField();
-
 		return;
 	}
-	
-
 	
 	if (IsCheckMate())
 	{
 		FFileHelper::LoadFileToString(ExistingContent, *CSVFilePath);
 
 		TArray<FString> FileLines;
-		ExistingContent.ParseIntoArrayLines(FileLines); FileLines.Num();
+		ExistingContent.ParseIntoArrayLines(FileLines);
 
-		FString Player1= GMode->CurrentPlayer == Player::Player1 ? "Win" : "Lose";
+		FString Player1 = GMode->CurrentPlayer == Player::Player1 ? "Win" : "Lose";
 		FString Player2 = GMode->CurrentPlayer == Player::AI ? "Win" : "Lose";
-		
 
 		IsGameOver = true;
 		Visible = true;
@@ -524,10 +522,7 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 
 		ResetLegalMoveArray();
 
-		//FBoard Board;
-		//Board.Field = Field->GetTileMap();
-		//Board.Pieces = Field->GetPiecesMap();
-
+		// if there are no more legal moves and the king is not in check, it is a draw
 		auto Pieces = GMode->CurrentPlayer == Player::AI ? Field->GetBotPieces() : Field->GetHumanPlayerPieces();
 		for (auto Piece : Pieces)
 		{
@@ -535,10 +530,9 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 			{
 				GMode->Players[GMode->CurrentPlayer]->OnWin();
 
+				// Add victory information to the file
 				ExistingContent += FString::Printf(TEXT("%d,%s,%s,%s\n"), FileLines.Num(), *Player1, *Player2, *FString::FromInt(MoveCounter));
 				FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
-
-				Field->ResetField();
 
 				return;
 			}		
@@ -546,13 +540,12 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 
 		GMode->Players[GMode->CurrentPlayer]->OnDraw();
 
+		// Add draw information to the file
 		ExistingContent += FString::Printf(TEXT("%d"), FileLines.Num());
 		ExistingContent += ",Draw,Draw,";
 		ExistingContent += FString::Printf(TEXT("%s\n"), *FString::FromInt(MoveCounter));
 		FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
 		
-		Field->ResetField();
-
 		return;
 	}
 

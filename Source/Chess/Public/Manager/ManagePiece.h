@@ -160,8 +160,6 @@ protected:
 	bool Visible;
 	bool IsBotPlayed;
 
-	//UTFR* TFR;
-
 	// Check if it's checkmate. if it is not, it moves on to the next player's turn
 	void CheckWinAndGoNextPlayer();
 

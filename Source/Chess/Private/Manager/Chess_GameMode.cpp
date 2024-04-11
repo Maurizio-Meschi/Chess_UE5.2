@@ -149,55 +149,24 @@ void AChess_GameMode::TurnNextPlayer()
 }
 
 
-
+/*
+* @param: Piece 
+* @return: Name of piece
+* @note: none
+*/
 FString AChess_GameMode::Tokenizer(AChessPieces* Piece)
 {
-	if (Piece->IsA<ABishop>())
-	{
-		if (Piece->Color == EPieceColor::BLACK)
-			return "b";
-		else
-			return "B";
-	}
-	else if (Piece->IsA<AChessPawn>())
-	{
-		if (Piece->Color == EPieceColor::BLACK)
-			return "p";
-		else
-			return "P";
-	}
-	else if (Piece->IsA<AKing>())
-	{
-		if (Piece->Color == EPieceColor::BLACK)
-			return "k";
-		else
-			return "K";
-	}
-	else if (Piece->IsA<AKnight>())
-	{
-		if (Piece->Color == EPieceColor::BLACK)
-			return "n";
-		else
-			return "N";
-	}
-	else if (Piece->IsA<AQueen>())
-	{
-		if (Piece->Color == EPieceColor::BLACK)
-			return "q";
-		else
-			return "Q";
-	}
-	else if (Piece->IsA<ARook>())
-	{
-		if (Piece->Color == EPieceColor::BLACK)
-			return "r";
-		else
-			return "R";
-	}
+	if (Piece->Color == EPieceColor::BLACK)
+		return Piece->Name.ToLower();
 	else
-		return "";
+		return Piece->Name;
 }
 
+/*
+* @param: reference to chessboard
+* @return: FEN string
+* @note: Generate a FEN in string to track the chessboard
+*/
 FString AChess_GameMode::GenerateString(const FBoard& Board)
 {
 	FString tmp;
@@ -205,8 +174,8 @@ FString AChess_GameMode::GenerateString(const FBoard& Board)
 	int32 Cont = 0;
 	int32  Normalization = 1;
 
-	auto FieldMap = Board.Field;//GField->GetTileMap();
-	auto PiecesMap = Board.Pieces;//GField->GetPiecesMap();
+	auto FieldMap = Board.Field;
+	auto PiecesMap = Board.Pieces;
 
 	for (auto Element : FieldMap)
 	{
@@ -249,28 +218,27 @@ FString AChess_GameMode::GenerateString(const FBoard& Board)
 	return tmp;
 }
 
+/*
+* @param: reference to chessboard
+* @return: true if three identical configurations occurred, false otherwise
+* @note: none
+*/
 bool AChess_GameMode::IsDraw(const FBoard& Board)
 {
 	FString tmp = GenerateString(Board);
 
-	//UE_LOG(LogTemp, Error, TEXT("%s"), *tmp);
-
 	FEN_Array.Add(tmp);
-	//UE_LOG(LogTemp, Error, TEXT("%d"), FEN_Array.Num());
 
 	int Occurrences = 0;
 
-	// Attraversa l'array di stringhe e controlla ogni elemento
 	for (auto String : FEN_Array)
 	{
-		//UE_LOG(LogTemp, Error, TEXT("%d"), FEN_Array.Num());
 		if (String == tmp)
 		{
 			Occurrences++;
 		}
 	}
-	//UE_LOG(LogTemp, Error, TEXT("\n"));
-	//UE_LOG(LogTemp, Error, TEXT("%d"), Occurrences);
+	
 	return Occurrences >= 3;
 }
 
