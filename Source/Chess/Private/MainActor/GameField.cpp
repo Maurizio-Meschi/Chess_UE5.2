@@ -203,9 +203,9 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	PiecesMap.Add(FVector2D(x, y), Obj);
 
 	if (color == EPieceColor::BLACK)
-		BotPieces.Add(Obj);
+		Player2Pieces.Add(Obj);
 	else
-		HumanPlayerPieces.Add(Obj);
+		Player1Pieces.Add(Obj);
 
 	if (Class == GameFieldSubClass.ChessKing[0])
 		KingArray.Add(Cast<AKing>(Obj));
@@ -243,6 +243,6 @@ FVector2D AGameField::GetXYPositionByRelativeLocation(const FVector& Location) c
 {
 	const double x = Location[0] / (TileSize * NormalizedCellPadding);
 	const double y = Location[1] / (TileSize * NormalizedCellPadding);
-	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("x=%f,y=%f"), x, y));
+	
 	return FVector2D(x, y);
 }

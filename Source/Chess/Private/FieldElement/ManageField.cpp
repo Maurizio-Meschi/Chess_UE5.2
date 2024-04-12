@@ -20,8 +20,8 @@ void AElementsToManageField::ResetFieldData()
 
 	TileMarked.Empty();
 	KingArray.Empty();
-	HumanPlayerPieces.Empty();
-	BotPieces.Empty();
+	Player1Pieces.Empty();
+	Player2Pieces.Empty();
 
 	for (auto Element : TileMap)
 	{

@@ -125,7 +125,7 @@ void AChess_GameMode::ChoosePlayerAndStartGame()
 	Board.Pieces = GField->GetPiecesMap();
 
 
-	auto PiecesArray = GField->GetHumanPlayerPieces();
+	auto PiecesArray = GField->GetPlayer1Pieces();
 
 	for (auto Piece : PiecesArray)
 		Piece->LegalMove(Board, Player::Player1, false);

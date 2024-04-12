@@ -13,22 +13,22 @@ class CHESS_API AElementsToManageField
 {
 public:
 	
-	TArray<AChessPieces*> GetBotPieces() { return BotPieces; }
-	TArray<AChessPieces*> GetHumanPlayerPieces() { return HumanPlayerPieces; }
+	TArray<AChessPieces*> GetPlayer2Pieces() { return Player2Pieces; }
+	TArray<AChessPieces*> GetPlayer1Pieces() { return Player1Pieces; }
 	TArray<ATile*> GetTileMarked() { return TileMarked; }
 	TArray<AKing*> GetKingArray() { return KingArray; }
 	TMap<FVector2D, ATile*>& GetTileMap() { return TileMap; }
 	TMap<FVector2D, AChessPieces*>& GetPiecesMap() { return PiecesMap; }
 
-	void AddBotPieces(AChessPieces* Piece) { BotPieces.Add(Piece); }
+	void AddPlayer2Pieces(AChessPieces* Piece) { Player2Pieces.Add(Piece); }
 	void AddTileMarked(ATile* Tile) { TileMarked.Add(Tile); }
 	void AddTileMap(FVector2D Position, ATile* Tile) { TileMap.Add(Position, Tile); }
 	void AddPiecesMap(FVector2D Position, AChessPieces* Piece) { PiecesMap.Add(Position, Piece); }
 
 	void TileMapRemove(FVector2D Position) { TileMap.Remove(Position); }
 	void PiecesMapRemove(FVector2D Position) { PiecesMap.Remove(Position); }
-	void BotPiecesRemove(AChessPieces* Piece) { BotPieces.Remove(Piece); BotPieces.Shrink(); }
-	void HumanPlayerPiecesRemove(AChessPieces* Piece) { HumanPlayerPieces.Remove(Piece); HumanPlayerPieces.Shrink(); }
+	void Player2PiecesRemove(AChessPieces* Piece) { Player2Pieces.Remove(Piece); Player2Pieces.Shrink(); }
+	void Player1PiecesRemove(AChessPieces* Piece) { Player1Pieces.Remove(Piece); Player1Pieces.Shrink(); }
 
 	void TileMarkedDestroy();
 	void ResetFieldData();
@@ -37,10 +37,10 @@ public:
 protected:
 
 	UPROPERTY(Transient)
-	TArray<AChessPieces*> BotPieces;
+	TArray<AChessPieces*> Player2Pieces;
 
 	UPROPERTY(Transient)
-	TArray<AChessPieces*> HumanPlayerPieces;
+	TArray<AChessPieces*> Player1Pieces;
 
 	//TODO: mettere dinamicamente il materiale e togliere questo vettore
 	UPROPERTY(Transient)

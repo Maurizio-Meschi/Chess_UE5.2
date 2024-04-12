@@ -106,6 +106,9 @@ void AChess_Minimax::OnTurn()
 */
 int32 AChess_Minimax::EvaluateGrid(FBoard& Board)
 {
+	//if (Checkmate(Board))
+		//return (Board.IsMax ? 10000 : -10000);
+
 	AChess_GameMode* GMode = nullptr;
 	AGameField* GField = nullptr;
 	AManagePiece* PieceManager = nullptr;
@@ -143,10 +146,10 @@ int32 AChess_Minimax::EvaluateGrid(FBoard& Board)
 	TArray<AChessPieces*> PiecesArray; 
 
 	if (PlayerNumber == Player::AI)
-		PiecesArray = Board.IsMax ? GField->GetBotPieces() : GField->GetHumanPlayerPieces();
+		PiecesArray = Board.IsMax ? GField->GetPlayer2Pieces() : GField->GetPlayer1Pieces();
 
 	else
-		PiecesArray = Board.IsMax ? GField->GetHumanPlayerPieces() : GField->GetBotPieces();
+		PiecesArray = Board.IsMax ? GField->GetPlayer1Pieces() : GField->GetPlayer2Pieces();
 
 	for (auto Piece : PiecesArray)
 	{
@@ -213,12 +216,7 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 		return 0;
 
 	if (Depth == 2)
-	{
-		if (Checkmate(Board))
-			return (Board.IsMax ? 10000 : -10000);
-		else
-			return EvaluateGrid(Board);
-	}
+		return EvaluateGrid(Board);
 
 	if (Checkmate(Board))
 		return (Board.IsMax ? 10000 : -10000);
@@ -238,7 +236,7 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 
 		Board.IsMax = true;
 
-		auto PlayerArray = PlayerNumber == Player::Player1 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces();
+		auto PlayerArray = PlayerNumber == Player::Player1 ? GField->GetPlayer1Pieces() : GField->GetPlayer2Pieces();
 		// Iterate for each piece of the AI
 		for (auto Piece : PlayerArray)
 		{
@@ -327,7 +325,7 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 
 		Board.IsMax = false;
 
-		auto PlayerArray = PlayerNumber == Player::Player1 ? GField->GetBotPieces() : GField->GetHumanPlayerPieces();
+		auto PlayerArray = PlayerNumber == Player::Player1 ? GField->GetPlayer2Pieces() : GField->GetPlayer1Pieces();
 
 		// Iterate for each piece of the Human player
 		for (auto Piece : PlayerArray)
@@ -433,7 +431,7 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 	// Reset legalMove
 	PieceManager->ResetLegalMoveArray();
 
-	auto PlayerArray = PlayerNumber == Player::AI ? GField->GetBotPieces() : GField->GetHumanPlayerPieces();
+	auto PlayerArray = PlayerNumber == Player::AI ? GField->GetPlayer2Pieces() : GField->GetPlayer1Pieces();
 
 	// Iterate for each piece of AI
 	for (auto Piece : PlayerArray)

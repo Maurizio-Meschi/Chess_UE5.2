@@ -118,7 +118,7 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 			CurrTile->SetTileStatus(-1, ETileStatus::EMPTY);
 
 			// Check if the move is legal
-			auto Pieces = (PlayerNumber == Player::AI ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
+			auto Pieces = (PlayerNumber == Player::AI ? GField->GetPlayer1Pieces() : GField->GetPlayer2Pieces());
 			for (auto EnemyPiece : Pieces)
 			{
 				if (!Board.CapturedPieces.Contains(EnemyPiece))
@@ -167,7 +167,7 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 				CurrTile->SetTileStatus(-1, ETileStatus::EMPTY);
 
 				// Check if the move is legal
-				auto Pieces = (PlayerNumber == Player::AI ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
+				auto Pieces = (PlayerNumber == Player::AI ? GField->GetPlayer1Pieces() : GField->GetPlayer2Pieces());
 				for (auto EnemyPiece : Pieces)
 				{
 					if (!Board.CapturedPieces.Contains(EnemyPiece))

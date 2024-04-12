@@ -100,3 +100,7 @@ Game,Player1,Player2,Move
 99,Draw,Draw,181
 100,Lose,Win,29
 101,Lose,Win,17
+102,Draw,Draw,32
+103,Lose,Win,21
+104,Lose,Win,24
+105,Lose,Win,36

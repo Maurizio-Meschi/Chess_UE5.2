@@ -69,7 +69,7 @@ void AChess_RandomPlayer::OnTurn()
 			TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 			TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
-			auto PiecesArray = PlayerNumber == Player::Player1 ? Field->GetHumanPlayerPieces() : Field->GetBotPieces();
+			auto PiecesArray = PlayerNumber == Player::Player1 ? Field->GetPlayer1Pieces() : Field->GetPlayer2Pieces();
 
 			bool PieceIsPossibleToMove = false;
 			int32 RIndex;

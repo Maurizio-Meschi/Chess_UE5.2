@@ -47,7 +47,7 @@ TArray<TArray<FMarked>>& AManagePiece::GetAllLegalMoveByPlayer(FBoard& Board, in
 
 	if (FGameRef::GetGameField(this, GField, "ManagePiece"))
 	{
-		auto PiecesArray = (Player == Player::Player1 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
+		auto PiecesArray = (Player == Player::Player1 ? GField->GetPlayer1Pieces() : GField->GetPlayer2Pieces());
 
 		for (auto Piece : PiecesArray)
 		{
@@ -376,9 +376,9 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 	CapturedPieces.Add(PieceToCapture);
 	
 	if (PieceToCapture->Color == EPieceColor::BLACK)
-		GField->BotPiecesRemove(PieceToCapture);
+		GField->Player2PiecesRemove(PieceToCapture);
 	else
-		GField->HumanPlayerPiecesRemove(PieceToCapture);
+		GField->Player1PiecesRemove(PieceToCapture);
 	
 	PieceToCapture->SetActorHiddenInGame(true);
 	PieceToCapture->SetActorEnableCollision(false);
@@ -464,18 +464,26 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 	FString CSVFilePath = FPaths::ProjectDir() + "Game_Data/CSV/" + GameInstance->ChooseAiPlayer + ".csv";
 
 	FString ExistingContent;
+	
+	Visible = false;
 
+	if (GameInstance->ChooseAiPlayer != "Hard" && GameInstance->ChooseAiPlayer != "Easy")
+		Visible = true;
+	
 	if (GMode->CurrentPlayer == Player::AI)
 	{
-		Visible = true;
-		IsBotPlayed = true;
 		MoveCounter++;
+		IsBotPlayed = true;
 	}
 	else
-	{
-		Visible = false;
 		IsBotPlayed = false;
+
+	if (GMode->CurrentPlayer != Player::AI &&
+			(GameInstance->ChooseAiPlayer == "Hard" || GameInstance->ChooseAiPlayer == "Easy"))
+	{
+		Visible = true;
 	}
+	
 	DisableButtonEvent.Broadcast();
 
 	FBoard Board;
@@ -485,8 +493,9 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 	if (Field->GetPiecesMap().Num() == 2 || GMode->IsDraw(Board))
 	{
 		IsGameOver = true;
-		Visible = true;
 		IsBotPlayed = true;
+		Visible = false;
+
 		DisableButtonEvent.Broadcast();
 
 		GMode->Players[GMode->CurrentPlayer]->OnDraw();
@@ -516,14 +525,15 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 		FString Player2 = GMode->CurrentPlayer == Player::AI ? "Win" : "Lose";
 
 		IsGameOver = true;
-		Visible = true;
+		Visible = false;
 		IsBotPlayed = true;
+
 		DisableButtonEvent.Broadcast();
 
 		ResetLegalMoveArray();
 
 		// if there are no more legal moves and the king is not in check, it is a draw
-		auto Pieces = GMode->CurrentPlayer == Player::AI ? Field->GetBotPieces() : Field->GetHumanPlayerPieces();
+		auto Pieces = GMode->CurrentPlayer == Player::AI ? Field->GetPlayer2Pieces() : Field->GetPlayer1Pieces();
 		for (auto Piece : Pieces)
 		{
 			if (Piece->LegalMove(Board, GMode->CurrentPlayer, true))
@@ -667,9 +677,9 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	CapturedPieces.Add(PieceToPromote);
 
 	if (PieceToPromote->Color == EPieceColor::BLACK)
-		Field->BotPiecesRemove(PieceToPromote);
+		Field->Player2PiecesRemove(PieceToPromote);
 	else
-		Field->HumanPlayerPiecesRemove(PieceToPromote);
+		Field->Player1PiecesRemove(PieceToPromote);
 
 	if (NewPiece == "Queen")
 	{
