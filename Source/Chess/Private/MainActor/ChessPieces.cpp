@@ -66,7 +66,7 @@ void AChessPieces::ResetTileStatus(ATile* CurrTile, ATile* NewTile, int32 Player
 	else
 	{
 		CurrTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
-		NewTile->SetTileStatus(PlayerNumber == Player::HUMAN ? Player::AI : Player::HUMAN, ETileStatus::OCCUPIED);
+		NewTile->SetTileStatus(PlayerNumber == Player::Player1 ? Player::AI : Player::Player1, ETileStatus::OCCUPIED);
 	}
 	NewTile->SetVirtualStatus(EVirtualOccupied::VIRTUAL_EMPTY);
 }
@@ -123,7 +123,7 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 			{
 				if (!Board.CapturedPieces.Contains(EnemyPiece))
 				{
-					if (EnemyPiece->LegalMove(Board, PlayerNumber == Player::HUMAN ? Player::AI : Player::HUMAN, true))
+					if (EnemyPiece->LegalMove(Board, PlayerNumber == Player::Player1 ? Player::AI : Player::Player1, true))
 					{
 						ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, true);
 						return;
@@ -172,7 +172,7 @@ void AChessPieces::MarkTile(FBoard& Board, int32 x, int32 y, int32 PlayerNumber,
 				{
 					if (!Board.CapturedPieces.Contains(EnemyPiece))
 					{
-						if (EnemyPiece->LegalMove(Board, PlayerNumber == Player::HUMAN ? Player::AI : Player::HUMAN, true))
+						if (EnemyPiece->LegalMove(Board, PlayerNumber == Player::Player1 ? Player::AI : Player::Player1, true))
 						{
 							ResetTileStatus(CurrTile, SelectedTile, PlayerNumber, false);
 							Marked = true;

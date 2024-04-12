@@ -8,6 +8,7 @@
 #include "ManagePiece.generated.h"
 
 
+
 class AChess_GameMode;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDisableButtonDelegate);

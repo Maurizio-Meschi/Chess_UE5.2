@@ -20,7 +20,7 @@ bool AKing::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 	int32 YMove = 0;
 	bool MarkedForward = false;
 	
-	bool IsHumanPlayer = PlayerNumber == Player::HUMAN ? true : false;
+	bool IsHumanPlayer = PlayerNumber == Player::Player1 ? true : false;
 
 	// Calculate the king's legal moves
 	for (int32 i = 0; i < 3; ++i)
@@ -55,7 +55,7 @@ bool AKing::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)
 	auto Pieces = IsHumanPlayer ? GField->GetBotPieces() : GField->GetHumanPlayerPieces();
 	for (auto Piece : Pieces)
 	{
-		if (!Piece->IsA<AKing>() && Piece->LegalMove(Board, IsHumanPlayer ? Player::AI : Player::HUMAN, true))
+		if (!Piece->IsA<AKing>() && Piece->LegalMove(Board, IsHumanPlayer ? Player::AI : Player::Player1, true))
 			return false;
 	}
 

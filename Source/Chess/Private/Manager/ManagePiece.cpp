@@ -47,7 +47,7 @@ TArray<TArray<FMarked>>& AManagePiece::GetAllLegalMoveByPlayer(FBoard& Board, in
 
 	if (FGameRef::GetGameField(this, GField, "ManagePiece"))
 	{
-		auto PiecesArray = (Player == Player::HUMAN ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
+		auto PiecesArray = (Player == Player::Player1 ? GField->GetHumanPlayerPieces() : GField->GetBotPieces());
 
 		for (auto Piece : PiecesArray)
 		{
@@ -108,7 +108,7 @@ bool AManagePiece::IsCheckMate()
 	Board.Pieces = Field->GetPiecesMap();
 
 
-	auto TileMarked = GetAllLegalMoveByPlayer(Board, GMode->CurrentPlayer == Player::AI ? Player::HUMAN : Player::AI);
+	auto TileMarked = GetAllLegalMoveByPlayer(Board, GMode->CurrentPlayer == Player::AI ? Player::Player1 : Player::AI);
 
 	int32 Cont = 0;
 	for (int32 i = 0; i < TileMarked.Num(); i++)
@@ -154,7 +154,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 	// 1.) Castling
 
 	bool IsCastling = false;
-	auto LeftRookPos = PlayerNumber == Player::HUMAN ? HR1_POSITION : AIR1_POSITION;
+	auto LeftRookPos = PlayerNumber == Player::Player1 ? HR1_POSITION : AIR1_POSITION;
 	FVector2D CastlingTilePos(LeftRookPos.X, LeftRookPos.Y + 2);
 	
 	// Long castling
@@ -165,7 +165,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 		IsCastling = true;
 	}
 
-	auto RightRookPos = PlayerNumber == Player::HUMAN ? HR2_POSITION : AIR2_POSITION;
+	auto RightRookPos = PlayerNumber == Player::Player1 ? HR2_POSITION : AIR2_POSITION;
 	CastlingTilePos.X = RightRookPos.X;
 	CastlingTilePos.Y = RightRookPos.Y - 1;
 
@@ -232,8 +232,11 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 		else 
 			CheckNotation = "";
 		
+		FString PieceName = "";
+		if (!Piece->IsA<AChessPawn>())
+			PieceName = Piece->Name;
 
-		GameInstance->SetInfo(FString::FromInt(MoveCounter) + TEXT(". ") + Piece->Name + Capture + Tile->Name + CheckNotation);
+		GameInstance->SetInfo(FString::FromInt(MoveCounter) + TEXT(". ") + PieceName + Capture + Tile->Name + CheckNotation);
 		
 		Capture = "";
 		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
@@ -248,7 +251,9 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 	// 3.) Promotion
 
 	// Manage pawn promotion for human player
-	if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::WHITE && (Piece->GetGridPosition().X == 7.0))
+	
+	if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::WHITE && (Piece->GetGridPosition().X == 7.0)
+		&& (GameInstance->ChooseAiPlayer == "Hard" || GameInstance->ChooseAiPlayer == "Easy"))
 	{
 		PawnToPromote = Piece;
 		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
@@ -260,6 +265,13 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 	}
 	// Manage pawn promotion for AI player
 	else if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::BLACK && (Piece->GetGridPosition().X == 0.0))
+	{
+		TArray<FString> Class = { "Queen", "Rook", "Bishop", "Knight" };
+		int32 RIndex = FMath::Rand() % Class.Num();
+		SpawnNewPiece(Piece, Class[RIndex]);
+	}
+	// Manage pawn promotion for second AI player
+	else if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::WHITE && (Piece->GetGridPosition().X == 7.0))
 	{
 		TArray<FString> Class = { "Queen", "Rook", "Bishop", "Knight" };
 		int32 RIndex = FMath::Rand() % Class.Num();
@@ -436,8 +448,9 @@ void AManagePiece::DeleteTime()
 /*
 * @param: none
 * @return: none
-* @note: handles the buttons disable event during the AI's turn, 
-*        checks the checkmate and goes to the next player's turn
+* @note: handles the button disabling event during the AI's turn, 
+*        controls checkmate and draw, and moves on to the next player's turn.
+*		 At the end of the game the result is written to a file
 */
 void AManagePiece::CheckWinAndGoNextPlayer()
 {
@@ -446,6 +459,11 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 
 	if (!GMode || !FGameRef::GetGameField(this, Field, "ManagePiece"))
 		return;
+	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+	FString CSVFilePath = FPaths::ProjectDir() + "Game_Data/CSV/" + GameInstance->ChooseAiPlayer + ".csv";
+
+	FString ExistingContent;
 
 	if (GMode->CurrentPlayer == Player::AI)
 	{
@@ -460,14 +478,74 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 	}
 	DisableButtonEvent.Broadcast();
 
-	
-	if (IsCheckMate())
+	FBoard Board;
+	Board.Field = Field->GetTileMap();
+	Board.Pieces = Field->GetPiecesMap();
+
+	if (Field->GetPiecesMap().Num() == 2 || GMode->IsDraw(Board))
 	{
 		IsGameOver = true;
-		GMode->Players[GMode->CurrentPlayer]->OnWin();
 		Visible = true;
 		IsBotPlayed = true;
 		DisableButtonEvent.Broadcast();
+
+		GMode->Players[GMode->CurrentPlayer]->OnDraw();
+
+		// Add match information to the file
+		FFileHelper::LoadFileToString(ExistingContent, *CSVFilePath);
+
+		TArray<FString> FileLines;
+		ExistingContent.ParseIntoArrayLines(FileLines);
+
+		ExistingContent += FString::Printf(TEXT("%d"), FileLines.Num());
+		ExistingContent += ",Draw,Draw,";
+		ExistingContent += FString::Printf(TEXT("%s\n"), *FString::FromInt(MoveCounter));
+		FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
+
+		return;
+	}
+	
+	if (IsCheckMate())
+	{
+		FFileHelper::LoadFileToString(ExistingContent, *CSVFilePath);
+
+		TArray<FString> FileLines;
+		ExistingContent.ParseIntoArrayLines(FileLines);
+
+		FString Player1 = GMode->CurrentPlayer == Player::Player1 ? "Win" : "Lose";
+		FString Player2 = GMode->CurrentPlayer == Player::AI ? "Win" : "Lose";
+
+		IsGameOver = true;
+		Visible = true;
+		IsBotPlayed = true;
+		DisableButtonEvent.Broadcast();
+
+		ResetLegalMoveArray();
+
+		// if there are no more legal moves and the king is not in check, it is a draw
+		auto Pieces = GMode->CurrentPlayer == Player::AI ? Field->GetBotPieces() : Field->GetHumanPlayerPieces();
+		for (auto Piece : Pieces)
+		{
+			if (Piece->LegalMove(Board, GMode->CurrentPlayer, true))
+			{
+				GMode->Players[GMode->CurrentPlayer]->OnWin();
+
+				// Add victory information to the file
+				ExistingContent += FString::Printf(TEXT("%d,%s,%s,%s\n"), FileLines.Num(), *Player1, *Player2, *FString::FromInt(MoveCounter));
+				FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
+
+				return;
+			}		
+		}
+
+		GMode->Players[GMode->CurrentPlayer]->OnDraw();
+
+		// Add draw information to the file
+		ExistingContent += FString::Printf(TEXT("%d"), FileLines.Num());
+		ExistingContent += ",Draw,Draw,";
+		ExistingContent += FString::Printf(TEXT("%s\n"), *FString::FromInt(MoveCounter));
+		FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
+		
 		return;
 	}
 
@@ -622,7 +700,7 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 		PromotePieces.Add(PiecesMap[Position]);
 
 	// If it is the human player, the widget representing the piece choice must be removed
-	if (Player == Player::HUMAN)
+	if (Player == Player::Player1)
 	{
 		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 

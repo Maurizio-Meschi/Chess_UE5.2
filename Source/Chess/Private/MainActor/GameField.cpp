@@ -39,6 +39,7 @@ void AGameField::ResetField()
 		ManagerPiece->DeleteTime();
 	}
 	PieceIndexValue = 0;
+	GMode->FEN_Array.Empty();
 	ResetFieldData();
 
 	GenerateField();
@@ -117,7 +118,7 @@ void AGameField::GenerateField()
 			else
 			{
 				// Generate the chess pieces in the second row
-				GenerateChessPieceInXYPosition(x, y, GameFieldSubClass.ChessPawn[Player::HUMAN], EPieceColor::WHITE);
+				GenerateChessPieceInXYPosition(x, y, GameFieldSubClass.ChessPawn[Player::Player1], EPieceColor::WHITE);
 			}
 		}
 		normalized_row = 8;

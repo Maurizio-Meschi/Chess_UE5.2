@@ -9,6 +9,8 @@ AChessPawn::AChessPawn()
 	Value = 1;
 
 	CaptureSituation = false;
+
+	Name = "P";
 }
 
 bool AChessPawn::LegalMove(FBoard& Board, int32 PlayerNumber, bool CheckFlag)

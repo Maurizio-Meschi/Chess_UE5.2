@@ -38,6 +38,8 @@ public:
 	// Signals the defeat of the AI
 	virtual void OnLose() override;
 
+	virtual void OnDraw() override;
+
 private:
 	// Calculate the score of the board
 	int32 EvaluateGrid(FBoard& Board);

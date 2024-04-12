@@ -25,7 +25,7 @@ protected:
 
 public:
 	UPROPERTY(VisibleAnywhere)
-	FString ChooseAiPlayer;
+	FString ChooseAiPlayer = "Easy";
 
 	// Get from the main menu whether to choose random player or minimax
 	UFUNCTION(BlueprintCallable)
