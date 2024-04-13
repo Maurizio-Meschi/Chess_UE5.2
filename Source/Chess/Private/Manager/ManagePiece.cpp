@@ -444,7 +444,6 @@ void AManagePiece::DeleteTime()
 	}
 }
 
-
 /*
 * @param: none
 * @return: none
@@ -461,10 +460,20 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 		return;
 	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
-	FString CSVFilePath = FPaths::ProjectDir() + "Game_Data/CSV/" + GameInstance->ChooseAiPlayer + ".csv";
+	FString FileName;
+
+	if (GameInstance->ChooseAiPlayer == "Easy")
+		FileName = "Human-Random";
+	else if (GameInstance->ChooseAiPlayer == "Hard")
+		FileName = "Human-Minimax";
+	else
+		FileName = GameInstance->ChooseAiPlayer;
+
+	FString CSVFilePath = FPaths::ProjectDir() + "Game_Data/CSV/" + FileName + ".csv";
 
 	FString ExistingContent;
 	
+	// Operations to define whether to enable or disable the button
 	Visible = false;
 
 	if (GameInstance->ChooseAiPlayer != "Hard" && GameInstance->ChooseAiPlayer != "Easy")
@@ -490,6 +499,7 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 	Board.Field = Field->GetTileMap();
 	Board.Pieces = Field->GetPiecesMap();
 
+	// Draw
 	if (Field->GetPiecesMap().Num() == 2 || GMode->IsDraw(Board))
 	{
 		IsGameOver = true;
@@ -514,6 +524,7 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 		return;
 	}
 	
+	// Checkmate
 	if (IsCheckMate())
 	{
 		FFileHelper::LoadFileToString(ExistingContent, *CSVFilePath);
@@ -554,6 +565,7 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 		ExistingContent += FString::Printf(TEXT("%d"), FileLines.Num());
 		ExistingContent += ",Draw,Draw,";
 		ExistingContent += FString::Printf(TEXT("%s\n"), *FString::FromInt(MoveCounter));
+
 		FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
 		
 		return;

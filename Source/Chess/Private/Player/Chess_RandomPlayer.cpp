@@ -15,9 +15,6 @@ AChess_RandomPlayer::AChess_RandomPlayer()
 
 	GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
-	// AI player has black pieces
-	//PieceColor = EPieceColor::BLACK;
-
 	PlayerNumber = 1;
 }
 

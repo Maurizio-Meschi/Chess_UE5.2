@@ -117,7 +117,6 @@ void AChess_GameMode::ChoosePlayerAndStartGame()
 	for (int32 i = 0; i < Players.Num(); i++)
 	{
 		Players[i]->PlayerNumber = i;
-		Players[i]->PieceColor = CurrentPlayer == Player::Player1 ? EPieceColor::WHITE : EPieceColor::BLACK;
 	}
 
 	FBoard Board;

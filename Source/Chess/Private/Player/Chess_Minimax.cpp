@@ -10,7 +10,6 @@ AChess_Minimax::AChess_Minimax()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	//PieceColor = EPieceColor::BLACK;
 }
 
 // Called when the game starts or when spawned
