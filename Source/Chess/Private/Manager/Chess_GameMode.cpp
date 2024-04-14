@@ -18,8 +18,6 @@ AChess_GameMode::AChess_GameMode()
 	DefaultPawnClass = AChess_HumanPlayer::StaticClass();
 
 	FieldSize = 8;
-
-	MoveCounter = 0;
 }
 
 void AChess_GameMode::BeginPlay()
@@ -28,13 +26,15 @@ void AChess_GameMode::BeginPlay()
 
 	AChess_HumanPlayer* HumanPlayer = Cast<AChess_HumanPlayer>(*TActorIterator<AChess_HumanPlayer>(GetWorld()));
 
-	if (ManagerClass)
+	// Spawn Piece Manager
+	if (ManagePieceClass)
 	{
-		Manager = GetWorld()->SpawnActor<AManagePiece>(ManagerClass);
+		ManagePiece = GetWorld()->SpawnActor<AManagePiece>(ManagePieceClass);
 	}
 	else
 		UE_LOG(LogTemp, Error, TEXT("Manager is null"));
 
+	// Spawn Game Field
 	if (GameFieldClass != nullptr)
 	{
 		GField = GetWorld()->SpawnActor<AGameField>(GameFieldClass);
@@ -45,6 +45,7 @@ void AChess_GameMode::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("Game Field is null"));
 	}
 
+	// Set the camera position
 	float CameraPosX = ((GField->TileSize * (FieldSize + ((FieldSize - 1) * GField->NormalizedCellPadding) - (FieldSize - 1))) / 2) - (GField->TileSize / 2);
 
 	FVector CameraPos(CameraPosX, CameraPosX, 1000.0f);
@@ -84,6 +85,7 @@ void AChess_GameMode::BeginPlay()
 		Players.Add(Player1);
 		Players.Add(AI);
 	}
+	// Random player
 	else
 	{
 		auto* AI = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
@@ -110,7 +112,7 @@ void AChess_GameMode::BeginDestroy()
 */
 void AChess_GameMode::ChoosePlayerAndStartGame()
 {
-	Manager->IsGameOver = false;
+	ManagePiece->IsGameOver = false;
 
 	CurrentPlayer = Player::Player1;
 
@@ -135,7 +137,7 @@ void AChess_GameMode::ChoosePlayerAndStartGame()
 int32 AChess_GameMode::GetNextPlayer(int32 Player)
 {
 	Player++;
-	MoveCounter++;
+	
 	if (!Players.IsValidIndex(Player))
 		Player = Player::Player1;
 	return Player;
@@ -153,7 +155,7 @@ void AChess_GameMode::TurnNextPlayer()
 * @return: Name of piece
 * @note: none
 */
-FString AChess_GameMode::Tokenizer(AChessPieces* Piece)
+FString AChess_GameMode::GetPieceName(AChessPieces* Piece)
 {
 	if (Piece->Color == EPieceColor::BLACK)
 		return Piece->Name.ToLower();
@@ -185,9 +187,9 @@ FString AChess_GameMode::GenerateString(const FBoard& Board)
 		{
 			AChessPieces* Piece = PiecesMap[TilePosition];
 			if (Cont != 0)
-				tmp += (FString::FromInt(Cont) + Tokenizer(Piece));
+				tmp += (FString::FromInt(Cont) + GetPieceName(Piece));
 			else
-				tmp += Tokenizer(Piece);
+				tmp += GetPieceName(Piece);
 			Cont = 0;
 		}
 		else
@@ -270,7 +272,7 @@ bool FGameRef::GetGameRef(UObject* WorldContextObject, AChess_GameMode*& GMode, 
 		UE_LOG(LogTemp, Error, TEXT("Game Field null in %s"), *Source);
 		return false;
 	}
-	PieceManager = GMode->Manager;
+	PieceManager = GMode->ManagePiece;
 	if (!PieceManager)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Piece Manager null in %s"), *Source);
@@ -300,7 +302,7 @@ bool FGameRef::GetManagePiece(UObject* WorldContextObject, AManagePiece*& Manage
 	auto GMode = FGameRef::GetGameMode(WorldContextObject);
 	if (GMode)
 	{
-		ManagePiece = GMode->Manager;
+		ManagePiece = GMode->ManagePiece;
 		if (!ManagePiece)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Game Field null in %s"), *Source);

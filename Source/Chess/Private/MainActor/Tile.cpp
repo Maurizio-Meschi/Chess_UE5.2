@@ -11,7 +11,7 @@ ATile::ATile()
 	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 
-	// every actor has a RootComponent that defines the transform in the World
+	// Every actor has a RootComponent that defines the transform in the World
 	SetRootComponent(Scene);
 	StaticMeshComponent->SetupAttachment(Scene);
 

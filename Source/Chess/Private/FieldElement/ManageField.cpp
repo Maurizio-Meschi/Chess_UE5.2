@@ -19,7 +19,6 @@ void AElementsToManageField::ResetFieldData()
 	}
 
 	TileMarked.Empty();
-	KingArray.Empty();
 	Player1Pieces.Empty();
 	AIPieces.Empty();
 

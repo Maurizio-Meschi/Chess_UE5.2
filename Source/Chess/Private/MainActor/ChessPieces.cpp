@@ -261,9 +261,9 @@ bool AChessPieces::TestCheck(FBoard& Board, int32 x, int32 y, int32 PlayerNumber
 	ATile* SelectedTile = nullptr;
 
 	/*
-	* I select the tile where the piece is located. 
-	* If the piece is in a VIRTUAL_OCCUPIED tile it is as if it has been captured 
-	* and I don't have to consider it
+	* Select the tile where the piece is located. 
+	* If the piece is in a VIRTUAL_OCCUPIED tile
+	* then it has been captured and should not be considered
 	*/
 	if (Board.Field.Contains(GetGridPosition()))
 		SelectedTile = Board.Field[GetGridPosition()];

@@ -23,13 +23,10 @@ class CHESS_API AChess_GameMode : public AGameModeBase
 
 private:
 
-	// tracks the number of moves in order to signal a drawn game
-	int32 MoveCounter;
-
 	AChess_GameMode();
 
 	// Generate the piece name
-	FString Tokenizer(AChessPieces* Piece);
+	FString GetPieceName(AChessPieces* Piece);
 
 	// Generate the FEN (Forsyth-Edwards Notation) string
 	FString GenerateString(const FBoard& Board);
@@ -48,7 +45,7 @@ public:
 	TSubclassOf<AGameField> GameFieldClass;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AManagePiece> ManagerClass;
+	TSubclassOf<AManagePiece> ManagePieceClass;
 
 	// Field size
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -60,7 +57,7 @@ public:
 
 	// Reference to a ManagePiece object
 	UPROPERTY(VisibleAnywhere)
-	AManagePiece* Manager;
+	AManagePiece* ManagePiece;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

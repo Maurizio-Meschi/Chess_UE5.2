@@ -18,7 +18,6 @@ FGFieldTSubClass& FGFieldTSubClass::operator=(const FGFieldTSubClass& Other)
 {
 	if (this != &Other)
 	{
-		// Copia gli array di oggetti TSubclassOf
 		TileClass = Other.TileClass;
 		TileClassMarked = Other.TileClassMarked;
 		TileClassPieceToCapture = Other.TileClassPieceToCapture;

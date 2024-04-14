@@ -9,13 +9,13 @@ AGameField::AGameField()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-	// size of the field (3x3)
+	// Size of the field (8x8)
 	Size = 8;
-	// tile dimension
-	TileSize = 120;
-	// tile padding dimension
+	// Tile dimension
+	TileSize = 100;
+	// Tile padding dimension
 	CellPadding = 5;
-
+	// Default piece index
 	PieceIndexValue = 0;
 }
 
@@ -32,7 +32,7 @@ void AGameField::ResetField()
 	{
 		UE_LOG(LogTemp, Error, TEXT("Game mode null in GameField"));
 	}
-	auto ManagerPiece = GMode->Manager;
+	auto ManagerPiece = GMode->ManagePiece;
 	if (ManagerPiece)
 	{
 		ManagerPiece->ResetData();
@@ -55,7 +55,7 @@ void AGameField::ResetField()
 void AGameField::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-	//normalized tilepadding
+	// Normalized tile padding
 	NormalizedCellPadding = FMath::RoundToDouble(((TileSize + CellPadding) / TileSize) * 100) / 100;
 }
 
@@ -90,7 +90,7 @@ void AGameField::GenerateField()
 		x%2 ? i = 0 : i = 1;
 	}
 
-	// 
+	// 2.) Spawn chess pieces human player (white)
 	int k = 0;
 	int normalized_row = 0;
 
@@ -99,12 +99,6 @@ void AGameField::GenerateField()
 															GameFieldSubClass.ChessKing[0], GameFieldSubClass.ChessBishop[0],
 															GameFieldSubClass.ChessKnight[0], GameFieldSubClass.ChessRook[0] };
 
-	const TArray<TSubclassOf<AChessPieces>> BLACK_PIECE = { GameFieldSubClass.ChessRook[1], GameFieldSubClass.ChessKnight[1], 
-															GameFieldSubClass.ChessBishop[1], GameFieldSubClass.ChessQueen[1], 
-															GameFieldSubClass.ChessKing[1], GameFieldSubClass.ChessBishop[1],
-															GameFieldSubClass.ChessKnight[1],GameFieldSubClass.ChessRook[1] };
-
-	// 2.) Spawn chess pieces human player (white)
 	for (int32 x = 0; x < SECOND_ROW_FIELD; x++)
 	{
 		for (int32 y = 0; y < Size; y++)
@@ -124,7 +118,12 @@ void AGameField::GenerateField()
 		normalized_row = 8;
 	}
 
-	// 2.) Spawn chess pieces AI player (balck)
+	// 3.) Spawn chess pieces AI player (balck)
+
+	const TArray<TSubclassOf<AChessPieces>> BLACK_PIECE = { GameFieldSubClass.ChessRook[1], GameFieldSubClass.ChessKnight[1],
+															GameFieldSubClass.ChessBishop[1], GameFieldSubClass.ChessQueen[1],
+															GameFieldSubClass.ChessKing[1], GameFieldSubClass.ChessBishop[1],
+															GameFieldSubClass.ChessKnight[1],GameFieldSubClass.ChessRook[1] };
 	k = 0;
 	normalized_row = 16;
 	
@@ -207,11 +206,6 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	else
 		Player1Pieces.Add(Obj);
 
-	if (Class == GameFieldSubClass.ChessKing[0])
-		KingArray.Add(Cast<AKing>(Obj));
-	if (Class == GameFieldSubClass.ChessKing[1])
-		KingArray.Add(Cast<AKing>(Obj));
-
 	// Add the starting move to the ArrayOfPlays
 	FRewind NewObj;
 	NewObj.PieceToRewind = Obj;
@@ -223,7 +217,7 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	{
 		UE_LOG(LogTemp, Error, TEXT("Game mode null in GameField"));
 	}
-	auto ManagerPiece = GMode->Manager;
+	auto ManagerPiece = GMode->ManagePiece;
 
 	if (ManagerPiece)
 	{

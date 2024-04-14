@@ -32,9 +32,9 @@ class CHESS_API AGameField : public AActor, public AElementsToManageField
 {
 	GENERATED_BODY()
 
-	static constexpr int32 SECOND_ROW_FIELD = 2;
-	static constexpr int32 PENULTIMATE_ROW_FIELD = 6;
-	static constexpr int32 LAST_ROW_FIELD = 8;
+	const int32 SECOND_ROW_FIELD = 2;
+	const int32 PENULTIMATE_ROW_FIELD = 6;
+	const int32 LAST_ROW_FIELD = 8;
 
 public:
 	// Sets default values for this actor's properties

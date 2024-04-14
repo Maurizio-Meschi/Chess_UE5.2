@@ -38,7 +38,7 @@ public:
 	UUserWidget* WidgetPawnPromotion;
 
 	UPROPERTY(BlueprintAssignable, Category = "Events for HUD")
-	FEventDelegate Event;
+	FEventDelegate SpawnButtonEvent;
 
 	// Add pawn promotion widget to viewport
 	void AddWidgetPawnPromotionToViewport();

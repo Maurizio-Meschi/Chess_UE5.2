@@ -16,7 +16,6 @@ public:
 	TArray<AChessPieces*> GetAIPieces() { return AIPieces; }
 	TArray<AChessPieces*> GetPlayer1Pieces() { return Player1Pieces; }
 	TArray<ATile*> GetTileMarked() { return TileMarked; }
-	TArray<AKing*> GetKingArray() { return KingArray; }
 	TMap<FVector2D, ATile*>& GetTileMap() { return TileMap; }
 	TMap<FVector2D, AChessPieces*>& GetPiecesMap() { return PiecesMap; }
 
@@ -45,9 +44,6 @@ protected:
 	//TODO: mettere dinamicamente il materiale e togliere questo vettore
 	UPROPERTY(Transient)
 	TArray<ATile*> TileMarked;
-
-	UPROPERTY(Transient)
-	TArray<AKing*> KingArray;
 
 	// Given a position returns a tile
 	UPROPERTY(Transient)

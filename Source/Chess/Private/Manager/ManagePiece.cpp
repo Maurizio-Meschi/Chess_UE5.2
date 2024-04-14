@@ -102,7 +102,6 @@ bool AManagePiece::IsCheckMate()
 
 	ResetLegalMoveArray();
 
-	// Prima di andare al prossimo turno devo vedere se il prossimo giocatore ha mosse disponibili
 	FBoard Board;
 	Board.Field = Field->GetTileMap();
 	Board.Pieces = Field->GetPiecesMap();
@@ -243,7 +242,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 
 		// Broadcast event for the button spawn with the set text
 		if (PlayerController)
-			PlayerController->Event.Broadcast();
+			PlayerController->SpawnButtonEvent.Broadcast();
 		else
 			UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
 	}
@@ -266,16 +265,27 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 	// Manage pawn promotion for AI player
 	else if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::BLACK && (Piece->GetGridPosition().X == 0.0))
 	{
-		TArray<FString> Class = { "Queen", "Rook", "Bishop", "Knight" };
-		int32 RIndex = FMath::Rand() % Class.Num();
-		SpawnNewPiece(Piece, Class[RIndex]);
+		if (GameInstance->ChooseAiPlayer == "Easy" ||
+			GameInstance->ChooseAiPlayer == "Random-Random")
+		{
+			TArray<FString> Class = { "Queen", "Rook", "Bishop", "Knight" };
+			int32 RIndex = FMath::Rand() % Class.Num();
+			SpawnNewPiece(Piece, Class[RIndex]);
+		}
+		else 
+			SpawnNewPiece(Piece, "Queen");
 	}
 	// Manage pawn promotion for second AI player
 	else if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::WHITE && (Piece->GetGridPosition().X == 7.0))
 	{
-		TArray<FString> Class = { "Queen", "Rook", "Bishop", "Knight" };
-		int32 RIndex = FMath::Rand() % Class.Num();
-		SpawnNewPiece(Piece, Class[RIndex]);
+		if (GameInstance->ChooseAiPlayer == "Hard" || GameInstance->ChooseAiPlayer == "Minimax-Minimax")
+			SpawnNewPiece(Piece, "Queen");
+		else
+		{ 
+			TArray<FString> Class = { "Queen", "Rook", "Bishop", "Knight" };
+			int32 RIndex = FMath::Rand() % Class.Num();
+			SpawnNewPiece(Piece, Class[RIndex]);
+		}
 	}
 	else 
 	{

@@ -27,7 +27,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	FString ChooseAiPlayer = "Easy";
 
-	// Get from the main menu whether to choose random player or minimax
+	// Get from the main menu whether to choose random player, minimax or another mode
 	UFUNCTION(BlueprintCallable)
 	void SetChooseAiPlayer(FString name) { ChooseAiPlayer = name; }
 	

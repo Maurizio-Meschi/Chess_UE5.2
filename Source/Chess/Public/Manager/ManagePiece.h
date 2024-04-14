@@ -161,6 +161,7 @@ protected:
 	// Check if it's checkmate. if it is not, it moves on to the next player's turn
 	void CheckWinAndGoNextPlayer();
 
+	// Replay manager
 	void RewindManager(int32 MoveNumber);
 
 	void CastlingManager(FVector2D StartRookCoord, FVector2d NewRookCoord, FVector2D Coord, AChessPieces* Piece);
