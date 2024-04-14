@@ -55,8 +55,8 @@ public:
 	virtual void OnTurn() override;
 	// Signals the victory of the human
 	virtual void OnWin() override;
-	// Signals the defeat of the human
-	virtual void OnLose() override;
+
+	virtual void OnDraw() override;
 
 	// called on left mouse click (binding)
 	UFUNCTION()

@@ -13,21 +13,21 @@ class CHESS_API AElementsToManageField
 {
 public:
 	
-	TArray<AChessPieces*> GetPlayer2Pieces() { return Player2Pieces; }
+	TArray<AChessPieces*> GetAIPieces() { return AIPieces; }
 	TArray<AChessPieces*> GetPlayer1Pieces() { return Player1Pieces; }
 	TArray<ATile*> GetTileMarked() { return TileMarked; }
 	TArray<AKing*> GetKingArray() { return KingArray; }
 	TMap<FVector2D, ATile*>& GetTileMap() { return TileMap; }
 	TMap<FVector2D, AChessPieces*>& GetPiecesMap() { return PiecesMap; }
 
-	void AddPlayer2Pieces(AChessPieces* Piece) { Player2Pieces.Add(Piece); }
+	void AddAIPieces(AChessPieces* Piece) { AIPieces.Add(Piece); }
 	void AddTileMarked(ATile* Tile) { TileMarked.Add(Tile); }
 	void AddTileMap(FVector2D Position, ATile* Tile) { TileMap.Add(Position, Tile); }
 	void AddPiecesMap(FVector2D Position, AChessPieces* Piece) { PiecesMap.Add(Position, Piece); }
 
 	void TileMapRemove(FVector2D Position) { TileMap.Remove(Position); }
 	void PiecesMapRemove(FVector2D Position) { PiecesMap.Remove(Position); }
-	void Player2PiecesRemove(AChessPieces* Piece) { Player2Pieces.Remove(Piece); Player2Pieces.Shrink(); }
+	void AIPiecesRemove(AChessPieces* Piece) { AIPieces.Remove(Piece); AIPieces.Shrink(); }
 	void Player1PiecesRemove(AChessPieces* Piece) { Player1Pieces.Remove(Piece); Player1Pieces.Shrink(); }
 
 	void TileMarkedDestroy();
@@ -37,7 +37,7 @@ public:
 protected:
 
 	UPROPERTY(Transient)
-	TArray<AChessPieces*> Player2Pieces;
+	TArray<AChessPieces*> AIPieces;
 
 	UPROPERTY(Transient)
 	TArray<AChessPieces*> Player1Pieces;

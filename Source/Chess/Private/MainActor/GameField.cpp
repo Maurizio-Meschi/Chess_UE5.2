@@ -203,7 +203,7 @@ void AGameField::GenerateChessPieceInXYPosition(int32 x, int32 y, TSubclassOf<AC
 	PiecesMap.Add(FVector2D(x, y), Obj);
 
 	if (color == EPieceColor::BLACK)
-		Player2Pieces.Add(Obj);
+		AIPieces.Add(Obj);
 	else
 		Player1Pieces.Add(Obj);
 

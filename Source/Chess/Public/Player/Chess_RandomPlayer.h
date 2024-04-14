@@ -36,9 +36,7 @@ public:
 	virtual void OnTurn() override;
 	// Signals the victory of the AI
 	virtual void OnWin() override;
-	// Signals the defeat of the AI
-	virtual void OnLose() override;
-
+	
 	virtual void OnDraw() override;
 
 };

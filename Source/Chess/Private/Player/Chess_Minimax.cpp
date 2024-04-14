@@ -105,13 +105,9 @@ void AChess_Minimax::OnTurn()
 */
 int32 AChess_Minimax::EvaluateGrid(FBoard& Board)
 {
-	//if (Checkmate(Board))
-		//return (Board.IsMax ? 10000 : -10000);
-
-	AChess_GameMode* GMode = nullptr;
 	AGameField* GField = nullptr;
-	AManagePiece* PieceManager = nullptr;
-	if (!FGameRef::GetGameRef(this, GMode, GField, PieceManager, "Minimax"))
+	
+	if (!FGameRef::GetGameField(this, GField, "Minimax"))
 		return 0;
 
 	int32 Score = 0;
@@ -145,10 +141,10 @@ int32 AChess_Minimax::EvaluateGrid(FBoard& Board)
 	TArray<AChessPieces*> PiecesArray; 
 
 	if (PlayerNumber == Player::AI)
-		PiecesArray = Board.IsMax ? GField->GetPlayer2Pieces() : GField->GetPlayer1Pieces();
+		PiecesArray = Board.IsMax ? GField->GetAIPieces() : GField->GetPlayer1Pieces();
 
 	else
-		PiecesArray = Board.IsMax ? GField->GetPlayer1Pieces() : GField->GetPlayer2Pieces();
+		PiecesArray = Board.IsMax ? GField->GetPlayer1Pieces() : GField->GetAIPieces();
 
 	for (auto Piece : PiecesArray)
 	{
@@ -235,7 +231,7 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 
 		Board.IsMax = true;
 
-		auto PlayerArray = PlayerNumber == Player::Player1 ? GField->GetPlayer1Pieces() : GField->GetPlayer2Pieces();
+		auto PlayerArray = PlayerNumber == Player::Player1 ? GField->GetPlayer1Pieces() : GField->GetAIPieces();
 		// Iterate for each piece of the AI
 		for (auto Piece : PlayerArray)
 		{
@@ -324,17 +320,17 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 
 		Board.IsMax = false;
 
-		auto PlayerArray = PlayerNumber == Player::Player1 ? GField->GetPlayer2Pieces() : GField->GetPlayer1Pieces();
+		auto PlayerArray = PlayerNumber == Player::Player1 ? GField->GetAIPieces() : GField->GetPlayer1Pieces();
 
 		// Iterate for each piece of the Human player
 		for (auto Piece : PlayerArray)
 		{
 			TArray<FMarked> TileMarked;
-			int32 EnemyPieces = PlayerNumber == Player::AI ? Player::Player1 : Player::AI;
+			int32 EnemyPlayer = PlayerNumber == Player::AI ? Player::Player1 : Player::AI;
 
 			// Get the array of legal moves for the piece
 			if (!Board.CapturedPieces.Contains(Piece))
-				TileMarked = PieceManager->GetLegalMoveByPiece(Board, EnemyPieces, Piece);
+				TileMarked = PieceManager->GetLegalMoveByPiece(Board, EnemyPlayer, Piece);
 
 			// If the piece has no legal moves or has been captured, go to the next piece
 			if (TileMarked.Num() == 0 || Board.CapturedPieces.Contains(Piece))
@@ -366,7 +362,7 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 				}
 
 				// Sets the tile the piece moves to occupied by the enemy
-				Marked.Tile->SetTileStatus(EnemyPieces, ETileStatus::OCCUPIED);
+				Marked.Tile->SetTileStatus(EnemyPlayer, ETileStatus::OCCUPIED);
 
 				Board.Pieces.Add(Marked.Tile->GetGridPosition(), Piece);
 				Piece->SetGridPosition(Marked.Tile->GetGridPosition().X, Marked.Tile->GetGridPosition().Y);
@@ -377,7 +373,7 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 				/// Restore data structures.
 
 				// Set the current tile occupied
-				CurrTile->SetTileStatus(EnemyPieces, ETileStatus::OCCUPIED);
+				CurrTile->SetTileStatus(EnemyPlayer, ETileStatus::OCCUPIED);
 
 				Board.Pieces.Add(CurrTile->GetGridPosition(), Piece);
 
@@ -430,7 +426,7 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 	// Reset legalMove
 	PieceManager->ResetLegalMoveArray();
 
-	auto PlayerArray = PlayerNumber == Player::AI ? GField->GetPlayer2Pieces() : GField->GetPlayer1Pieces();
+	auto PlayerArray = PlayerNumber == Player::AI ? GField->GetAIPieces() : GField->GetPlayer1Pieces();
 
 	// Iterate for each piece of AI
 	for (auto Piece : PlayerArray)
@@ -508,12 +504,8 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 
 void AChess_Minimax::OnWin()
 {
-	GameInstance->SetTurnMessage(TEXT("AI Wins!"));
-}
-
-void AChess_Minimax::OnLose()
-{
-	GameInstance->SetTurnMessage(TEXT("AI Loses!"));
+	FString tmp = PlayerNumber == Player::Player1 ? "(White)" : "(Balck)";
+	GameInstance->SetTurnMessage(*("AI " + tmp + " Wins!"));
 }
 
 void AChess_Minimax::OnDraw()

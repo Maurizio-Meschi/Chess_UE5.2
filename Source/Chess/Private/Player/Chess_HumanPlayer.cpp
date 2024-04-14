@@ -55,19 +55,16 @@ AChess_HumanPlayer::AChess_HumanPlayer()
 void AChess_HumanPlayer::OnTurn()
 {
 	MyTurn = true;
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Your Turn"));
 	GameInstance->SetTurnMessage(TEXT("Human Turn"));
 }
 void AChess_HumanPlayer::OnWin()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("You Win!"));
 	GameInstance->SetTurnMessage(TEXT("Human Wins!"));
 }
 
-void AChess_HumanPlayer::OnLose()
+void AChess_HumanPlayer::OnDraw()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("You Lose!"));
-	GameInstance->SetTurnMessage(TEXT("Human Loses!"));
+	GameInstance->SetTurnMessage(TEXT("Draw!"));
 }
 
 /*

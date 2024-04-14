@@ -66,7 +66,7 @@ void AChess_RandomPlayer::OnTurn()
 			TMap<FVector2D, ATile*> TileMap = Field->GetTileMap();
 			TMap<FVector2D, AChessPieces*> PiecesMap = Field->GetPiecesMap();
 
-			auto PiecesArray = PlayerNumber == Player::Player1 ? Field->GetPlayer1Pieces() : Field->GetPlayer2Pieces();
+			auto PiecesArray = PlayerNumber == Player::Player1 ? Field->GetPlayer1Pieces() : Field->GetAIPieces();
 
 			bool PieceIsPossibleToMove = false;
 			int32 RIndex;
@@ -125,12 +125,8 @@ void AChess_RandomPlayer::OnTurn()
 
 void AChess_RandomPlayer::OnWin()
 {
-	GameInstance->SetTurnMessage(TEXT("AI Wins!"));
-}
-
-void AChess_RandomPlayer::OnLose()
-{
-	GameInstance->SetTurnMessage(TEXT("AI Loses!"));
+	FString tmp = PlayerNumber == Player::Player1 ? "(White)" : "(Balck)";
+	GameInstance->SetTurnMessage(*("AI " + tmp + " Wins!"));
 }
 
 void AChess_RandomPlayer::OnDraw()

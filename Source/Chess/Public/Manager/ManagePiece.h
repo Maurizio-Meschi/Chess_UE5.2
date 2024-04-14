@@ -22,7 +22,7 @@ public:
 
 	AChessPieces* PieceToRewind;
 	FVector2D Position;
-	bool Capture;
+	bool Capture = false;
 	bool Castling = false;
 };
 

@@ -21,7 +21,7 @@ void AElementsToManageField::ResetFieldData()
 	TileMarked.Empty();
 	KingArray.Empty();
 	Player1Pieces.Empty();
-	Player2Pieces.Empty();
+	AIPieces.Empty();
 
 	for (auto Element : TileMap)
 	{

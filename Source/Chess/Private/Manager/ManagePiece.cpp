@@ -47,7 +47,7 @@ TArray<TArray<FMarked>>& AManagePiece::GetAllLegalMoveByPlayer(FBoard& Board, in
 
 	if (FGameRef::GetGameField(this, GField, "ManagePiece"))
 	{
-		auto PiecesArray = (Player == Player::Player1 ? GField->GetPlayer1Pieces() : GField->GetPlayer2Pieces());
+		auto PiecesArray = (Player == Player::Player1 ? GField->GetPlayer1Pieces() : GField->GetAIPieces());
 
 		for (auto Piece : PiecesArray)
 		{
@@ -376,7 +376,7 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 	CapturedPieces.Add(PieceToCapture);
 	
 	if (PieceToCapture->Color == EPieceColor::BLACK)
-		GField->Player2PiecesRemove(PieceToCapture);
+		GField->AIPiecesRemove(PieceToCapture);
 	else
 		GField->Player1PiecesRemove(PieceToCapture);
 	
@@ -544,7 +544,7 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 		ResetLegalMoveArray();
 
 		// if there are no more legal moves and the king is not in check, it is a draw
-		auto Pieces = GMode->CurrentPlayer == Player::AI ? Field->GetPlayer2Pieces() : Field->GetPlayer1Pieces();
+		auto Pieces = GMode->CurrentPlayer == Player::AI ? Field->GetAIPieces() : Field->GetPlayer1Pieces();
 		for (auto Piece : Pieces)
 		{
 			if (Piece->LegalMove(Board, GMode->CurrentPlayer, true))
@@ -689,7 +689,7 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	CapturedPieces.Add(PieceToPromote);
 
 	if (PieceToPromote->Color == EPieceColor::BLACK)
-		Field->Player2PiecesRemove(PieceToPromote);
+		Field->AIPiecesRemove(PieceToPromote);
 	else
 		Field->Player1PiecesRemove(PieceToPromote);
 
