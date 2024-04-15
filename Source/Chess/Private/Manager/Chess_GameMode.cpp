@@ -61,6 +61,7 @@ void AChess_GameMode::BeginPlay()
 		Players.Add(HumanPlayer);
 		Players.Add(AI);
 	}
+	// Demonstration mode: Random vs Random
 	else if (GameInstance->ChooseAiPlayer == "Random-Random")
 	{
 		auto* Player1 = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
@@ -69,6 +70,7 @@ void AChess_GameMode::BeginPlay()
 		Players.Add(Player1);
 		Players.Add(AI);
 	}
+	// Demonstration mode: Random vs Minimax
 	else if (GameInstance->ChooseAiPlayer == "Random-Minimax")
 	{
 		auto* Player1 = GetWorld()->SpawnActor<AChess_RandomPlayer>(FVector(), FRotator());
@@ -77,6 +79,7 @@ void AChess_GameMode::BeginPlay()
 		Players.Add(Player1);
 		Players.Add(AI);
 	}
+	// Demonstration mode: Minimax vs Minimax
 	else if (GameInstance->ChooseAiPlayer == "Minimax-Minimax")
 	{
 		auto* Player1 = GetWorld()->SpawnActor<AChess_Minimax>(FVector(), FRotator());
@@ -93,7 +96,7 @@ void AChess_GameMode::BeginPlay()
 		Players.Add(AI);
 	}
 
-	this->ChoosePlayerAndStartGame();
+	ChoosePlayerAndStartGame();
 }
 
 void AChess_GameMode::BeginDestroy()

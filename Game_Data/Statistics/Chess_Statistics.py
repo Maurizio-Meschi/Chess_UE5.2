@@ -83,7 +83,7 @@ def SetStyle(excel_file, sheet):
                 cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
 
 
-path_array = ["../CSV/Human-Random.csv", "../CSV/Human-Minimax.csv", "../CSV/Random-Random.csv", "../CSV/Random-Minimax.csv", "../CSV/Minimax-Minimax.csv"]
+path_array = ["../CSV/Random-Random.csv", "../CSV/Random-Minimax.csv", "../CSV/Minimax-Minimax.csv", "../CSV/Human-Random.csv", "../CSV/Human-Minimax.csv"]
 
 script_dir = os.path.abspath(__file__)
 parent_dir = os.path.dirname(script_dir)

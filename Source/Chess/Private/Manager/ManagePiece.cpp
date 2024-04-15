@@ -250,7 +250,6 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 	// 3.) Promotion
 
 	// Manage pawn promotion for human player
-	
 	if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::WHITE && (Piece->GetGridPosition().X == 7.0)
 		&& (GameInstance->ChooseAiPlayer == "Hard" || GameInstance->ChooseAiPlayer == "Easy"))
 	{

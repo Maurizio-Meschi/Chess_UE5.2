@@ -70,10 +70,10 @@ protected:
 	// Handle clicking on a human piece
 	void ManageClickPiece(AActor* HitActor);
 
-	// checks if a piece of the human has been selected
+	// Checks if a piece of the human has been selected
 	bool FindPiece(FString ClassName);
-	// checks if a tile has been selected
+	// Checks if a tile has been selected
 	bool FindTile(FString ClassName);
-	// checks if a enemy piece has been selected
+	// Checks if a enemy piece has been selected
 	bool FindPieceToCapture(FString ClassName);
 };

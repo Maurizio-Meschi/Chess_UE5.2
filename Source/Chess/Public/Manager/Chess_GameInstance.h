@@ -14,15 +14,6 @@ class CHESS_API UChess_GameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
-protected:
-	// score value for human player
-	UPROPERTY(EditAnywhere)
-	FString Info;
-
-	// Message to show every turn
-	UPROPERTY(EditAnywhere)
-	FString CurrentTurnMessage = "Current Player";
-
 public:
 	UPROPERTY(VisibleAnywhere)
 	FString ChooseAiPlayer = "Easy";
@@ -45,4 +36,14 @@ public:
 	// Set the turn message
 	UFUNCTION(BlueprintCallable)
 	void SetTurnMessage(FString Message);
+
+protected:
+	// Info about the move
+	UPROPERTY(EditAnywhere)
+	FString Info;
+
+	// Message to show every turn
+	UPROPERTY(EditAnywhere)
+	FString CurrentTurnMessage = "Current Player";
+
 };

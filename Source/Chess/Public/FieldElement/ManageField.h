@@ -41,7 +41,6 @@ protected:
 	UPROPERTY(Transient)
 	TArray<AChessPieces*> Player1Pieces;
 
-	//TODO: mettere dinamicamente il materiale e togliere questo vettore
 	UPROPERTY(Transient)
 	TArray<ATile*> TileMarked;
 
