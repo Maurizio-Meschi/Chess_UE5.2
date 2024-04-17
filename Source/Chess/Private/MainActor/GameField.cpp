@@ -37,6 +37,7 @@ void AGameField::ResetField()
 	{
 		ManagerPiece->ResetData();
 		ManagerPiece->DeleteTime();
+		ManagerPiece->SetButtonValue(0);
 	}
 	PieceIndexValue = 0;
 	GMode->FEN_Array.Empty();

@@ -48,8 +48,8 @@ UCLASS()
 class CHESS_API AManagePiece : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AManagePiece();
 
@@ -67,7 +67,7 @@ protected:
 	// Starting position of the right balck rook
 	const FVector2D AIR2_POSITION = FVector2D(7, 7);
 
-public:	
+public:
 
 	// Timer Handle for the AI player
 	FTimerHandle TimerHandle;
@@ -163,6 +163,9 @@ protected:
 
 	// Replay manager
 	void RewindManager(int32 MoveNumber);
+
+	// Set nomenclature
+	void SetMoveNomenclature(AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition);
 
 	void CastlingManager(FVector2D StartRookCoord, FVector2d NewRookCoord, FVector2D Coord, AChessPieces* Piece);
 };

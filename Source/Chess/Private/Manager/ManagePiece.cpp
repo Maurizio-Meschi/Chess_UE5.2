@@ -11,7 +11,7 @@
 // Sets default values
 AManagePiece::AManagePiece()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	IsGameOver = false;
@@ -89,7 +89,7 @@ void AManagePiece::ResetLegalMoveArray()
 /*
 * @param: none
 * @return: true if is checkmate, false otherwise
-* @note: calculates the legal moves of the opposing player 
+* @note: calculates the legal moves of the opposing player
 *        and if there are none available it is checkmate
 */
 bool AManagePiece::IsCheckMate()
@@ -125,6 +125,64 @@ bool AManagePiece::IsCheckMate()
 }
 
 /*
+* @param: 1.) Piece to move
+*         2.) New piece position
+*         3.) Sart piece position
+* 
+* @return: none
+* 
+* @note: sets move string
+*/
+void AManagePiece::SetMoveNomenclature(AChessPieces* Piece, FVector2D Coord, FVector2D StartPosition)
+{
+	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
+	AGameField* GField = nullptr;
+
+	if (!GMode || !FGameRef::GetGameField(this, GField, "ManagePiece"))
+		return;
+
+	auto TileMap = GField->GetTileMap();
+
+	// Get the tile where the piece moves to get name information
+	ATile* Tile = nullptr;
+	if (TileMap.Contains(Coord))
+		Tile = TileMap[Coord];
+
+	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (GameInstance && Tile)
+	{
+		// Manage pawn capture nomenclature
+		if (Piece->IsA<AChessPawn>())
+		{
+			if (TileMap.Contains(Coord) && Capture == "x")
+				Capture = TileMap[StartPosition]->Name.Left(1) + "x";
+		}
+
+		// Manage check/checkmate nomenclature
+		FBoard Board;
+		Board.Field = GField->GetTileMap();
+		Board.Pieces = GField->GetPiecesMap();
+		FString CheckNotation;
+
+		if (IsCheckMate())
+			CheckNotation = "#";
+
+		else if (Piece->LegalMove(Board, GMode->CurrentPlayer, true))
+			CheckNotation = "+";
+		else
+			CheckNotation = "";
+
+		FString PieceName = "";
+		if (!Piece->IsA<AChessPawn>())
+			PieceName = Piece->Name;
+
+		GameInstance->SetInfo(FString::FromInt(MoveCounter) + TEXT(". ") + PieceName + Capture + Tile->Name + CheckNotation);
+
+		Capture = "";
+	}
+}
+
+/*
 * @param: 1.) Player
 *         2.) Piece to move
 *         3.) Position to move the piece to
@@ -141,10 +199,10 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 {
 	AChess_GameMode* GMode = FGameRef::GetGameMode(this);
 	AGameField* GField = nullptr;
-	
+
 	if (!GMode || !FGameRef::GetGameField(this, GField, "ManagePiece"))
 		return;
-	
+
 	if (IsGameOver || PlayerNumber != GMode->CurrentPlayer)
 	{
 		return;
@@ -155,7 +213,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 	bool IsCastling = false;
 	auto LeftRookPos = PlayerNumber == Player::Player1 ? HR1_POSITION : AIR1_POSITION;
 	FVector2D CastlingTilePos(LeftRookPos.X, LeftRookPos.Y + 2);
-	
+
 	// Long castling
 	if (Piece->IsA<AKing>() && AManagePiece::Castling && Coord == CastlingTilePos)
 	{
@@ -200,54 +258,10 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 
 	// 2.) Nomenclature
 
-	auto TileMap = GField->GetTileMap();
-
-	// Get the tile where the piece moves to get name information
-	ATile* Tile = nullptr;
-	if (TileMap.Contains(Coord))
-		Tile = TileMap[Coord];
-	
-	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (GameInstance && Tile)
-	{
-		// Manage pawn capture nomenclature
-		if (Piece->IsA<AChessPawn>())
-		{
-			if (TileMap.Contains(Coord) && Capture == "x")
-				Capture = TileMap[StartPosition]->Name.Left(1) + "x";
-		}
-
-		// Manage check/checkmate nomenclature
-		FBoard Board;
-		Board.Field = GField->GetTileMap();
-		Board.Pieces = GField->GetPiecesMap();
-		FString CheckNotation;
-
-		if (IsCheckMate())
-			CheckNotation = "#";
-
-		else if (Piece->LegalMove(Board, GMode->CurrentPlayer, true))
-			CheckNotation = "+";
-		else 
-			CheckNotation = "";
-		
-		FString PieceName = "";
-		if (!Piece->IsA<AChessPawn>())
-			PieceName = Piece->Name;
-
-		GameInstance->SetInfo(FString::FromInt(MoveCounter) + TEXT(". ") + PieceName + Capture + Tile->Name + CheckNotation);
-		
-		Capture = "";
-		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
-
-		// Broadcast event for the button spawn with the set text
-		if (PlayerController)
-			PlayerController->SpawnButtonEvent.Broadcast();
-		else
-			UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
-	}
+	SetMoveNomenclature(Piece, Coord, StartPosition);
 
 	// 3.) Promotion
+	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
 	// Manage pawn promotion for human player
 	if ((Piece->IsA<AChessPawn>()) && Piece->Color == EPieceColor::WHITE && (Piece->GetGridPosition().X == 7.0)
@@ -271,7 +285,7 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 			int32 RIndex = FMath::Rand() % Class.Num();
 			SpawnNewPiece(Piece, Class[RIndex]);
 		}
-		else 
+		else
 			SpawnNewPiece(Piece, "Queen");
 	}
 	// Manage pawn promotion for second AI player
@@ -280,13 +294,13 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 		if (GameInstance->ChooseAiPlayer == "Hard" || GameInstance->ChooseAiPlayer == "Minimax-Minimax")
 			SpawnNewPiece(Piece, "Queen");
 		else
-		{ 
+		{
 			TArray<FString> Class = { "Queen", "Rook", "Bishop", "Knight" };
 			int32 RIndex = FMath::Rand() % Class.Num();
 			SpawnNewPiece(Piece, Class[RIndex]);
 		}
 	}
-	else 
+	else
 	{
 		// Save the move to the array
 		FRewind Obj;
@@ -295,6 +309,14 @@ void AManagePiece::MovePiece(const int32 PlayerNumber, AChessPieces* Piece, FVec
 		Obj.Capture = false;
 
 		ArrayOfPlays.Add(Obj);
+
+		auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+
+		// Broadcast event for the button spawn with the set text
+		if (PlayerController)
+			PlayerController->SpawnButtonEvent.Broadcast();
+		else
+			UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
 
 		CheckWinAndGoNextPlayer();
 	}
@@ -383,12 +405,12 @@ void AManagePiece::CapturePiece(AChessPieces* PieceToCapture, FVector2D Coord)
 	// Update data structures
 	GField->PiecesMapRemove(Coord);
 	CapturedPieces.Add(PieceToCapture);
-	
+
 	if (PieceToCapture->Color == EPieceColor::BLACK)
 		GField->AIPiecesRemove(PieceToCapture);
 	else
 		GField->Player1PiecesRemove(PieceToCapture);
-	
+
 	PieceToCapture->SetActorHiddenInGame(true);
 	PieceToCapture->SetActorEnableCollision(false);
 
@@ -456,7 +478,7 @@ void AManagePiece::DeleteTime()
 /*
 * @param: none
 * @return: none
-* @note: handles the button disabling event during the AI's turn, 
+* @note: handles the button disabling event during the AI's turn,
 *        controls checkmate and draw, and moves on to the next player's turn.
 *		 At the end of the game the result is written to a file
 */
@@ -481,13 +503,13 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 	FString CSVFilePath = FPaths::ProjectDir() + "Game_Data/CSV/" + FileName + ".csv";
 
 	FString ExistingContent;
-	
+
 	// Operations to define whether to enable or disable the button
 	Visible = false;
 
 	if (GameInstance->ChooseAiPlayer != "Hard" && GameInstance->ChooseAiPlayer != "Easy")
 		Visible = true;
-	
+
 	if (GMode->CurrentPlayer == Player::AI)
 	{
 		MoveCounter++;
@@ -497,11 +519,11 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 		IsBotPlayed = false;
 
 	if (GMode->CurrentPlayer != Player::AI &&
-			(GameInstance->ChooseAiPlayer == "Hard" || GameInstance->ChooseAiPlayer == "Easy"))
+		(GameInstance->ChooseAiPlayer == "Hard" || GameInstance->ChooseAiPlayer == "Easy"))
 	{
 		Visible = true;
 	}
-	
+
 	DisableButtonEvent.Broadcast();
 
 	FBoard Board;
@@ -532,7 +554,7 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 
 		return;
 	}
-	
+
 	// Checkmate
 	if (IsCheckMate())
 	{
@@ -565,7 +587,7 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 				FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
 
 				return;
-			}		
+			}
 		}
 
 		GMode->Players[GMode->CurrentPlayer]->OnDraw();
@@ -576,7 +598,7 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 		ExistingContent += FString::Printf(TEXT("%s\n"), *FString::FromInt(MoveCounter));
 
 		FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
-		
+
 		return;
 	}
 
@@ -587,7 +609,7 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 /*
 * @param: move number
 * @return: none
-* @note: Set all the captured and promoted pieces hidden. 
+* @note: Set all the captured and promoted pieces hidden.
 *        Then retrace all the plays up to the move counter
 *        and make the pieces visible/hidden based on promotions and captures
 */
@@ -665,10 +687,11 @@ void AManagePiece::BackToPlay()
 /*
 * @param: 1.) Pointer to the piece to promote
 *         2.) String representing the new class of the piece
-* 
+*
 * @return: none
-* 
-* @note: remove the pawn and spawn the new piece represented by the string
+*
+* @note: remove the pawn and spawn the new piece represented by the string.
+*        Add the string to indicate the promotion
 */
 void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 {
@@ -693,7 +716,7 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	ArrayOfPlays.Add(Obj);
 
 	int32 Player = GMode->CurrentPlayer;
-	
+
 	Field->PiecesMapRemove(Position);
 	CapturedPieces.Add(PieceToPromote);
 
@@ -702,28 +725,34 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 	else
 		Field->Player1PiecesRemove(PieceToPromote);
 
+	FString Promotion = "";
+
 	if (NewPiece == "Queen")
 	{
 		PieceClass = Field->GameFieldSubClass.ChessQueen[Player];
+		Promotion = "=Q";
 	}
 	else if (NewPiece == "Rook")
 	{
 		PieceClass = Field->GameFieldSubClass.ChessRook[Player];
+		Promotion = "=R";
 	}
 	else if (NewPiece == "Bishop")
 	{
 		PieceClass = Field->GameFieldSubClass.ChessBishop[Player];
+		Promotion = "=B";
 	}
 	else if (NewPiece == "Knight")
 	{
 		PieceClass = Field->GameFieldSubClass.ChessKnight[Player];
+		Promotion = "=K";
 	}
 
 	EPieceColor Color = EPieceColor::WHITE;
 
 	if (Player == Player::AI)
 		Color = EPieceColor::BLACK;
-	
+
 	Field->GenerateChessPieceInXYPosition(Position.X, Position.Y, PieceClass, Color);
 
 	auto PiecesMap = Field->GetPiecesMap();
@@ -741,6 +770,18 @@ void AManagePiece::SpawnNewPiece(AChessPieces* PieceToPromote, FString NewPiece)
 			UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
 	}
 	PieceToPromote = nullptr;
+
+	auto GameInstance = Cast<UChess_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (GameInstance)
+		GameInstance->SetInfo(GameInstance->GetInfo() + Promotion);
+
+	auto PlayerController = Cast<AChess_PlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+
+	// Broadcast event for the button spawn with the set text
+	if (PlayerController)
+		PlayerController->SpawnButtonEvent.Broadcast();
+	else
+		UE_LOG(LogTemp, Error, TEXT("Controller null in ManagePiece"));
 
 	CheckWinAndGoNextPlayer();
 }
