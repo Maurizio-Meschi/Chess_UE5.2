@@ -41,6 +41,8 @@ public:
 private:
 	// Calculate the score of the board
 	int32 EvaluateGrid(FBoard& Board);
+
+	int32 EvaluateGrid2(FBoard& Board);
 	// Calculates whether the opponent is in checkmate
 	bool Checkmate(FBoard& Board);
 	// MiniMax algorithm

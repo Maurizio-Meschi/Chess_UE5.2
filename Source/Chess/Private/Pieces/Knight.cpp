@@ -6,7 +6,9 @@
 
 AKnight::AKnight()
 {
-	Value = 3;
+	Value = 337;// 30;
+
+	EGValue = 281;
 
 	Name = "N";
 }

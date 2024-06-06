@@ -5,7 +5,9 @@
 
 ABishop::ABishop()
 {
-	Value = 3;
+	Value = 365;//30;
+
+	EGValue = 297;
 
 	Name = "B";
 }

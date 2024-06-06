@@ -6,7 +6,9 @@
 
 ARook::ARook() 
 {
-	Value = 5;
+	Value = 477;// 50;
+
+	EGValue = 512;
 
 	Name = "R";
 }
