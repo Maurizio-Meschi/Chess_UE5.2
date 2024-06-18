@@ -30,6 +30,7 @@ def Manage_data(path_chess_csv, writer, Player1_Name, Player2_Name):
         Player1Win = Player1Data['Win']
         NumWinPlayer1 = round((Player1Win/TotalRow) * 100, 2)
     except KeyError:
+        Player1Win = 0
         NumWinPlayer1 = 0
         pass
 
@@ -37,6 +38,7 @@ def Manage_data(path_chess_csv, writer, Player1_Name, Player2_Name):
         Player2Win = Player2Data['Win']
         NumWinPlayer2 = round((Player2Win/TotalRow) * 100, 2)
     except KeyError:
+        Player2Win = 0
         NumWinPlayer2 = 0
         pass
 
@@ -44,16 +46,17 @@ def Manage_data(path_chess_csv, writer, Player1_Name, Player2_Name):
         Draw = Player1Data['Draw']
         NumDraw = round((Draw/TotalRow) * 100, 2)
     except KeyError:
+        Draw = 0
         NumDraw = 0
         pass
 
     # Write data in excel sheets
     df1 = pd.DataFrame({'Game': data['Game'], Player1_Name: data['Player1'], Player2_Name : data['Player2'], 'Moves': data['Move']})
 
-    df2 = pd.DataFrame([[str(NumWinPlayer1) + '%', str(NumDraw)+ '%', P1MaxWinMove, P1MeanWinMove, P1MinWinMove],
-                        [str(NumWinPlayer2) + '%', str(NumDraw)+ '%', P2MaxWinMove, P2MeanWinMove, P2MinWinMove]],
+    df2 = pd.DataFrame([[str(Player1Win + Player2Win + Draw), str(Player1Win), str(NumWinPlayer1) + '%', str(Draw), str(NumDraw)+ '%', P1MaxWinMove, P1MeanWinMove, P1MinWinMove],
+                        [str(Player1Win + Player2Win + Draw), str(Player2Win), str(NumWinPlayer2) + '%', str(Draw), str(NumDraw)+ '%', P2MaxWinMove, P2MeanWinMove, P2MinWinMove]],
                         [Player1_Name, Player2_Name], 
-                        ['Win', 'Draw', '#Moves to Win | Max', '#Moves to win | Mean', '#Moves to Win | Min'])
+                        ['Total match','# Win', '% Win', '# Draw', '% Draw', '#Moves to Win | Max', '#Moves to win | Mean', '#Moves to Win | Min'])
     
     df1.to_excel(writer, sheet_name=sheet + ' Data', index=False)
     df2.to_excel(writer, sheet_name=sheet + ' Statistics',  index=True)
@@ -83,7 +86,7 @@ def SetStyle(excel_file, sheet):
                 cell.alignment = openpyxl.styles.Alignment(horizontal='center', vertical='center')
 
 
-path_array = ["../CSV/Random-Random.csv", "../CSV/Random-Minimax.csv", "../CSV/Minimax-Minimax.csv", "../CSV/Human-Random.csv", "../CSV/Human-Minimax.csv"]
+path_array = ["../CSV/Random-Random.csv", "../CSV/Random-Minimax.csv", "../CSV/Minimax-Minimax.csv", "../CSV/BaseAI vs AdvancedAI.csv","../CSV/Human-Random.csv", "../CSV/Human-Minimax.csv"]
 
 script_dir = os.path.abspath(__file__)
 parent_dir = os.path.dirname(script_dir)
@@ -92,9 +95,13 @@ with pd.ExcelWriter('Statistics.xlsx', engine='openpyxl') as writer:
     for path in path_array:
 
         # Extract the player name from the path
+        tmp = path
+        if(path == '../CSV/BaseAI vs AdvancedAI.csv'):
+            path = '../CSV/BaseAI-AdvancedAI.csv'
         words = path.split('-')
         Player1_Name = words[0].split('/')[2] + '(White)'
         Player2_Name = words[-1].split('.')[0] + '(Balck)'
+        path = tmp
 
         # Get the absolute path of the csv file
         csv_path = os.path.join(parent_dir, path)

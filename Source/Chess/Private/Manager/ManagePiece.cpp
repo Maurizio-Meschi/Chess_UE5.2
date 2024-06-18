@@ -551,7 +551,7 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 		ExistingContent += ",Draw,Draw,";
 		ExistingContent += FString::Printf(TEXT("%s\n"), *FString::FromInt(MoveCounter));
 		FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
-
+		
 		return;
 	}
 
@@ -598,7 +598,8 @@ void AManagePiece::CheckWinAndGoNextPlayer()
 		ExistingContent += FString::Printf(TEXT("%s\n"), *FString::FromInt(MoveCounter));
 
 		FFileHelper::SaveStringToFile(ExistingContent, *CSVFilePath);
-
+		UE_LOG(LogTemp, Error, TEXT("Prima della reset"));
+		
 		return;
 	}
 

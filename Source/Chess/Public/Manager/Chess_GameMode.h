@@ -28,10 +28,10 @@ private:
 	// Generate the piece name
 	FString GetPieceName(AChessPieces* Piece);
 
+public:
 	// Generate the FEN (Forsyth-Edwards Notation) string
 	FString GenerateString(const FBoard& Board);
 
-public:
 	// Array of strings to keep track of the state of the chessboard
 	TArray<FString> FEN_Array;
 

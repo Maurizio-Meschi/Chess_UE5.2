@@ -80,7 +80,7 @@ void AChess_GameMode::BeginPlay()
 		Players.Add(AI);
 	}
 	// Demonstration mode: Minimax vs Minimax
-	else if (GameInstance->ChooseAiPlayer == "Minimax-Minimax")
+	else if (GameInstance->ChooseAiPlayer == "Minimax-Minimax" || GameInstance->ChooseAiPlayer == "BaseAI vs AdvancedAI")
 	{
 		auto* Player1 = GetWorld()->SpawnActor<AChess_Minimax>(FVector(), FRotator());
 		auto* AI = GetWorld()->SpawnActor<AChess_Minimax>(FVector(), FRotator());

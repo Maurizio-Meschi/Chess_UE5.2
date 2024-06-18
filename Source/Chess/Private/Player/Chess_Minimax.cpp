@@ -93,7 +93,7 @@ void AChess_Minimax::OnTurn()
 
 			PieceManager->Move++;
 			PieceManager->MovePiece(PlayerNumber, PieceToMove, Position, PieceToMove->GetGridPosition());
-		}, 0.5, false);
+		}, 0.01, false);
 }
 
 /*
@@ -154,7 +154,7 @@ int32 AChess_Minimax::EvaluateGrid(FBoard& Board)
 		{
 			int32 EnemyPlayer = PlayerNumber == Player::Player1 ? Player::AI : Player::Player1;
 			if (Piece->LegalMove(Board, Board.IsMax ? PlayerNumber : EnemyPlayer, true))
-				Score += (Board.IsMax ? 500 : -500);
+				Score += (Board.IsMax ? DRAW_VALUE : -DRAW_VALUE);
 		}
 	}
 
@@ -190,14 +190,14 @@ int32 AChess_Minimax::EvaluateGrid2(FBoard& Board)
 				Score -= IsMiddleGame ? Piece->Value : Piece->EGValue;
 				Score -= PieceSquareTables::PieceValue(x, y, Piece->Name, IsMiddleGame, EPieceColor::WHITE);
 				if (Piece->IsA<AChessPawn>() && x == 7)
-					Score -= 478;
+					Score -= PAWN_PROMOTION_VALUE;
 			}
 			else
 			{
 				Score += IsMiddleGame ? Piece->Value : Piece->EGValue;
 				Score += PieceSquareTables::PieceValue(x, y, Piece->Name, IsMiddleGame, EPieceColor::BLACK);
 				if (Piece->IsA<AChessPawn>() && x == 0)
-					Score += 478;
+					Score += PAWN_PROMOTION_VALUE;
 			}
 		}
 		else
@@ -207,14 +207,14 @@ int32 AChess_Minimax::EvaluateGrid2(FBoard& Board)
 				Score -= IsMiddleGame ? Piece->Value : Piece->EGValue;
 				Score -= PieceSquareTables::PieceValue(x, y, Piece->Name, IsMiddleGame, EPieceColor::BLACK);
 				if (Piece->IsA<AChessPawn>() && x == 0)
-					Score -= 478;
+					Score -= PAWN_PROMOTION_VALUE;
 			}
 			else
 			{
 				Score += IsMiddleGame ? Piece->Value : Piece->EGValue;
 				Score += PieceSquareTables::PieceValue(x, y, Piece->Name, IsMiddleGame, EPieceColor::WHITE);
 				if (Piece->IsA<AChessPawn>() && x == 7)
-					Score += 478;
+					Score += PAWN_PROMOTION_VALUE;
 			}
 		}
 	}
@@ -237,7 +237,7 @@ int32 AChess_Minimax::EvaluateGrid2(FBoard& Board)
 			{
 				int32 EnemyPlayer = PlayerNumber == Player::Player1 ? Player::AI : Player::Player1;
 				if (Piece->LegalMove(Board, Board.IsMax ? PlayerNumber : EnemyPlayer, true))
-					Score += (Board.IsMax ? 500 : -500);
+					Score += (Board.IsMax ? DRAW_VALUE : -DRAW_VALUE);
 			}
 		}
 	}
@@ -295,16 +295,17 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 	AManagePiece* PieceManager = nullptr;
 	if (!FGameRef::GetGameRef(this, GMode, GField, PieceManager, "Minimax"))
 		return 0;
-	
-	//if (Depth == 2)
-		//return EvaluateGrid2(Board);
-	
+
 	if (Depth == 2)
 	{
-		if (PlayerNumber == Player::AI)
-			return EvaluateGrid2(Board);
+		if (GameInstance && GameInstance->ChooseAiPlayer == "BaseAI vs AdvancedAI") {
+			if (PlayerNumber == Player::AI)
+				return EvaluateGrid2(Board);
+			else
+				return EvaluateGrid(Board);
+		}
 		else
-			return EvaluateGrid(Board);
+			return EvaluateGrid2(Board);
 	}
 	
 
@@ -563,9 +564,11 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 			Board.Pieces.Add(Marked.Tile->GetGridPosition(), Piece);
 			Piece->SetGridPosition(Marked.Tile->GetGridPosition().X, Marked.Tile->GetGridPosition().Y);
 
-			// Call the minimax algorithm
-			int32 moveVal = MiniMax(Board, 0, -100000, 100000, false);
+			
+			int32 moveVal = 0;
 
+			moveVal = MiniMax(Board, 0, -100000, 100000, false);
+			
 			/// Restore data structures.
 
 			CurrTile->SetTileStatus(PlayerNumber, ETileStatus::OCCUPIED);
@@ -594,7 +597,6 @@ FMarked AChess_Minimax::FindBestMove(FBoard& Board)
 		}
 	}
 	
-	//UE_LOG(LogTemp, Error, TEXT("Bestmove: %d"), bestVal);
 	return TileToMovePiece;
 }
 
