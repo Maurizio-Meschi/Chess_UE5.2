@@ -6,7 +6,9 @@
 
 AChessPawn::AChessPawn()
 {
-	Value = 1;
+	Value = 82; //10;
+
+	EGValue = 94;
 
 	CaptureSituation = false;
 

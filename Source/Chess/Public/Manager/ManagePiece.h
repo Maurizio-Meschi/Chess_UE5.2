@@ -77,6 +77,8 @@ public:
 	// if this is true, castling must be managed
 	static bool Castling;
 
+	int32 Move = 0;
+
 	// Array to track movements
 	UPROPERTY(Transient)
 	TArray<FRewind> ArrayOfPlays;

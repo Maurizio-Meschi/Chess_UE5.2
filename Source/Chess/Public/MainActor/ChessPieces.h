@@ -66,6 +66,8 @@ public:
 	// Piece value
 	int32 Value;
 
+	int32 EGValue;
+
 	// Set chess piece position
 	void SetGridPosition(const double InX, const double InY);
 

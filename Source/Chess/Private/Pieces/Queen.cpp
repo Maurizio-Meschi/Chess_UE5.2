@@ -6,7 +6,9 @@
 
 AQueen::AQueen()
 {
-	Value = 9;
+	Value = 1025;// 90;
+
+	EGValue = 936;
 
 	Name = "Q";
 }

@@ -41,10 +41,17 @@ public:
 private:
 	// Calculate the score of the board
 	int32 EvaluateGrid(FBoard& Board);
+
+	int32 EvaluateGrid2(FBoard& Board);
 	// Calculates whether the opponent is in checkmate
 	bool Checkmate(FBoard& Board);
 	// MiniMax algorithm
 	int32 MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 beta, bool IsMax);
 	// Find the best play for the AI
 	FMarked FindBestMove(FBoard& Board);
+
+	TMap<FString, int32> TraspositionTable;
+		
+	const int32 PAWN_PROMOTION_VALUE = 478;
+	const int32 DRAW_VALUE = 500;
 };
