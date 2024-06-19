@@ -93,7 +93,7 @@ void AChess_Minimax::OnTurn()
 
 			PieceManager->Move++;
 			PieceManager->MovePiece(PlayerNumber, PieceToMove, Position, PieceToMove->GetGridPosition());
-		}, 0.01, false);
+		}, 0.5, false);
 }
 
 /*
@@ -161,7 +161,7 @@ int32 AChess_Minimax::EvaluateGrid(FBoard& Board)
 	return Score;
 }
 
-int32 AChess_Minimax::EvaluateGrid2(FBoard& Board)
+int32 AChess_Minimax::EvaluateGridAdvanced(FBoard& Board)
 {
 	AGameField* GField = nullptr;
 	AManagePiece* PieceManager = nullptr;
@@ -219,7 +219,7 @@ int32 AChess_Minimax::EvaluateGrid2(FBoard& Board)
 		}
 	}
 
-	// 2) Check if the opponent's king is in check
+	// 2) Check if the opponent's king is in check to improve start game
 	
 	if (PieceManager->Move < 2)
 	{
@@ -300,12 +300,12 @@ int32 AChess_Minimax::MiniMax(FBoard& Board, int32 Depth, int32 alpha, int32 bet
 	{
 		if (GameInstance && GameInstance->ChooseAiPlayer == "BaseAI vs AdvancedAI") {
 			if (PlayerNumber == Player::AI)
-				return EvaluateGrid2(Board);
+				return EvaluateGridAdvanced(Board);
 			else
 				return EvaluateGrid(Board);
 		}
 		else
-			return EvaluateGrid2(Board);
+			return EvaluateGridAdvanced(Board);
 	}
 	
 
